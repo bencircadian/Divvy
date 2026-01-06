@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Washing basket -->
+  <path d="M3 6h18l-2 14H5L3 6z"/>
+  <path d="M3 6l1-3h16l1 3"/>
+  <path d="M8 6v-1"/>
+  <path d="M16 6v-1"/>
+  <path d="M8 11c2 2 6 2 8 0"/>
+  <path d="M8 15c2 2 6 2 8 0"/>
+</svg>
