@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Divvy - Font & Color Exploration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f5f5f5;
+      padding: 40px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .subtitle {
+      font-family: 'Inter', sans-serif;
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 16px;
+    }
+
+    h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 48px 0 24px;
+      color: #1a1a1a;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 12px;
+    }
+
+    .font-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+    }
+
+    .font-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .font-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .font-number {
+      display: inline-block;
+      background: #1a1a1a;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      text-align: center;
+      line-height: 24px;
+      margin-right: 8px;
+      font-size: 12px;
+    }
+
+    .task-preview {
+      border-radius: 12px;
+      padding: 16px;
+      background: #fafafa;
+      margin-bottom: 12px;
+    }
+
+    .task-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .task-meta {
+      font-size: 13px;
+      color: #888;
+      font-weight: 400;
+    }
+
+    .task-completed .task-title {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .heading-preview {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .subheading-preview {
+      font-size: 18px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    /* Font families */
+    .font-inter { font-family: 'Inter', sans-serif; }
+    .font-dm-sans { font-family: 'DM Sans', sans-serif; }
+    .font-manrope { font-family: 'Manrope', sans-serif; }
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+    .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-sora { font-family: 'Sora', sans-serif; }
+    .font-space { font-family: 'Space Grotesk', sans-serif; }
+    .font-work { font-family: 'Work Sans', sans-serif; }
+    .font-vietnam { font-family: 'Be Vietnam Pro', sans-serif; }
+    .font-figtree { font-family: 'Figtree', sans-serif; }
+
+    /* Color section */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .color-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .color-header {
+      padding: 32px 24px;
+      color: white;
+    }
+
+    .color-header h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .color-header p {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .color-swatches {
+      display: flex;
+      padding: 16px 24px;
+      gap: 8px;
+    }
+
+    .swatch {
+      flex: 1;
+      height: 48px;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .swatch-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: #666;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .color-usage {
+      padding: 16px 24px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .usage-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .usage-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .recommendation {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .vote-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .vote-btn:hover {
+      border-color: #1a1a1a;
+      color: #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+  <h1>Divvy Design Exploration</h1>
+  <p class="subtitle">Clean & Minimal + Modern & Bold — Quick, smooth animations with comfortable density</p>
+
+  <h2>Font Options</h2>
+  <div class="font-grid">
+
+    <!-- Font 1: Inter -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">1</span> Inter</div>
+      <div class="font-inter">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 2: DM Sans -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">2</span> DM Sans</div>
+      <div class="font-dm-sans">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 3: Manrope -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">3</span> Manrope</div>
+      <div class="font-manrope">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 4: Outfit -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">4</span> Outfit</div>
+      <div class="font-outfit">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 5: Plus Jakarta Sans -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">5</span> Plus Jakarta Sans</div>
+      <div class="font-jakarta">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 6: Sora -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">6</span> Sora</div>
+      <div class="font-sora">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 7: Space Grotesk -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">7</span> Space Grotesk</div>
+      <div class="font-space">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 8: Work Sans -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">8</span> Work Sans</div>
+      <div class="font-work">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 9: Be Vietnam Pro -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">9</span> Be Vietnam Pro</div>
+      <div class="font-vietnam">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font 10: Figtree -->
+    <div class="font-card">
+      <div class="font-name"><span class="font-number">10</span> Figtree</div>
+      <div class="font-figtree">
+        <div class="heading-preview">Due Today</div>
+        <div class="subheading-preview">Kitchen Tasks</div>
+        <div class="task-preview">
+          <div class="task-title">Clean kitchen counters</div>
+          <div class="task-meta">Today, Morning · Assigned to Sarah</div>
+        </div>
+        <div class="task-preview task-completed">
+          <div class="task-title">Take out recycling</div>
+          <div class="task-meta">Completed by Mike at 9:30am</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>Color Palettes</h2>
+  <div class="color-grid">
+
+    <!-- Palette 1: Warm Terracotta -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #E07A5F 0%, #C9584D 100%);">
+        <h3>Warm Terracotta</h3>
+        <p>Earthy, grounded, inviting</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #E07A5F;"></div>
+          <div class="swatch-label">#E07A5F</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #F2CC8F;"></div>
+          <div class="swatch-label">#F2CC8F</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #81B29A;"></div>
+          <div class="swatch-label">#81B29A</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #3D405B;"></div>
+          <div class="swatch-label">#3D405B</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 2: Sunset Coral -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #F67280 0%, #E84A5F 100%);">
+        <h3>Sunset Coral</h3>
+        <p>Vibrant, energetic, bold</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #F67280;"></div>
+          <div class="swatch-label">#F67280</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #F8B595;"></div>
+          <div class="swatch-label">#F8B595</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #355C7D;"></div>
+          <div class="swatch-label">#355C7D</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #2A363B;"></div>
+          <div class="swatch-label">#2A363B</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 3: Modern Peach -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #FF9A8B 0%, #FF6A88 100%);">
+        <h3>Modern Peach</h3>
+        <p>Fresh, contemporary, warm</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #FF9A8B;"></div>
+          <div class="swatch-label">#FF9A8B</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #FFECD2;"></div>
+          <div class="swatch-label">#FFECD2</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #A8DADC;"></div>
+          <div class="swatch-label">#A8DADC</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #1D3557;"></div>
+          <div class="swatch-label">#1D3557</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 4: Burnt Orange -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #E76F51 0%, #D64933 100%);">
+        <h3>Burnt Orange</h3>
+        <p>Confident, warm, motivating</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #E76F51;"></div>
+          <div class="swatch-label">#E76F51</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #F4A261;"></div>
+          <div class="swatch-label">#F4A261</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #2A9D8F;"></div>
+          <div class="swatch-label">#2A9D8F</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #264653;"></div>
+          <div class="swatch-label">#264653</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 5: Rose Gold -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #B76E79 0%, #9A5B6A 100%);">
+        <h3>Rose Gold</h3>
+        <p>Sophisticated, elegant, warm</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #B76E79;"></div>
+          <div class="swatch-label">#B76E79</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #E8C4C4;"></div>
+          <div class="swatch-label">#E8C4C4</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #7FCDCD;"></div>
+          <div class="swatch-label">#7FCDCD</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #2E4052;"></div>
+          <div class="swatch-label">#2E4052</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 6: Warm Amber -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+        <h3>Warm Amber</h3>
+        <p>Energetic, optimistic, bold</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #F59E0B;"></div>
+          <div class="swatch-label">#F59E0B</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #FCD34D;"></div>
+          <div class="swatch-label">#FCD34D</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #6366F1;"></div>
+          <div class="swatch-label">#6366F1</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #1F2937;"></div>
+          <div class="swatch-label">#1F2937</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 7: Soft Blush -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);">
+        <h3>Soft Blush</h3>
+        <p>Modern, playful, friendly</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #EC4899;"></div>
+          <div class="swatch-label">#EC4899</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #FBCFE8;"></div>
+          <div class="swatch-label">#FBCFE8</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #14B8A6;"></div>
+          <div class="swatch-label">#14B8A6</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #18181B;"></div>
+          <div class="swatch-label">#18181B</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 8: Deep Rust -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #C2410C 0%, #9A3412 100%);">
+        <h3>Deep Rust</h3>
+        <p>Rich, mature, grounded</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #C2410C;"></div>
+          <div class="swatch-label">#C2410C</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #FED7AA;"></div>
+          <div class="swatch-label">#FED7AA</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #0D9488;"></div>
+          <div class="swatch-label">#0D9488</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #292524;"></div>
+          <div class="swatch-label">#292524</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 9: Vibrant Red-Orange -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+        <h3>Vibrant Red</h3>
+        <p>Bold, action-oriented, urgent</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #EF4444;"></div>
+          <div class="swatch-label">#EF4444</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #FCA5A5;"></div>
+          <div class="swatch-label">#FCA5A5</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #22C55E;"></div>
+          <div class="swatch-label">#22C55E</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #171717;"></div>
+          <div class="swatch-label">#171717</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette 10: Mango -->
+    <div class="color-card">
+      <div class="color-header" style="background: linear-gradient(135deg, #FB923C 0%, #EA580C 100%);">
+        <h3>Mango</h3>
+        <p>Sunny, cheerful, inviting</p>
+      </div>
+      <div class="color-swatches">
+        <div>
+          <div class="swatch" style="background: #FB923C;"></div>
+          <div class="swatch-label">#FB923C</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #FFEDD5;"></div>
+          <div class="swatch-label">#FFEDD5</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #0EA5E9;"></div>
+          <div class="swatch-label">#0EA5E9</div>
+        </div>
+        <div>
+          <div class="swatch" style="background: #0F172A;"></div>
+          <div class="swatch-label">#0F172A</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2 style="margin-top: 60px;">Quick Reference</h2>
+  <div style="background: white; border-radius: 16px; padding: 32px; margin-top: 24px;">
+    <h3 style="font-family: 'Inter', sans-serif; margin-bottom: 16px; font-size: 18px;">Your Brief</h3>
+    <ul style="font-family: 'Inter', sans-serif; color: #555; line-height: 2; padding-left: 20px;">
+      <li><strong>Style:</strong> Clean & Minimal + Modern & Bold</li>
+      <li><strong>Feel:</strong> Warm & Energizing (not cool/corporate)</li>
+      <li><strong>Animations:</strong> Quick but smooth, focus on toggle animations</li>
+      <li><strong>Density:</strong> Comfortable (not cramped, not too spacious)</li>
+      <li><strong>Priorities:</strong> Micro-interactions, Visual hierarchy, Performance</li>
+    </ul>
+
+    <h3 style="font-family: 'Inter', sans-serif; margin: 24px 0 16px; font-size: 18px;">My Recommendations</h3>
+    <ul style="font-family: 'Inter', sans-serif; color: #555; line-height: 2; padding-left: 20px;">
+      <li><strong>Top Fonts:</strong> Inter (#1), DM Sans (#2), Plus Jakarta Sans (#5) - all professional yet warm</li>
+      <li><strong>Top Colors:</strong> Burnt Orange (#4), Warm Terracotta (#1), Mango (#10) - energetic without being childish</li>
+    </ul>
+  </div>
+
+</body>
+</html>
