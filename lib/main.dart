@@ -18,6 +18,7 @@ import 'services/cache_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/supabase_service.dart';
 import 'services/sync_manager.dart';
+import 'widgets/common/update_banner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,13 +75,15 @@ class _DivvyAppState extends State<DivvyApp> {
           _router ??= AppRouter.router(authProvider, householdProvider);
           _initializeDeepLinks(_router!);
 
-          return MaterialApp.router(
-            title: 'Divvy',
-            debugShowCheckedModeBanner: false,
-            themeMode: themeProvider.effectiveThemeMode,
-            theme: _buildTheme(Brightness.light),
-            darkTheme: _buildTheme(Brightness.dark),
-            routerConfig: _router,
+          return UpdateBanner(
+            child: MaterialApp.router(
+              title: 'Divvy',
+              debugShowCheckedModeBanner: false,
+              themeMode: themeProvider.effectiveThemeMode,
+              theme: _buildTheme(Brightness.light),
+              darkTheme: _buildTheme(Brightness.dark),
+              routerConfig: _router,
+            ),
           );
         },
       ),
