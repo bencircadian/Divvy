@@ -5,21 +5,27 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../config/app_theme.dart';
+import '../../models/appreciation.dart';
 import '../../models/recurrence_rule.dart';
+import '../../models/schedule_suggestion.dart';
 import '../../models/task.dart';
 import '../../models/task_contributor.dart';
 import '../../models/task_history.dart';
 import '../../models/task_note.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
+import '../../services/appreciation_service.dart';
+import '../../services/smart_recurrence_service.dart';
 import '../../services/supabase_service.dart';
 import '../../services/task_contributor_service.dart';
+import '../../widgets/common/appreciation_button.dart';
 import '../../widgets/tasks/claim_credit_sheet.dart';
 import '../../widgets/tasks/contributor_chips.dart';
 import '../../widgets/tasks/history_timeline.dart';
 import '../../widgets/tasks/note_input.dart';
 import '../../widgets/tasks/note_tile.dart';
 import '../../widgets/tasks/recurrence_picker.dart';
+import '../../widgets/tasks/schedule_suggestion_dialog.dart';
 import '../../utils/date_utils.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -71,16 +77,29 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   // Contributors (claim credit)
   List<TaskContributor> _contributors = [];
-  bool _isLoadingContributors = false;
   late TaskContributorService _contributorService;
+
+  // Appreciation
+  late AppreciationService _appreciationService;
+  Appreciation? _myAppreciation;
+  int _appreciationCount = 0;
+  bool _isAppreciationLoading = false;
+
+  // Schedule suggestion
+  late SmartRecurrenceService _recurrenceService;
+  ScheduleSuggestion? _scheduleSuggestion;
 
   @override
   void initState() {
     super.initState();
     _contributorService = TaskContributorService(SupabaseService.client);
+    _appreciationService = AppreciationService(SupabaseService.client);
+    _recurrenceService = SmartRecurrenceService(SupabaseService.client);
     _loadNotesAndHistory();
     _loadCoverImageUrl();
     _loadContributors();
+    _loadAppreciation();
+    _loadScheduleSuggestion();
   }
 
   Future<void> _loadCoverImageUrl() async {
@@ -135,16 +154,114 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Future<void> _loadContributors() async {
-    setState(() => _isLoadingContributors = true);
-
     final contributors = await _contributorService.getTaskContributors(widget.taskId);
 
     if (mounted) {
       setState(() {
         _contributors = contributors;
-        _isLoadingContributors = false;
       });
     }
+  }
+
+  Future<void> _loadAppreciation() async {
+    final currentUserId = SupabaseService.currentUser?.id;
+    if (currentUserId == null) return;
+
+    final appreciation = await _appreciationService.getAppreciation(
+      taskId: widget.taskId,
+      fromUserId: currentUserId,
+    );
+
+    final allAppreciations = await _appreciationService.getTaskAppreciations(widget.taskId);
+
+    if (mounted) {
+      setState(() {
+        _myAppreciation = appreciation;
+        _appreciationCount = allAppreciations.length;
+      });
+    }
+  }
+
+  Future<void> _sendAppreciation(String reactionType) async {
+    final task = _getTask();
+    if (task == null) return;
+
+    final currentUserId = SupabaseService.currentUser?.id;
+    final toUserId = task.completedBy;
+    if (currentUserId == null || toUserId == null) return;
+
+    // Don't allow appreciating yourself
+    if (currentUserId == toUserId) return;
+
+    setState(() => _isAppreciationLoading = true);
+
+    final appreciation = await _appreciationService.sendAppreciation(
+      taskId: task.id,
+      fromUserId: currentUserId,
+      toUserId: toUserId,
+      reactionType: reactionType,
+    );
+
+    if (mounted) {
+      setState(() {
+        _myAppreciation = appreciation;
+        if (appreciation != null && _myAppreciation == null) {
+          _appreciationCount++;
+        }
+        _isAppreciationLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadScheduleSuggestion() async {
+    final task = _getTask();
+    if (task == null || !task.isRecurring || task.recurrenceRule == null) return;
+
+    final suggestion = await _recurrenceService.generateSuggestion(
+      taskId: task.id,
+      taskTitle: task.title,
+      currentSchedule: task.recurrenceRule!,
+    );
+
+    if (mounted && suggestion != null) {
+      setState(() => _scheduleSuggestion = suggestion);
+    }
+  }
+
+  void _showSuggestionDialog() {
+    if (_scheduleSuggestion == null) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => ScheduleSuggestionDialog(
+        suggestion: _scheduleSuggestion!,
+        onAccept: () async {
+          Navigator.pop(ctx);
+          final success = await _recurrenceService.acceptSuggestion(
+            taskId: _scheduleSuggestion!.taskId,
+            newSchedule: _scheduleSuggestion!.suggestedSchedule,
+          );
+          if (success && mounted) {
+            setState(() => _scheduleSuggestion = null);
+            // Reload task to get updated recurrence
+            final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
+            if (householdId != null) {
+              context.read<TaskProvider>().loadTasks(householdId);
+            }
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Schedule updated!')),
+            );
+          }
+        },
+        onDismiss: () async {
+          Navigator.pop(ctx);
+          await _recurrenceService.dismissSuggestion(_scheduleSuggestion!.taskId);
+          if (mounted) {
+            setState(() => _scheduleSuggestion = null);
+          }
+        },
+      ),
+    );
   }
 
   Future<void> _pickAndUploadCoverImage() async {
@@ -544,6 +661,22 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           // Cover image section
           _buildCoverImageSection(task),
 
+          // Schedule suggestion banner (for recurring tasks)
+          if (_scheduleSuggestion != null)
+            Padding(
+              padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+              child: ScheduleSuggestionBanner(
+                suggestion: _scheduleSuggestion!,
+                onTap: _showSuggestionDialog,
+                onDismiss: () async {
+                  await _recurrenceService.dismissSuggestion(_scheduleSuggestion!.taskId);
+                  if (mounted) {
+                    setState(() => _scheduleSuggestion = null);
+                  }
+                },
+              ),
+            ),
+
           Padding(
             padding: EdgeInsets.all(AppSpacing.md),
             child: Column(
@@ -595,17 +728,37 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       child: _buildTakeOwnershipButton(task),
                     ),
                   ] else ...[
-                    // Claim credit section for completed tasks
+                    // Appreciation and claim credit for completed tasks
                     SizedBox(height: AppSpacing.sm),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showClaimCreditSheet(task),
-                        icon: const Icon(Icons.people_outline),
-                        label: Text(_contributors.isEmpty
-                            ? 'Claim Credit'
-                            : 'Contributors (${_contributors.length})'),
-                      ),
+                    Row(
+                      children: [
+                        // Appreciation button (only show if not your own task)
+                        if (task.completedBy != null &&
+                            task.completedBy != SupabaseService.currentUser?.id)
+                          AppreciationButton(
+                            hasAppreciated: _myAppreciation != null,
+                            reactionType: _myAppreciation?.reactionType,
+                            appreciationCount: _appreciationCount,
+                            isLoading: _isAppreciationLoading,
+                            onTap: () => _sendAppreciation(
+                              _myAppreciation?.reactionType ?? 'thanks',
+                            ),
+                            onLongPress: _sendAppreciation,
+                          ),
+                        if (task.completedBy != null &&
+                            task.completedBy != SupabaseService.currentUser?.id)
+                          SizedBox(width: AppSpacing.sm),
+                        // Claim credit button
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showClaimCreditSheet(task),
+                            icon: const Icon(Icons.people_outline),
+                            label: Text(_contributors.isEmpty
+                                ? 'Claim Credit'
+                                : 'Contributors (${_contributors.length})'),
+                          ),
+                        ),
+                      ],
                     ),
                     if (_contributors.isNotEmpty) ...[
                       SizedBox(height: AppSpacing.sm),

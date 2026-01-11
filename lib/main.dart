@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'config/app_theme.dart';
 import 'config/router.dart';
 import 'providers/auth_provider.dart';
+import 'providers/bundle_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/household_provider.dart';
 import 'providers/notification_provider.dart';
@@ -62,6 +63,7 @@ class _DivvyAppState extends State<DivvyApp> {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => BundleProvider()),
       ],
       child: Builder(
         builder: (context) {

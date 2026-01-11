@@ -4,13 +4,19 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/app_theme.dart';
+import '../../models/productivity_insights.dart';
 import '../../models/task.dart';
 import '../../utils/date_utils.dart';
+import '../../widgets/bundles/bundle_card.dart';
 import '../../widgets/common/member_avatar.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
+import '../../widgets/dashboard/insights_card.dart';
+import '../../providers/bundle_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
+import '../../services/insights_service.dart';
+import '../../services/supabase_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,6 +27,8 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _upcomingExpanded = false;
+  ProductivityInsights _insights = ProductivityInsights.empty;
+  bool _insightsLoading = false;
 
   @override
   void initState() {
@@ -35,6 +43,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (householdId != null) {
       context.read<DashboardProvider>().loadDashboardData(householdId);
       context.read<TaskProvider>().loadTasks(householdId);
+      context.read<BundleProvider>().loadBundles(householdId);
+      _loadInsights(householdId);
+    }
+  }
+
+  Future<void> _loadInsights(String householdId) async {
+    final userId = SupabaseService.currentUser?.id;
+    if (userId == null) return;
+
+    setState(() => _insightsLoading = true);
+
+    final service = InsightsService(SupabaseService.client);
+    final insights = await service.getInsights(
+      userId: userId,
+      householdId: householdId,
+    );
+
+    if (mounted) {
+      setState(() {
+        _insights = insights;
+        _insightsLoading = false;
+      });
     }
   }
 
@@ -154,6 +184,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildStatsRow(taskProvider),
                   SizedBox(height: AppSpacing.lg),
 
+                  // Your Insights Section
+                  if (!_insightsLoading) ...[
+                    _buildSectionHeader(context, 'Your Insights', Icons.insights),
+                    const SizedBox(height: 12),
+                    InsightsCard(insights: _insights),
+                    SizedBox(height: AppSpacing.lg),
+                  ],
+
                   // Today's Tasks Section (incomplete only)
                   _buildSectionHeader(context, 'Today', Icons.today),
                   const SizedBox(height: 12),
@@ -165,6 +203,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 12),
                   _buildUpcomingTasks(taskProvider.upcomingUniqueTasks),
                   SizedBox(height: AppSpacing.lg),
+
+                  // Task Bundles Section (if any exist)
+                  Builder(
+                    builder: (context) {
+                      final bundleProvider = context.watch<BundleProvider>();
+                      final activeBundles = bundleProvider.activeBundles;
+                      if (activeBundles.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader(context, 'Bundles', Icons.folder_special),
+                          const SizedBox(height: 12),
+                          ...activeBundles.take(3).map((bundle) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: BundleCard(bundle: bundle, compact: true),
+                          )),
+                          SizedBox(height: AppSpacing.lg),
+                        ],
+                      );
+                    },
+                  ),
 
                   // Streaks Section
                   _buildSectionHeader(context, 'Streaks', Icons.local_fire_department),
