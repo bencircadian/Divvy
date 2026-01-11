@@ -39,6 +39,11 @@ lib/
 - `flutter build apk` - Build Android APK
 - `flutter build ios` - Build for iOS (macOS only)
 
+## Deployment
+- **Platform**: Vercel (web)
+- **IMPORTANT**: Always commit, push, AND trigger Vercel redeploy after every code change
+- Vercel auto-deploys from the master branch on push
+
 ## Conventions
 - Use Provider for state management
 - Keep widgets small and focused
