@@ -329,6 +329,7 @@ class TaskProvider extends ChangeNotifier {
     DuePeriod? duePeriod,
     RecurrenceRule? recurrenceRule,
     bool? clearRecurrence,
+    String? category,
   }) async {
     _errorMessage = null;
 
@@ -340,6 +341,7 @@ class TaskProvider extends ChangeNotifier {
       if (priority != null) updates['priority'] = priority.name;
       if (dueDate != null) updates['due_date'] = dueDate.toIso8601String();
       if (duePeriod != null) updates['due_period'] = duePeriod.name;
+      if (category != null) updates['category'] = category;
 
       // Handle recurrence updates
       if (clearRecurrence == true) {

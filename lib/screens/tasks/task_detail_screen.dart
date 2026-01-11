@@ -38,6 +38,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   String? _assignedTo;
   RecurrenceRule? _recurrenceRule;
   bool _clearRecurrence = false;
+  String? _category;
+
+  // Available categories
+  static const List<String> _categories = [
+    'kitchen',
+    'bathroom',
+    'living',
+    'outdoor',
+    'pet',
+    'laundry',
+    'grocery',
+    'maintenance',
+  ];
 
   // Notes and history
   List<TaskNote> _notes = [];
@@ -257,6 +270,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     _assignedTo = task.assignedTo;
     _recurrenceRule = task.recurrenceRule;
     _clearRecurrence = false;
+    _category = task.category;
   }
 
   void _startEditing() {
@@ -287,6 +301,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           assignedTo: _assignedTo,
           recurrenceRule: _recurrenceRule,
           clearRecurrence: _clearRecurrence,
+          category: _category,
         );
 
     if (mounted && success) {
@@ -948,6 +963,40 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
             SizedBox(height: AppSpacing.lg),
 
+            // Category
+            Text(
+              'Category',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _categories.map((cat) {
+                final isSelected = _category == cat;
+                final color = _getCategoryColorByName(cat);
+                final displayName = cat[0].toUpperCase() + cat.substring(1);
+                return FilterChip(
+                  avatar: Icon(
+                    _getCategoryIcon(displayName),
+                    size: 18,
+                    color: isSelected ? Colors.white : color,
+                  ),
+                  label: Text(displayName),
+                  selected: isSelected,
+                  selectedColor: color,
+                  checkmarkColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : null,
+                  ),
+                  onSelected: (selected) {
+                    setState(() => _category = selected ? cat : null);
+                  },
+                );
+              }).toList(),
+            ),
+            SizedBox(height: AppSpacing.lg),
+
             // Due Date
             Text(
               'Due Date',
@@ -1149,6 +1198,29 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         return Icons.build;
       default:
         return Icons.task_alt;
+    }
+  }
+
+  Color _getCategoryColorByName(String category) {
+    switch (category.toLowerCase()) {
+      case 'kitchen':
+        return AppColors.kitchen;
+      case 'bathroom':
+        return AppColors.bathroom;
+      case 'living':
+        return AppColors.living;
+      case 'outdoor':
+        return AppColors.outdoor;
+      case 'pet':
+        return AppColors.pet;
+      case 'laundry':
+        return AppColors.laundry;
+      case 'grocery':
+        return AppColors.grocery;
+      case 'maintenance':
+        return AppColors.maintenance;
+      default:
+        return AppColors.primary;
     }
   }
 
