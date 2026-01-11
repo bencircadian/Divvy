@@ -827,6 +827,7 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
               final task = entry.value;
 
               return Card(
+                key: ValueKey(entry.key),
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: ListTile(
                   title: Text(task.title),

@@ -7,13 +7,12 @@ import 'package:provider/provider.dart';
 
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
+import '../../utils/date_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/task_provider.dart';
-import '../../services/supabase_service.dart';
-import '../../widgets/tasks/note_input.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -121,11 +120,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           RefreshIndicator(
             onRefresh: () async {
               await householdProvider.loadUserHousehold();
-              if (household != null) {
-                await taskProvider.loadTasks(household.id);
-                await dashboardProvider.loadDashboardData(household.id);
-              }
-            },
+              await taskProvider.loadTasks(household.id);
+              await dashboardProvider.loadDashboardData(household.id);
+                        },
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -393,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             // Per-person breakdown
             if (dashboardProvider.taskCounts.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: AppSpacing.md),
               Wrap(
                 spacing: 12,
                 runSpacing: 8,
@@ -489,8 +486,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildOrganicTaskCard(Task task, int index, TaskProvider taskProvider, bool isDark) {
-    final currentUserId = SupabaseService.currentUser?.id;
-    final isOwnedByMe = task.assignedTo == currentUserId;
     final categoryColor = _getCategoryColor(task.title);
 
     // Alternate border radius for organic feel
@@ -515,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         onTap: () => context.push('/task/${task.id}'),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
             color: task.isCompleted
                 ? (isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey[100])
@@ -573,7 +568,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               : (isDark ? AppColors.textPrimary : Colors.grey[900]),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: AppSpacing.sm),
                       Row(
                         children: [
                           // Category tag
@@ -595,7 +590,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           // Due date
                           if (task.dueDate != null)
                             Text(
-                              _formatDueDate(task.dueDate!),
+                              TaskDateUtils.formatDueDateShort(task.dueDate!),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark ? AppColors.textSecondary : Colors.grey[500],
@@ -681,23 +676,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return 'Task';
   }
 
-  String _formatDueDate(DateTime dueDate) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final tomorrow = today.add(const Duration(days: 1));
-    final taskDate = DateTime(dueDate.year, dueDate.month, dueDate.day);
-
-    if (taskDate == today) {
-      return 'Today';
-    } else if (taskDate == tomorrow) {
-      return 'Tomorrow';
-    } else if (taskDate.isBefore(today.add(const Duration(days: 7)))) {
-      return DateFormat('EEE').format(dueDate);
-    } else {
-      return DateFormat('MMM d').format(dueDate);
-    }
-  }
-
   Widget _buildEmptyState(bool isDark) {
     String message;
     String subtitle;
@@ -729,7 +707,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             size: 64,
             color: isDark ? AppColors.textSecondary : Colors.grey[400],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: AppSpacing.md),
           Text(
             message,
             style: TextStyle(

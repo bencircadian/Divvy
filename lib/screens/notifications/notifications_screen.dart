@@ -116,6 +116,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       itemBuilder: (context, index) {
         final notification = notifications[index];
         return _NotificationTile(
+          key: ValueKey(notification.id),
           notification: notification,
           onTap: () => _handleNotificationTap(notification),
           onDismiss: () => _dismissNotification(notification),
@@ -171,6 +172,7 @@ class _NotificationTile extends StatelessWidget {
   final VoidCallback onDismiss;
 
   const _NotificationTile({
+    super.key,
     required this.notification,
     required this.onTap,
     required this.onDismiss,

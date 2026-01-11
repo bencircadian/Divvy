@@ -153,23 +153,25 @@ class _NotificationSettingsScreenState
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Remind me before'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: options.map((option) {
-            return RadioListTile<int>(
-              title: Text(option.$2),
-              value: option.$1,
-              groupValue: currentPrefs.reminderBeforeMinutes,
-              onChanged: (value) {
-                if (value != null) {
-                  _updatePreference(
-                    currentPrefs.copyWith(reminderBeforeMinutes: value),
-                  );
-                  Navigator.pop(ctx);
-                }
-              },
-            );
-          }).toList(),
+        content: RadioGroup<int>(
+          groupValue: currentPrefs.reminderBeforeMinutes,
+          onChanged: (value) {
+            if (value != null) {
+              _updatePreference(
+                currentPrefs.copyWith(reminderBeforeMinutes: value),
+              );
+              Navigator.pop(ctx);
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: options.map((option) {
+              return RadioListTile<int>(
+                title: Text(option.$2),
+                value: option.$1,
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

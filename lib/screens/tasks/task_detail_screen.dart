@@ -16,6 +16,7 @@ import '../../widgets/tasks/history_timeline.dart';
 import '../../widgets/tasks/note_input.dart';
 import '../../widgets/tasks/note_tile.dart';
 import '../../widgets/tasks/recurrence_picker.dart';
+import '../../utils/date_utils.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -110,6 +111,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Future<void> _pickAndUploadCoverImage() async {
+    // Capture provider before async gap to avoid use_build_context_synchronously
+    final taskProvider = context.read<TaskProvider>();
+
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
@@ -117,9 +121,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              margin: EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.sm),
               width: 40,
-              height: 4,
+              height: AppSpacing.xs,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
@@ -135,7 +139,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               title: const Text('Take a photo'),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
           ],
         ),
       ),
@@ -155,7 +159,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
       setState(() => _isUploadingCover = true);
 
-      final taskProvider = context.read<TaskProvider>();
       await taskProvider.uploadCoverImage(widget.taskId, image);
 
       if (mounted) {
@@ -394,7 +397,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('Task not found'),
-              const SizedBox(height: 16),
+              SizedBox(height: AppSpacing.md),
               FilledButton(
                 onPressed: _goBack,
                 child: const Text('Go Back'),
@@ -457,7 +460,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           _buildCoverImageSection(task),
 
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -501,7 +504,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     ),
                   ),
                   if (!task.isCompleted) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: AppSpacing.sm),
                     SizedBox(
                       width: double.infinity,
                       child: _buildTakeOwnershipButton(task),
@@ -511,7 +514,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: AppSpacing.md),
 
           // Title
           Text(
@@ -520,7 +523,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               decoration: task.isCompleted ? TextDecoration.lineThrough : null,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppSpacing.sm),
 
           // Description
           if (task.description != null && task.description!.isNotEmpty) ...[
@@ -530,18 +533,18 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 color: Colors.grey[700],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
           ],
 
           const Divider(),
-          const SizedBox(height: 8),
+          SizedBox(height: AppSpacing.sm),
 
           // Due date
           _buildDetailRow(
             icon: Icons.schedule,
             label: 'Due',
             value: task.dueDate != null
-                ? _formatDueDate(task.dueDate!, task.duePeriod)
+                ? TaskDateUtils.formatDueDate(task.dueDate!, period: task.duePeriod)
                 : 'No due date',
             isOverdue: task.isOverdue,
           ),
@@ -579,13 +582,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             value: DateFormat('MMM d, yyyy').format(task.createdAt),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           const Divider(),
 
           // Notes section
           _buildNotesSection(),
 
-          const SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           const Divider(),
 
           // History section
@@ -696,7 +699,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                 color: Colors.white,
                                 size: 18,
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: AppSpacing.xs),
                               Text(
                                 hasCover ? 'Change' : 'Add Cover',
                                 style: const TextStyle(color: Colors.white, fontSize: 13),
@@ -756,12 +759,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         Row(
           children: [
             const Icon(Icons.notes, size: 20),
-            const SizedBox(width: 8),
+            SizedBox(width: AppSpacing.sm),
             Text(
               'Notes',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: AppSpacing.sm),
             Text(
               '(${_notes.length})',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -803,7 +806,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _notes.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            separatorBuilder: (context, index) => SizedBox(height: AppSpacing.sm),
             itemBuilder: (context, index) {
               final note = _notes[index];
               return NoteTile(
@@ -826,7 +829,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           child: Row(
             children: [
               const Icon(Icons.history, size: 20),
-              const SizedBox(width: 8),
+              SizedBox(width: AppSpacing.sm),
               Text(
                 'Activity',
                 style: Theme.of(context).textTheme.titleMedium,
@@ -864,7 +867,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             '$label:',
             style: TextStyle(color: Colors.grey[600]),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: AppSpacing.sm),
           Text(
             value,
             style: TextStyle(
@@ -909,7 +912,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -927,7 +930,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
 
             // Description
             TextFormField(
@@ -939,14 +942,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 alignLabelWithHint: true,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Due Date
             Text(
               'Due Date',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -979,12 +982,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
             // Time of day
             if (_dueDate != null) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: AppSpacing.md),
               Text(
                 'Time of Day',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: 8,
                 children: [
@@ -994,14 +997,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 ],
               ),
             ],
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Priority
             Text(
               'Priority',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             SegmentedButton<TaskPriority>(
               segments: const [
                 ButtonSegment(value: TaskPriority.low, label: Text('Low')),
@@ -1013,16 +1016,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 setState(() => _priority = selected.first);
               },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Assign to
             Text(
               'Assign to',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             DropdownButtonFormField<String?>(
-              value: _assignedTo,
+              initialValue: _assignedTo,
               decoration: const InputDecoration(
                 hintText: 'Unassigned',
                 prefixIcon: Icon(Icons.person_outline),
@@ -1038,14 +1041,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 setState(() => _assignedTo = value);
               },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Recurrence
             Text(
               'Recurrence',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             RecurrencePicker(
               initialValue: _recurrenceRule,
               onChanged: (rule) {
@@ -1055,7 +1058,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 });
               },
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: AppSpacing.xl),
           ],
         ),
       ),
@@ -1088,13 +1091,5 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         setState(() => _duePeriod = selected ? period : null);
       },
     );
-  }
-
-  String _formatDueDate(DateTime dueDate, DuePeriod? period) {
-    final dateStr = DateFormat('EEEE, MMM d').format(dueDate);
-    if (period != null) {
-      return '$dateStr (${period.name})';
-    }
-    return dateStr;
   }
 }

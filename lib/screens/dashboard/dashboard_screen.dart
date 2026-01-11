@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
+import '../../utils/date_utils.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
@@ -50,9 +51,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             // Handle bar
             Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              margin: EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.sm),
               width: 40,
-              height: 4,
+              height: AppSpacing.xs,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
@@ -60,11 +61,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             // Title
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.md),
               child: Row(
                 children: [
                   Icon(Icons.assignment_late, color: Colors.orange[700]),
-                  const SizedBox(width: 8),
+                  SizedBox(width: AppSpacing.sm),
                   Text(
                     'Unassigned Tasks (${unassignedTasks.length})',
                     style: Theme.of(context).textTheme.titleLarge,
@@ -81,6 +82,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 itemBuilder: (context, index) {
                   final task = unassignedTasks[index];
                   return ListTile(
+                    key: ValueKey(task.id),
                     leading: CircleAvatar(
                       backgroundColor: _getPriorityColor(task.priority).withValues(alpha: 0.2),
                       child: Icon(
@@ -90,7 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     title: Text(task.title),
-                    subtitle: task.dueDate != null ? Text(_formatDueDate(task.dueDate!)) : null,
+                    subtitle: task.dueDate != null ? Text(TaskDateUtils.formatDueDateShort(task.dueDate!)) : null,
                     trailing: PopupMenuButton<String>(
                       icon: const Icon(Icons.person_add),
                       tooltip: 'Assign to',
@@ -110,7 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: AppSpacing.sm),
                                   Text(m.displayName ?? 'Unknown'),
                                 ],
                               ),
@@ -145,35 +147,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: dashboardProvider.isLoading
             ? Center(child: CircularProgressIndicator(color: AppColors.primary))
             : ListView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(AppSpacing.md),
                 children: [
                   // Stats Row
                   _buildStatsRow(taskProvider),
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppSpacing.lg),
 
                   // Today's Tasks Section (incomplete only)
                   _buildSectionHeader(context, 'Today', Icons.today),
                   const SizedBox(height: 12),
                   _buildTodaysTasks(taskProvider.incompleteTodayTasks),
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppSpacing.lg),
 
                   // Upcoming Tasks Section (collapsible, unique tasks)
                   _buildSectionHeader(context, 'Upcoming', Icons.date_range),
                   const SizedBox(height: 12),
                   _buildUpcomingTasks(taskProvider.upcomingUniqueTasks),
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppSpacing.lg),
 
                   // Streaks Section
                   _buildSectionHeader(context, 'Streaks', Icons.local_fire_department),
                   const SizedBox(height: 12),
                   _buildStreaksCard(dashboardProvider, members),
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppSpacing.lg),
 
                   // Workload Distribution Section
                   _buildSectionHeader(context, 'Workload', Icons.pie_chart),
                   const SizedBox(height: 12),
                   _buildWorkloadCard(taskProvider, members),
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppSpacing.lg),
 
                   // Weekly Summary Section
                   _buildSectionHeader(context, 'This Week', Icons.bar_chart),
@@ -246,7 +248,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: AppColors.primary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           child: Icon(icon, color: AppColors.primary, size: 18),
         ),
@@ -474,7 +476,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         fontSize: 13,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: AppSpacing.xs),
                     Icon(
                       _upcomingExpanded ? Icons.expand_less : Icons.expand_more,
                       color: AppColors.primary,
@@ -544,7 +546,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (task.dueDate != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      _formatDueDate(task.dueDate!),
+                      TaskDateUtils.formatDueDateShort(task.dueDate!),
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -600,7 +602,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           children: streaks.asMap().entries.map((entry) {
             final index = entry.key;
@@ -653,7 +655,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             color: streak.currentStreak > 0 ? Colors.orange : (isDark ? Colors.grey[600] : Colors.grey[300]),
                             size: 20,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: AppSpacing.xs),
                           Text(
                             '${streak.currentStreak}',
                             style: TextStyle(
@@ -727,7 +729,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           children: [
             ...members.map((member) {
@@ -753,7 +755,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
                         child: LinearProgressIndicator(
                           value: percentage,
                           minHeight: 12,
@@ -778,20 +780,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             }),
             if (unassigned > 0) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: AppSpacing.sm),
               InkWell(
                 onTap: () => _showUnassignedTasksSheet(provider, members),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   decoration: BoxDecoration(
                     color: AppColors.warning.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.warning_amber, size: 16, color: Colors.orange[700]),
-                      const SizedBox(width: 8),
+                      SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
                           '$unassigned unassigned task${unassigned > 1 ? 's' : ''}',
@@ -851,7 +853,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -955,20 +957,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (ratio > 0.7) return AppColors.error;
     if (ratio > 0.4) return AppColors.warning;
     return AppColors.primary;
-  }
-
-  String _formatDueDate(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final dueDay = DateTime(date.year, date.month, date.day);
-    final diff = dueDay.difference(today).inDays;
-
-    if (diff == 0) return 'Today';
-    if (diff == 1) return 'Tomorrow';
-    if (diff < 7) {
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      return days[date.weekday % 7];
-    }
-    return '${date.month}/${date.day}';
   }
 }

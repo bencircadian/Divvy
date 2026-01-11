@@ -218,35 +218,34 @@ class SettingsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
-            RadioListTile<ThemeModeOption>(
-              value: ThemeModeOption.system,
+            RadioGroup<ThemeModeOption>(
               groupValue: themeProvider.themeMode,
               onChanged: (value) {
-                themeProvider.setThemeMode(value!);
-                Navigator.pop(context);
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
+                  Navigator.pop(context);
+                }
               },
-              title: const Text('System default'),
-              secondary: const Icon(Icons.settings_suggest),
-            ),
-            RadioListTile<ThemeModeOption>(
-              value: ThemeModeOption.light,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                themeProvider.setThemeMode(value!);
-                Navigator.pop(context);
-              },
-              title: const Text('Light'),
-              secondary: const Icon(Icons.light_mode),
-            ),
-            RadioListTile<ThemeModeOption>(
-              value: ThemeModeOption.dark,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                themeProvider.setThemeMode(value!);
-                Navigator.pop(context);
-              },
-              title: const Text('Dark'),
-              secondary: const Icon(Icons.dark_mode),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioListTile<ThemeModeOption>(
+                    value: ThemeModeOption.system,
+                    title: const Text('System default'),
+                    secondary: const Icon(Icons.settings_suggest),
+                  ),
+                  RadioListTile<ThemeModeOption>(
+                    value: ThemeModeOption.light,
+                    title: const Text('Light'),
+                    secondary: const Icon(Icons.light_mode),
+                  ),
+                  RadioListTile<ThemeModeOption>(
+                    value: ThemeModeOption.dark,
+                    title: const Text('Dark'),
+                    secondary: const Icon(Icons.dark_mode),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
           ],

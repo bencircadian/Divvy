@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/app_theme.dart';
 import '../../models/recurrence_rule.dart';
 import '../../models/task.dart';
 import '../../models/task_template.dart';
@@ -189,7 +190,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(AppSpacing.md),
           children: [
             // Template picker button
             OutlinedButton.icon(
@@ -197,10 +198,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               icon: const Icon(Icons.auto_awesome),
               label: const Text('Choose from templates'),
               style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
+                minimumSize: Size.fromHeight(AppSpacing.xxl),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Title
             TextFormField(
@@ -218,7 +219,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
 
             // Description
             TextFormField(
@@ -231,19 +232,19 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 alignLabelWithHint: true,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Due Date Section
             Text(
               'Due Date',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
 
             // Quick date options
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
               children: [
                 _buildDateChip('Today', DateTime.now()),
                 _buildDateChip(
@@ -264,7 +265,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
 
             // Time of day (only show if due date is set)
             if (_dueDate != null) ...[
@@ -272,16 +273,16 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 'Time of Day',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: AppSpacing.sm),
               Wrap(
-                spacing: 8,
+                spacing: AppSpacing.sm,
                 children: [
                   _buildPeriodChip('Morning', DuePeriod.morning),
                   _buildPeriodChip('Afternoon', DuePeriod.afternoon),
                   _buildPeriodChip('Evening', DuePeriod.evening),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: AppSpacing.lg),
             ],
 
             // Recurrence
@@ -289,21 +290,21 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               'Repeat',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             RecurrencePicker(
               initialValue: _recurrenceRule,
               onChanged: (rule) {
                 setState(() => _recurrenceRule = rule);
               },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Priority
             Text(
               'Priority',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             SegmentedButton<TaskPriority>(
               segments: const [
                 ButtonSegment(
@@ -324,16 +325,16 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 setState(() => _priority = selected.first);
               },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: AppSpacing.lg),
 
             // Assign to
             Text(
               'Assign to',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             DropdownButtonFormField<String?>(
-              value: _assignedTo,
+              initialValue: _assignedTo,
               decoration: const InputDecoration(
                 hintText: 'Unassigned',
                 prefixIcon: Icon(Icons.person_outline),
@@ -456,9 +457,9 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
           children: [
             // Handle
             Container(
-              margin: const EdgeInsets.only(top: 12),
+              margin: EdgeInsets.only(top: AppSpacing.md),
               width: 40,
-              height: 4,
+              height: AppSpacing.xs,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
@@ -466,7 +467,7 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
             ),
             // Title
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.md),
               child: Text(
                 'Choose a template',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -501,7 +502,7 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
     };
 
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
       children: _categories.map((category) {
         final info = categoryInfo[category] ?? (category, Icons.list, Colors.grey);
         final count = _templates.where((t) => t.category == category).length;
@@ -510,9 +511,9 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: (info.$3 as Color).withValues(alpha: 0.2),
-              child: Icon(info.$2 as IconData, color: info.$3 as Color),
+              child: Icon(info.$2, color: info.$3 as Color),
             ),
-            title: Text(info.$1 as String),
+            title: Text(info.$1),
             subtitle: Text('$count templates'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => setState(() => _selectedCategory = category),
@@ -527,7 +528,7 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
       children: [
         // Back button
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
           child: Row(
             children: [
               TextButton.icon(
@@ -549,11 +550,12 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
         Expanded(
           child: ListView.builder(
             controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
             itemCount: _filteredTemplates.length,
             itemBuilder: (context, index) {
               final template = _filteredTemplates[index];
               return Card(
+                key: ValueKey(template.id),
                 child: ListTile(
                   title: Text(template.title),
                   subtitle: template.description != null

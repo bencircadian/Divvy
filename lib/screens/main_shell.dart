@@ -42,10 +42,6 @@ class _MainShellState extends State<MainShell> {
     _showHouseholdInfo(context, householdProvider.currentHousehold, householdProvider.members);
   }
 
-  void _signOut() {
-    context.read<AuthProvider>().signOut();
-  }
-
   void _openNotifications() {
     context.push('/notifications');
   }
@@ -210,7 +206,7 @@ class _MainShellState extends State<MainShell> {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(AppSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,14 +217,14 @@ class _MainShellState extends State<MainShell> {
                   Icons.home_rounded,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: AppSpacing.sm),
                 Text(
                   household?.name ?? 'Household',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
             ),
-            const Divider(height: 24),
+            Divider(height: AppSpacing.lg),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.vpn_key_outlined),
@@ -256,12 +252,12 @@ class _MainShellState extends State<MainShell> {
                 },
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             Text(
               'Members (${members.length})',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             ...members.map((member) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: CircleAvatar(
@@ -278,7 +274,7 @@ class _MainShellState extends State<MainShell> {
                         )
                       : null,
                 )),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
           ],
         ),
       ),
@@ -301,7 +297,7 @@ class _MainShellState extends State<MainShell> {
         top: false,
         child: Container(
           height: 72,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.sm),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(_navItems.length, (index) {
@@ -331,7 +327,7 @@ class _MainShellState extends State<MainShell> {
                             : (isDark ? Colors.grey[500] : Colors.grey[600]),
                       ),
                       if (isSelected) ...[
-                        const SizedBox(width: 8),
+                        SizedBox(width: AppSpacing.sm),
                         Text(
                           item.label,
                           style: TextStyle(

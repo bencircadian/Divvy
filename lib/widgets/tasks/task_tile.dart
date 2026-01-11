@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
+import '../../utils/date_utils.dart';
 import '../common/animated_checkbox.dart';
 
 class TaskTile extends StatefulWidget {
@@ -57,16 +58,16 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              margin: EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.sm),
               width: 40,
-              height: 4,
+              height: AppSpacing.xs,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.md),
               child: Text(
                 task.title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -126,7 +127,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                   _confirmDelete();
                 },
               ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
           ],
         ),
       ),
@@ -191,7 +192,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
           // Background indicators
           Positioned.fill(
             child: Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              margin: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
               child: Row(
                 children: [
                   // Right swipe indicator (notes)
@@ -199,14 +200,14 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.blue.withValues(alpha: 0.2),
-                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                        borderRadius: BorderRadius.horizontal(left: Radius.circular(AppRadius.md)),
                       ),
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(left: 20),
                       child: Row(
                         children: [
                           Icon(Icons.comment, color: Colors.blue[700]),
-                          const SizedBox(width: 8),
+                          SizedBox(width: AppSpacing.sm),
                           Text('Note', style: TextStyle(color: Colors.blue[700], fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -217,7 +218,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.green.withValues(alpha: 0.2),
-                        borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                        borderRadius: BorderRadius.horizontal(right: Radius.circular(AppRadius.md)),
                       ),
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: 20),
@@ -228,7 +229,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                             task.isCompleted ? 'Undo' : 'Done',
                             style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: AppSpacing.sm),
                           Icon(task.isCompleted ? Icons.undo : Icons.check_circle, color: Colors.green[700]),
                         ],
                       ),
@@ -243,11 +244,11 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
           Transform.translate(
             offset: Offset(_dragExtent, 0),
             child: Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              margin: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
               elevation: _isDragging ? 4 : 1,
               child: InkWell(
                 onTap: widget.onTap,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Row(
@@ -276,7 +277,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                             ),
                             if (task.description != null &&
                                 task.description!.isNotEmpty) ...[
-                              const SizedBox(height: 4),
+                              SizedBox(height: AppSpacing.xs),
                               Text(
                                 task.description!,
                                 style: theme.textTheme.bodySmall?.copyWith(
@@ -288,7 +289,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                             ],
                             // Show completed by info for completed tasks
                             if (task.isCompleted && task.completedAt != null) ...[
-                              const SizedBox(height: 4),
+                              SizedBox(height: AppSpacing.xs),
                               Row(
                                 children: [
                                   Icon(
@@ -296,7 +297,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                                     size: 14,
                                     color: AppColors.success,
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: AppSpacing.xs),
                                   Expanded(
                                     child: Text(
                                       _formatCompletedInfo(task),
@@ -308,7 +309,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                                 ],
                               ),
                             ],
-                            const SizedBox(height: 8),
+                            SizedBox(height: AppSpacing.sm),
                             Row(
                               children: [
                                 // Due date with overdue badge
@@ -322,16 +323,16 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                                         color: AppColors.error,
                                       ),
                                     ),
-                                    const SizedBox(width: 4),
+                                    SizedBox(width: AppSpacing.xs),
                                   ],
                                   Icon(
                                     Icons.schedule,
                                     size: 14,
                                     color: isOverdue ? AppColors.error : Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: AppSpacing.xs),
                                   Text(
-                                    _formatDueDate(task.dueDate!, task.duePeriod),
+                                    TaskDateUtils.formatDueDate(task.dueDate!, period: task.duePeriod),
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: isOverdue ? AppColors.error : Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontWeight:
@@ -348,7 +349,7 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                                     size: 14,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: AppSpacing.xs),
                                   Text(
                                     task.assignedToName!,
                                     style: theme.textTheme.bodySmall?.copyWith(
@@ -366,19 +367,19 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
                                     size: 14,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: AppSpacing.sm),
                                 ],
 
                                 // Priority indicator
                                 if (task.priority == TaskPriority.high) ...[
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.sm,
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.red[50],
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(AppRadius.md),
                                     ),
                                     child: Text(
                                       'High',
@@ -449,32 +450,5 @@ class _TaskTileState extends State<TaskTile> with SingleTickerProviderStateMixin
       default:
         return '${day}th';
     }
-  }
-
-  String _formatDueDate(DateTime dueDate, DuePeriod? period) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final tomorrow = today.add(const Duration(days: 1));
-    final dueDay = DateTime(dueDate.year, dueDate.month, dueDate.day);
-
-    String dateStr;
-    if (dueDay == today) {
-      dateStr = 'Today';
-    } else if (dueDay == tomorrow) {
-      dateStr = 'Tomorrow';
-    } else if (dueDay.isBefore(today)) {
-      dateStr = 'Overdue';
-    } else if (dueDay.difference(today).inDays < 7) {
-      dateStr = DateFormat('EEEE').format(dueDate); // Day name
-    } else {
-      dateStr = DateFormat('MMM d').format(dueDate);
-    }
-
-    if (period != null) {
-      final periodStr = period.name[0].toUpperCase() + period.name.substring(1);
-      return '$dateStr, $periodStr';
-    }
-
-    return dateStr;
   }
 }

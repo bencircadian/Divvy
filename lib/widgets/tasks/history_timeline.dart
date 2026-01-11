@@ -88,6 +88,7 @@ class HistoryTimeline extends StatelessWidget {
         final isLast = index == history.length - 1;
 
         return IntrinsicHeight(
+          key: ValueKey(item.id),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
