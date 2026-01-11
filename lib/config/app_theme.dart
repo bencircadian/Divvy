@@ -70,10 +70,19 @@ class AppColors {
   static const Color cardLight = Color(0xFFFFFFFF);
   static const Color surfaceLight = Color(0xFFFFFFFF);
 
-  // Background colors (Dark mode)
-  static const Color backgroundDark = Color(0xFF102219);
+  // Background colors (Dark mode) - Organic Bloom theme
+  static const Color backgroundDark = Color(0xFF0D1F17);
+  static const Color backgroundDarkAlt = Color(0xFF102219);
+  static const Color backgroundDarkDeep = Color(0xFF0A1912);
   static const Color cardDark = Color(0xFF162E22);
   static const Color surfaceDark = Color(0xFF1A3929);
+
+  // Organic theme specific
+  static const Color textPrimary = Color(0xFFE8F5E9);
+  static const Color textSecondary = Color(0x80E8F5E9); // 50% opacity
+  static const Color cardBorder = Color(0x14FFFFFF); // 8% white
+  static const Color cardBackground = Color(0x0FFFFFFF); // 6% white
+  static const Color cardBackgroundSubtle = Color(0x08FFFFFF); // 3% white
 
   // Status colors
   static const Color success = Color(0xFF4CAF50);

@@ -84,7 +84,8 @@ class _DivvyAppState extends State<DivvyApp> {
 
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    final textTheme = GoogleFonts.interTextTheme(
+    // Use DM Sans for the organic theme
+    final textTheme = GoogleFonts.dmSansTextTheme(
       brightness == Brightness.dark ? ThemeData.dark().textTheme : ThemeData.light().textTheme,
     );
 
@@ -168,11 +169,9 @@ class _DivvyAppState extends State<DivvyApp> {
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-        ),
+        foregroundColor: isDark ? const Color(0xFF102219) : Colors.white,
+        elevation: isDark ? 8 : 0,
+        shape: const CircleBorder(),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,

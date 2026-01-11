@@ -29,6 +29,25 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
+  /// Get list of linked identity providers for current user
+  List<String> get linkedProviders {
+    return _user?.identities?.map((i) => i.provider).toList() ?? [];
+  }
+
+  /// Check if a specific provider is linked
+  bool hasProvider(String provider) {
+    return linkedProviders.contains(provider);
+  }
+
+  /// Check if user has email/password identity
+  bool get hasEmailIdentity => hasProvider('email');
+
+  /// Check if user has Google identity
+  bool get hasGoogleIdentity => hasProvider('google');
+
+  /// Check if user has Apple identity
+  bool get hasAppleIdentity => hasProvider('apple');
+
   AuthProvider() {
     _init();
   }
@@ -61,6 +80,14 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _loadProfile() async {
     if (_user == null) return;
 
+    // Extract OAuth profile data (Google/Apple provide these)
+    final metadata = _user!.userMetadata;
+    final oauthAvatarUrl = metadata?['avatar_url'] as String? ??
+        metadata?['picture'] as String?; // Google uses 'picture'
+    final oauthDisplayName = metadata?['display_name'] as String? ??
+        metadata?['full_name'] as String? ??
+        metadata?['name'] as String?;
+
     try {
       final response = await SupabaseService.client
           .from('profiles')
@@ -70,12 +97,20 @@ class AuthProvider extends ChangeNotifier {
 
       if (response != null) {
         _profile = UserProfile.fromJson(response);
+
+        // Update avatar from OAuth if profile doesn't have one
+        if (_profile!.avatarUrl == null && oauthAvatarUrl != null) {
+          await SupabaseService.client.from('profiles').update({
+            'avatar_url': oauthAvatarUrl,
+          }).eq('id', _user!.id);
+          _profile = _profile!.copyWith(avatarUrl: oauthAvatarUrl);
+        }
       } else {
         // Profile doesn't exist (e.g., email verification flow) - create it
-        final displayName = _user!.userMetadata?['display_name'] as String?;
         await SupabaseService.client.from('profiles').upsert({
           'id': _user!.id,
-          'display_name': displayName,
+          'display_name': oauthDisplayName,
+          'avatar_url': oauthAvatarUrl,
           'created_at': DateTime.now().toIso8601String(),
         });
         // Load the newly created profile
@@ -377,6 +412,117 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  // ============ Identity Linking Methods ============
+
+  /// Link Google identity to current account (triggers OAuth redirect)
+  Future<bool> linkGoogleIdentity() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await SupabaseService.client.auth.linkIdentity(
+        OAuthProvider.google,
+        redirectTo: kIsWeb ? null : 'io.supabase.divvy://login-callback/',
+      );
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Failed to link Google account: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Link Apple identity to current account (triggers OAuth redirect)
+  Future<bool> linkAppleIdentity() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await SupabaseService.client.auth.linkIdentity(
+        OAuthProvider.apple,
+        redirectTo: kIsWeb ? null : 'io.supabase.divvy://login-callback/',
+      );
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Failed to link Apple account: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Unlink an identity provider (must have at least 2 identities)
+  Future<bool> unlinkIdentity(String provider) async {
+    if (linkedProviders.length <= 1) {
+      _errorMessage = 'Cannot unlink your only sign-in method';
+      notifyListeners();
+      return false;
+    }
+
+    final identity = _user?.identities?.firstWhere(
+      (i) => i.provider == provider,
+      orElse: () => throw Exception('Identity not found'),
+    );
+
+    if (identity == null) {
+      _errorMessage = 'Identity not found';
+      notifyListeners();
+      return false;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await SupabaseService.client.auth.unlinkIdentity(identity);
+      // Refresh user to get updated identities
+      final session = SupabaseService.client.auth.currentSession;
+      if (session != null) {
+        _user = session.user;
+      }
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Failed to unlink account: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Get email associated with a specific identity provider
+  String? getIdentityEmail(String provider) {
+    final identity = _user?.identities?.firstWhere(
+      (i) => i.provider == provider,
+      orElse: () => throw Exception('Not found'),
+    );
+    return identity?.identityData?['email'] as String?;
   }
 
   @override

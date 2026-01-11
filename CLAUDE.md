@@ -39,3 +39,9 @@ After finishing responding to my request or running a command, run this command 
 ```bash
 afplay /System/Library/Sounds/Funk.aiff
 ```
+
+## Things I want to fix
+It just looks like a really boring web app, what AI can I throw my files into and it will generate mock ups for me? Which files should I upload? Can claude do this for me? Is claude good at generating like UIs? I would throw it all into google stitch but I don't think it accepts code. 
+
+
+## Things I want to introduce

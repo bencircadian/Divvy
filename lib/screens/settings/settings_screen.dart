@@ -26,12 +26,17 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: CircleAvatar(
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              child: Text(
-                (authProvider.profile?.displayName ?? 'U')[0].toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-              ),
+              backgroundImage: authProvider.profile?.avatarUrl != null
+                  ? NetworkImage(authProvider.profile!.avatarUrl!)
+                  : null,
+              child: authProvider.profile?.avatarUrl == null
+                  ? Text(
+                      (authProvider.profile?.displayName ?? 'U')[0].toUpperCase(),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    )
+                  : null,
             ),
             title: Text(authProvider.profile?.displayName ?? 'Unknown'),
             subtitle: Text(authProvider.user?.email ?? ''),
@@ -40,6 +45,55 @@ class SettingsScreen extends StatelessWidget {
               // TODO: Edit profile
             },
           ),
+          const Divider(),
+
+          // Linked Accounts section
+          _buildSectionHeader(context, 'Linked Accounts'),
+          ...authProvider.linkedProviders.map((provider) => ListTile(
+            leading: Icon(_getProviderIcon(provider)),
+            title: Text(_getProviderDisplayName(provider)),
+            subtitle: Text(authProvider.getIdentityEmail(provider) ?? ''),
+            trailing: authProvider.linkedProviders.length > 1
+                ? TextButton(
+                    onPressed: () => _confirmUnlink(context, authProvider, provider),
+                    child: const Text('Unlink'),
+                  )
+                : Chip(
+                    label: const Text('Primary'),
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontSize: 12,
+                    ),
+                  ),
+          )),
+          // Link existing email account (if signed in with OAuth only)
+          if (!authProvider.hasEmailIdentity)
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('Link Existing Account'),
+              subtitle: const Text('Connect to your email account'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings/link-account'),
+            ),
+          // Link Google (if signed in with email only)
+          if (!authProvider.hasGoogleIdentity)
+            ListTile(
+              leading: const Icon(Icons.g_mobiledata),
+              title: const Text('Link Google Account'),
+              subtitle: const Text('Sign in faster with Google'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => authProvider.linkGoogleIdentity(),
+            ),
+          // Link Apple (if signed in with email only and not on Android)
+          if (!authProvider.hasAppleIdentity)
+            ListTile(
+              leading: const Icon(Icons.apple),
+              title: const Text('Link Apple Account'),
+              subtitle: const Text('Sign in with Apple'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => authProvider.linkAppleIdentity(),
+            ),
           const Divider(),
 
           // Household section
@@ -221,6 +275,67 @@ class SettingsScreen extends StatelessWidget {
               backgroundColor: Colors.red[700],
             ),
             child: const Text('Sign out'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getProviderIcon(String provider) {
+    switch (provider) {
+      case 'email':
+        return Icons.email;
+      case 'google':
+        return Icons.g_mobiledata;
+      case 'apple':
+        return Icons.apple;
+      default:
+        return Icons.account_circle;
+    }
+  }
+
+  String _getProviderDisplayName(String provider) {
+    switch (provider) {
+      case 'email':
+        return 'Email & Password';
+      case 'google':
+        return 'Google';
+      case 'apple':
+        return 'Apple';
+      default:
+        return provider;
+    }
+  }
+
+  void _confirmUnlink(BuildContext context, AuthProvider authProvider, String provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Unlink ${_getProviderDisplayName(provider)}?'),
+        content: Text('You will no longer be able to sign in with ${_getProviderDisplayName(provider)}.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final success = await authProvider.unlinkIdentity(provider);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(success
+                        ? '${_getProviderDisplayName(provider)} unlinked'
+                        : authProvider.errorMessage ?? 'Failed to unlink'),
+                  ),
+                );
+              }
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red[700],
+            ),
+            child: const Text('Unlink'),
           ),
         ],
       ),

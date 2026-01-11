@@ -27,6 +27,12 @@ class _MainShellState extends State<MainShell> {
     SettingsScreen(),
   ];
 
+  final _navItems = const [
+    _NavItem(icon: Icons.dashboard_rounded, label: 'Dashboard'),
+    _NavItem(icon: Icons.checklist_rounded, label: 'Tasks'),
+    _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
+  ];
+
   void _onTabTapped(int index) {
     setState(() => _currentIndex = index);
   }
@@ -76,39 +82,8 @@ class _MainShellState extends State<MainShell> {
           ),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: _onTabTapped,
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard, color: AppColors.primary),
-            label: 'Dashboard',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.checklist_outlined),
-            selectedIcon: Icon(Icons.checklist, color: AppColors.primary),
-            label: 'Tasks',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings, color: AppColors.primary),
-            label: 'Settings',
-          ),
-        ],
-      ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          boxShadow: AppShadows.fabShadow,
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: _addTask,
-          elevation: 0,
-          icon: const Icon(Icons.add),
-          label: const Text('Add Task'),
-        ),
-      ),
+      bottomNavigationBar: _buildOrganicBottomNav(context),
+      floatingActionButton: _buildOrganicFab(context),
     );
   }
 
@@ -309,4 +284,102 @@ class _MainShellState extends State<MainShell> {
       ),
     );
   }
+
+  Widget _buildOrganicBottomNav(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.backgroundDarkAlt : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.cardBorder : Colors.grey[200]!,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          height: 72,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(_navItems.length, (index) {
+              final item = _navItems[index];
+              final isSelected = _currentIndex == index;
+
+              return GestureDetector(
+                onTap: () => _onTabTapped(index),
+                behavior: HitTestBehavior.opaque,
+                child: AnimatedContainer(
+                  duration: AppAnimations.fast,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withValues(alpha: 0.15)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        item.icon,
+                        size: 24,
+                        color: isSelected
+                            ? AppColors.primary
+                            : (isDark ? Colors.grey[500] : Colors.grey[600]),
+                      ),
+                      if (isSelected) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrganicFab(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        onPressed: _addTask,
+        elevation: 0,
+        backgroundColor: AppColors.primary,
+        foregroundColor: isDark ? AppColors.backgroundDarkDeep : Colors.white,
+        child: const Icon(Icons.add_rounded, size: 28),
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  final IconData icon;
+  final String label;
+
+  const _NavItem({required this.icon, required this.label});
 }

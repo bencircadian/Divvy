@@ -8,6 +8,7 @@ import '../screens/auth/signup_screen.dart';
 import '../screens/main_shell.dart';
 import '../screens/notifications/notification_settings_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
+import '../screens/settings/link_account_screen.dart';
 import '../screens/onboarding/create_household_screen.dart';
 import '../screens/onboarding/join_household_screen.dart';
 import '../screens/onboarding/quick_setup_screen.dart';
@@ -69,6 +70,21 @@ class AppRouter {
         return null;
       },
       routes: [
+        // Root route to handle OAuth callbacks (/?code=...)
+        GoRoute(
+          path: '/',
+          redirect: (context, state) {
+            // This handles OAuth redirects - Supabase will process the code
+            // automatically, then we redirect based on auth state
+            final isAuthenticated = authProvider.isAuthenticated;
+            final hasHousehold = householdProvider.hasHousehold;
+
+            if (!isAuthenticated) {
+              return '/login';
+            }
+            return hasHousehold ? '/home' : '/create-household';
+          },
+        ),
         GoRoute(
           path: '/login',
           name: 'login',
@@ -131,6 +147,11 @@ class AppRouter {
           path: '/notifications/settings',
           name: 'notification-settings',
           builder: (context, state) => const NotificationSettingsScreen(),
+        ),
+        GoRoute(
+          path: '/settings/link-account',
+          name: 'link-account',
+          builder: (context, state) => const LinkAccountScreen(),
         ),
       ],
     );
