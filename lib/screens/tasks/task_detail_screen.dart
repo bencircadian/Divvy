@@ -525,6 +525,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
           SizedBox(height: AppSpacing.sm),
 
+          // Category badge
+          _buildCategoryBadge(task),
+          SizedBox(height: AppSpacing.md),
+
           // Description
           if (task.description != null && task.description!.isNotEmpty) ...[
             Text(
@@ -1091,5 +1095,110 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         setState(() => _duePeriod = selected ? period : null);
       },
     );
+  }
+
+  Widget _buildCategoryBadge(Task task) {
+    final categoryColor = _getCategoryColor(task);
+    final categoryName = _getCategoryName(task);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: categoryColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _getCategoryIcon(categoryName),
+            size: 16,
+            color: categoryColor,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            categoryName,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: categoryColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'kitchen':
+        return Icons.kitchen;
+      case 'bathroom':
+        return Icons.bathroom;
+      case 'living':
+        return Icons.weekend;
+      case 'outdoor':
+        return Icons.yard;
+      case 'pet':
+        return Icons.pets;
+      case 'laundry':
+        return Icons.local_laundry_service;
+      case 'grocery':
+        return Icons.shopping_cart;
+      case 'maintenance':
+        return Icons.build;
+      default:
+        return Icons.task_alt;
+    }
+  }
+
+  Color _getCategoryColor(Task task) {
+    final category = task.category?.toLowerCase() ?? '';
+    final lowerTitle = task.title.toLowerCase();
+
+    if (category == 'kitchen' || lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
+      return AppColors.kitchen;
+    } else if (category == 'bathroom' || lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
+      return AppColors.bathroom;
+    } else if (category == 'living' || lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
+      return AppColors.living;
+    } else if (category == 'outdoor' || lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
+      return AppColors.outdoor;
+    } else if (category == 'pet' || lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
+      return AppColors.pet;
+    } else if (category == 'laundry' || lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
+      return AppColors.laundry;
+    } else if (category == 'grocery' || lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
+      return AppColors.grocery;
+    } else if (category == 'maintenance' || lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
+      return AppColors.maintenance;
+    }
+    return AppColors.primary;
+  }
+
+  String _getCategoryName(Task task) {
+    if (task.category != null && task.category!.isNotEmpty) {
+      return task.category![0].toUpperCase() + task.category!.substring(1);
+    }
+
+    final lowerTitle = task.title.toLowerCase();
+    if (lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
+      return 'Kitchen';
+    } else if (lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
+      return 'Bathroom';
+    } else if (lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
+      return 'Living';
+    } else if (lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
+      return 'Outdoor';
+    } else if (lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
+      return 'Pet';
+    } else if (lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
+      return 'Laundry';
+    } else if (lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
+      return 'Grocery';
+    } else if (lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
+      return 'Maintenance';
+    }
+    return 'Task';
   }
 }
