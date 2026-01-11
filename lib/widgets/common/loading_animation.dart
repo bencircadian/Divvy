@@ -67,6 +67,8 @@ class _LoadingAnimationState extends State<LoadingAnimation>
   Widget build(BuildContext context) {
     final random = math.Random();
     final message = widget.message ?? _loadingMessages[random.nextInt(_loadingMessages.length)];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
 
     return Center(
       child: Column(
@@ -90,13 +92,13 @@ class _LoadingAnimationState extends State<LoadingAnimation>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: primaryColor.withValues(alpha: 0.3),
                             width: 3,
                           ),
                         ),
                         child: CustomPaint(
                           painter: _ArcPainter(
-                            color: AppColors.primary,
+                            color: primaryColor,
                             progress: 0.3,
                           ),
                         ),
@@ -107,8 +109,8 @@ class _LoadingAnimationState extends State<LoadingAnimation>
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(12),
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Center(
                         child: Text(
