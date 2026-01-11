@@ -51,6 +51,67 @@ lib/
 - Household ID: 481394f2-21d1-48eb-bef0-4c259eb5f1l5
 - User ID: a8f88b5f-15b2-4482-91bf-c206d04f9a05
 
+## Mobile Platform Configuration
+
+### iOS Setup
+
+1. **Bundle Identifier**: Set in Xcode → Runner → General → Bundle Identifier
+   - Current: `$(PRODUCT_BUNDLE_IDENTIFIER)` (needs actual value)
+
+2. **Sign in with Apple** (required for social auth):
+   - In Xcode: Runner → Signing & Capabilities → + Capability → Sign in with Apple
+   - Create `ios/Runner/Runner.entitlements`:
+     ```xml
+     <?xml version="1.0" encoding="UTF-8"?>
+     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+     <plist version="1.0">
+     <dict>
+       <key>com.apple.developer.applesignin</key>
+       <array>
+         <string>Default</string>
+       </array>
+     </dict>
+     </plist>
+     ```
+
+3. **Apple Developer Console**:
+   - Register app identifier with Sign in with Apple capability
+   - Configure Services ID for web sign-in if needed
+   - Add redirect URLs to Supabase dashboard
+
+4. **Deep linking** (already configured):
+   - URL schemes: `divvy://`, `io.supabase.divvy://`
+
+### Android Setup
+
+1. **Signing Configuration** (required for release builds):
+   - Generate keystore: `keytool -genkey -v -keystore divvy-release.keystore -alias divvy -keyalg RSA -keysize 2048 -validity 10000`
+   - Create `android/key.properties`:
+     ```properties
+     storePassword=<password>
+     keyPassword=<password>
+     keyAlias=divvy
+     storeFile=<path-to-keystore>
+     ```
+   - Update `android/app/build.gradle.kts` to use the signing config
+
+2. **Google Sign-In** (required for social auth):
+   - Get SHA-1 fingerprint: `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android`
+   - Add SHA-1 to Firebase Console or Google Cloud Console
+   - Download `google-services.json` to `android/app/`
+
+3. **Package name**: `com.divvy.app` (in `android/app/build.gradle.kts`)
+
+4. **Deep linking** (already configured):
+   - URL schemes: `divvy://`, `io.supabase.divvy://login-callback`
+
+### Supabase Auth Configuration
+
+Add these redirect URLs in Supabase Dashboard → Authentication → URL Configuration:
+- `divvy://login-callback`
+- `io.supabase.divvy://login-callback`
+- `https://your-domain.com/auth/callback` (for web)
+
 ## IMPORTANT: Sound Notification
 
 After finishing responding to my request or running a command, notify me with a sound:

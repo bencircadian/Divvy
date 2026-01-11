@@ -11,11 +11,11 @@ import '../models/task_history.dart';
 import '../models/task_note.dart';
 import '../services/cache_service.dart';
 import '../services/supabase_service.dart';
+import '../services/notification_service.dart';
 import '../services/task_history_service.dart';
 import '../services/task_image_service.dart';
 import '../services/task_recurrence_service.dart';
 import 'dashboard_provider.dart';
-import 'notification_provider.dart';
 
 class TaskProvider extends ChangeNotifier {
   List<Task> _tasks = [];
@@ -279,6 +279,7 @@ class TaskProvider extends ChangeNotifier {
     DuePeriod? duePeriod,
     RecurrenceRule? recurrenceRule,
     String? parentTaskId,
+    String? category,
   }) async {
     final userId = SupabaseService.currentUser?.id;
     if (userId == null) return false;
@@ -298,6 +299,7 @@ class TaskProvider extends ChangeNotifier {
         'is_recurring': recurrenceRule != null,
         'recurrence_rule': recurrenceRule?.toJson(),
         'parent_task_id': parentTaskId,
+        'category': category,
       }).select('id').single();
 
       // Record history
@@ -512,7 +514,7 @@ class TaskProvider extends ChangeNotifier {
       // Notify the assignee (if not self-assigning)
       if (assigneeId != null && assigneeId != currentUserId) {
         final task = _tasks.firstWhere((t) => t.id == taskId);
-        await NotificationProvider.createNotification(
+        await NotificationService.createNotification(
           userId: assigneeId,
           type: NotificationType.taskAssigned,
           title: 'Task assigned to you',
@@ -596,7 +598,7 @@ class TaskProvider extends ChangeNotifier {
 
       // Build batch of notifications
       final notifications = (membersResponse as List).map((member) {
-        return NotificationProvider.buildNotificationData(
+        return NotificationService.buildNotificationData(
           userId: member['user_id'] as String,
           type: NotificationType.taskCompleted,
           title: 'Task completed',
@@ -606,7 +608,7 @@ class TaskProvider extends ChangeNotifier {
       }).toList();
 
       // Insert all notifications in a single batch
-      await NotificationProvider.createNotificationBatch(notifications);
+      await NotificationService.createNotificationBatch(notifications);
     } catch (e) {
       debugPrint('Error sending completion notifications: $e');
     }
@@ -719,7 +721,7 @@ class TaskProvider extends ChangeNotifier {
               !notifiedUsers.contains(mentionedUserId)) {
             notifiedUsers.add(mentionedUserId);
 
-            await NotificationProvider.createNotification(
+            await NotificationService.createNotification(
               userId: mentionedUserId,
               type: NotificationType.mentioned,
               title: 'You were mentioned',

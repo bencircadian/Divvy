@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/app_notification.dart';
 import '../models/notification_preferences.dart';
+import '../services/notification_service.dart';
 import '../services/supabase_service.dart';
 
 class NotificationProvider extends ChangeNotifier {
@@ -174,7 +175,7 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
-  // Create a notification (called from other providers)
+  /// @deprecated Use NotificationService.createNotification instead
   static Future<void> createNotification({
     required String userId,
     required NotificationType type,
@@ -182,31 +183,21 @@ class NotificationProvider extends ChangeNotifier {
     required String body,
     Map<String, dynamic>? data,
   }) async {
-    try {
-      await SupabaseService.client.from('notifications').insert({
-        'user_id': userId,
-        'type': AppNotification.typeToString(type),
-        'title': title,
-        'body': body,
-        'data': data ?? {},
-      });
-    } catch (e) {
-      debugPrint('Error creating notification: $e');
-    }
+    await NotificationService.createNotification(
+      userId: userId,
+      type: type,
+      title: title,
+      body: body,
+      data: data,
+    );
   }
 
-  /// Create multiple notifications in a single batch insert
+  /// @deprecated Use NotificationService.createNotificationBatch instead
   static Future<void> createNotificationBatch(List<Map<String, dynamic>> notifications) async {
-    if (notifications.isEmpty) return;
-
-    try {
-      await SupabaseService.client.from('notifications').insert(notifications);
-    } catch (e) {
-      debugPrint('Error creating notification batch: $e');
-    }
+    await NotificationService.createNotificationBatch(notifications);
   }
 
-  /// Helper to build notification data for batch insert
+  /// @deprecated Use NotificationService.buildNotificationData instead
   static Map<String, dynamic> buildNotificationData({
     required String userId,
     required NotificationType type,
@@ -214,13 +205,13 @@ class NotificationProvider extends ChangeNotifier {
     required String body,
     Map<String, dynamic>? data,
   }) {
-    return {
-      'user_id': userId,
-      'type': AppNotification.typeToString(type),
-      'title': title,
-      'body': body,
-      'data': data ?? {},
-    };
+    return NotificationService.buildNotificationData(
+      userId: userId,
+      type: type,
+      title: title,
+      body: body,
+      data: data,
+    );
   }
 
   @override

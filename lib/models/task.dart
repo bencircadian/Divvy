@@ -29,6 +29,9 @@ class Task {
   // Cover image
   final String? coverImageUrl;
 
+  // Category for organizing tasks
+  final String? category;
+
   // Joined data
   final String? assignedToName;
   final String? createdByName;
@@ -52,6 +55,7 @@ class Task {
     this.recurrenceRule,
     this.parentTaskId,
     this.coverImageUrl,
+    this.category,
     this.assignedToName,
     this.createdByName,
     this.completedByName,
@@ -82,6 +86,7 @@ class Task {
           : null,
       parentTaskId: json['parent_task_id'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
+      category: json['category'] as String?,
       assignedToName: json['assigned_profile']?['display_name'] as String?,
       createdByName: json['created_profile']?['display_name'] as String?,
       completedByName: json['completed_profile']?['display_name'] as String?,
@@ -107,6 +112,7 @@ class Task {
       'recurrence_rule': recurrenceRule?.toJson(),
       'parent_task_id': parentTaskId,
       'cover_image_url': coverImageUrl,
+      'category': category,
     };
   }
 
@@ -128,6 +134,7 @@ class Task {
     RecurrenceRule? recurrenceRule,
     String? parentTaskId,
     String? coverImageUrl,
+    String? category,
     String? assignedToName,
     String? createdByName,
   }) {
@@ -149,6 +156,7 @@ class Task {
       recurrenceRule: recurrenceRule ?? this.recurrenceRule,
       parentTaskId: parentTaskId ?? this.parentTaskId,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      category: category ?? this.category,
       assignedToName: assignedToName ?? this.assignedToName,
       createdByName: createdByName ?? this.createdByName,
     );

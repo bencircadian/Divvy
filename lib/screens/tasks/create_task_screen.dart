@@ -29,6 +29,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   DuePeriod? _duePeriod;
   String? _assignedTo;
   RecurrenceRule? _recurrenceRule;
+  String? _category;
   bool _isSubmitting = false;
 
   @override
@@ -76,6 +77,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       setState(() {
         _titleController.text = title;
         _descriptionController.text = description;
+        _category = template.category;
         if (template.suggestedRecurrence != null) {
           _recurrenceRule = RecurrenceRule.fromJson(template.suggestedRecurrence!);
         }
@@ -153,6 +155,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
           dueDate: _dueDate,
           duePeriod: _duePeriod,
           recurrenceRule: _recurrenceRule,
+          category: _category,
         );
 
     if (mounted) {
