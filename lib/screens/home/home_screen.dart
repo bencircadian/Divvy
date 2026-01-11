@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/task_provider.dart';
@@ -24,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String _activeTab = 'today';
   late AnimationController _blobController;
+  String? _lastLoadedHouseholdId;
 
   @override
   void initState() {
@@ -34,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     )..repeat();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadTasks();
       context.read<NotificationProvider>().loadNotifications();
     });
   }
@@ -45,17 +46,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _loadTasks() {
-    final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
-    if (householdId != null) {
-      context.read<TaskProvider>().loadTasks(householdId);
-    }
-  }
-
   List<Task> _getFilteredTasks(TaskProvider taskProvider) {
     switch (_activeTab) {
       case 'today':
-        return taskProvider.tasksDueToday.where((t) => !t.isCompleted).toList();
+        // Include tasks due today AND tasks without due dates (anytime tasks)
+        final todayTasks = taskProvider.incompleteTodayTasks;
+        final anytimeTasks = taskProvider.pendingTasks
+            .where((t) => t.dueDate == null)
+            .toList();
+        return [...todayTasks, ...anytimeTasks];
       case 'upcoming':
         return taskProvider.upcomingUniqueTasks;
       case 'done':
@@ -71,17 +70,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final householdProvider = context.watch<HouseholdProvider>();
     final taskProvider = context.watch<TaskProvider>();
     final authProvider = context.watch<AuthProvider>();
+    final dashboardProvider = context.watch<DashboardProvider>();
     final household = householdProvider.currentHousehold;
 
     if (household == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Load tasks and dashboard data when household becomes available or changes
+    if (_lastLoadedHouseholdId != household.id) {
+      _lastLoadedHouseholdId = household.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        taskProvider.loadTasks(household.id);
+        dashboardProvider.loadDashboardData(household.id);
+      });
+    }
+
     final filteredTasks = _getFilteredTasks(taskProvider);
     final pendingCount = taskProvider.pendingTasks.length;
     final completedCount = taskProvider.completedTasks.length;
-    final totalTodayTasks = taskProvider.tasksDueToday.length;
-    final completedTodayTasks = taskProvider.tasksDueToday.where((t) => t.isCompleted).length;
+
+    // Weekly completed tasks count
+    final weeklyCompletedTotal = dashboardProvider.taskCounts.values.fold(0, (a, b) => a + b);
+    final weeklyGoal = 20; // Could make this configurable
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : null,
@@ -110,7 +121,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           RefreshIndicator(
             onRefresh: () async {
               await householdProvider.loadUserHousehold();
-              _loadTasks();
+              if (household != null) {
+                await taskProvider.loadTasks(household.id);
+                await dashboardProvider.loadDashboardData(household.id);
+              }
             },
             child: ListView(
               padding: EdgeInsets.zero,
@@ -118,12 +132,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 // Header
                 _buildHeader(context, authProvider, isDark),
 
-                // Progress blob
+                // Progress blob with weekly stats
                 _buildProgressBlob(
                   context,
-                  completedTodayTasks,
-                  totalTodayTasks,
+                  weeklyCompletedTotal,
+                  weeklyGoal,
                   isDark,
+                  dashboardProvider,
+                  householdProvider.members,
                 ),
 
                 // Tab pills
@@ -281,22 +297,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildProgressBlob(
     BuildContext context,
     int completed,
-    int total,
+    int goal,
     bool isDark,
+    DashboardProvider dashboardProvider,
+    List members,
   ) {
-    final progress = total > 0 ? completed / total : 0.0;
-    final progressDegrees = progress * 360;
-
-    String message;
-    if (total == 0) {
-      message = 'No tasks today';
-    } else if (progress == 1) {
-      message = 'All done!';
-    } else if (progress >= 0.5) {
-      message = 'Keep it up!';
-    } else {
-      message = "Let's get started";
-    }
+    final progress = goal > 0 ? (completed / goal).clamp(0.0, 1.0) : 0.0;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -318,66 +324,120 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 : AppColors.primary.withValues(alpha: 0.2),
           ),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Circular progress
-            SizedBox(
-              width: 56,
-              height: 56,
-              child: CustomPaint(
-                painter: _CircularProgressPainter(
-                  progress: progress,
-                  progressColor: AppColors.primary,
-                  backgroundColor: isDark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.grey.withValues(alpha: 0.2),
-                ),
-                child: Center(
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isDark ? const Color(0xFF162E22) : Colors.white,
+            Row(
+              children: [
+                // Circular progress
+                SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: CustomPaint(
+                    painter: _CircularProgressPainter(
+                      progress: progress,
+                      progressColor: AppColors.primary,
+                      backgroundColor: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.grey.withValues(alpha: 0.2),
                     ),
                     child: Center(
-                      child: Text(
-                        '$completed/$total',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.textPrimary : Colors.grey[800],
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? const Color(0xFF162E22) : Colors.white,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$completed',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? AppColors.textPrimary : Colors.grey[800],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Today's progress",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isDark
-                        ? AppColors.textSecondary
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$message ${progress >= 0.5 && total > 0 ? "" : ""}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.textPrimary : Colors.grey[900],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "This week's progress",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark
+                              ? AppColors.textSecondary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$completed tasks completed',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.textPrimary : Colors.grey[900],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
+            // Per-person breakdown
+            if (dashboardProvider.taskCounts.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
+                children: members.map((member) {
+                  final count = dashboardProvider.taskCounts[member.userId] ?? 0;
+                  final name = member.displayName ?? 'Unknown';
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : Colors.white.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 10,
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                          child: Text(
+                            name[0].toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '$name: $count',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? AppColors.textPrimary : Colors.grey[800],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
           ],
         ),
       ),

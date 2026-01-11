@@ -165,12 +165,7 @@ class TaskProvider extends ChangeNotifier {
     try {
       final response = await SupabaseService.client
           .from('tasks')
-          .select('''
-            *,
-            assigned_profile:profiles!assigned_to(display_name),
-            created_profile:profiles!created_by(display_name),
-            completed_profile:profiles!completed_by(display_name)
-          ''')
+          .select('*')
           .eq('household_id', householdId)
           .order('due_date', ascending: true, nullsFirst: false)
           .order('created_at', ascending: false);
@@ -192,9 +187,9 @@ class TaskProvider extends ChangeNotifier {
       final cachedTasks = CacheService.getCachedTasks();
       if (cachedTasks.isNotEmpty) {
         _tasks = cachedTasks;
-        _errorMessage = null;
+        _errorMessage = 'Using cached data: $e';
       } else {
-        _errorMessage = 'Failed to load tasks';
+        _errorMessage = 'Failed to load tasks: $e';
       }
       _isLoading = false;
       notifyListeners();
