@@ -168,6 +168,8 @@ class _NotificationTile extends StatelessWidget {
         return Icons.alternate_email;
       case NotificationType.dueReminder:
         return Icons.alarm;
+      case NotificationType.appreciation:
+        return Icons.favorite;
     }
   }
 
@@ -181,6 +183,8 @@ class _NotificationTile extends StatelessWidget {
         return Colors.purple;
       case NotificationType.dueReminder:
         return Colors.orange;
+      case NotificationType.appreciation:
+        return Colors.pink;
     }
   }
 

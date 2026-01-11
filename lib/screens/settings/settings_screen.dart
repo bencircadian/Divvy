@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/app_strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/common/app_logo.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -153,15 +155,19 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               showAboutDialog(
                 context: context,
-                applicationName: 'Divvy',
+                applicationName: AppStrings.appName,
                 applicationVersion: '1.0.0',
-                applicationIcon: Icon(
-                  Icons.home_work_rounded,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                applicationIcon: const AppLogoIcon(size: 48),
                 children: [
-                  const Text('A household task management app for families and roommates.'),
+                  Text(
+                    AppStrings.tagline,
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(AppStrings.appDescription),
                 ],
               );
             },

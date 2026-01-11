@@ -1,4 +1,5 @@
 import 'recurrence_rule.dart';
+import 'task_contributor.dart';
 
 enum TaskStatus { pending, completed }
 
@@ -32,10 +33,17 @@ class Task {
   // Category for organizing tasks
   final String? category;
 
+  // Bundle/routine grouping
+  final String? bundleId;
+  final int? bundleOrder;
+
   // Joined data
   final String? assignedToName;
   final String? createdByName;
   final String? completedByName;
+
+  // Multi-person task contributors
+  final List<TaskContributor>? contributors;
 
   Task({
     required this.id,
@@ -56,9 +64,12 @@ class Task {
     this.parentTaskId,
     this.coverImageUrl,
     this.category,
+    this.bundleId,
+    this.bundleOrder,
     this.assignedToName,
     this.createdByName,
     this.completedByName,
+    this.contributors,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -87,9 +98,14 @@ class Task {
       parentTaskId: json['parent_task_id'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       category: json['category'] as String?,
+      bundleId: json['bundle_id'] as String?,
+      bundleOrder: json['bundle_order'] as int?,
       assignedToName: json['assigned_profile']?['display_name'] as String?,
       createdByName: json['created_profile']?['display_name'] as String?,
       completedByName: json['completed_profile']?['display_name'] as String?,
+      contributors: (json['contributors'] as List<dynamic>?)
+          ?.map((c) => TaskContributor.fromJson(c as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -113,6 +129,8 @@ class Task {
       'parent_task_id': parentTaskId,
       'cover_image_url': coverImageUrl,
       'category': category,
+      'bundle_id': bundleId,
+      'bundle_order': bundleOrder,
     };
   }
 
@@ -135,8 +153,12 @@ class Task {
     String? parentTaskId,
     String? coverImageUrl,
     String? category,
+    String? bundleId,
+    int? bundleOrder,
     String? assignedToName,
     String? createdByName,
+    String? completedByName,
+    List<TaskContributor>? contributors,
   }) {
     return Task(
       id: id ?? this.id,
@@ -157,8 +179,12 @@ class Task {
       parentTaskId: parentTaskId ?? this.parentTaskId,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       category: category ?? this.category,
+      bundleId: bundleId ?? this.bundleId,
+      bundleOrder: bundleOrder ?? this.bundleOrder,
       assignedToName: assignedToName ?? this.assignedToName,
       createdByName: createdByName ?? this.createdByName,
+      completedByName: completedByName ?? this.completedByName,
+      contributors: contributors ?? this.contributors,
     );
   }
 

@@ -3,6 +3,7 @@ enum NotificationType {
   taskCompleted,
   mentioned,
   dueReminder,
+  appreciation,
 }
 
 class AppNotification {
@@ -49,6 +50,8 @@ class AppNotification {
         return NotificationType.mentioned;
       case 'due_reminder':
         return NotificationType.dueReminder;
+      case 'appreciation':
+        return NotificationType.appreciation;
       default:
         return NotificationType.taskAssigned;
     }
@@ -64,6 +67,8 @@ class AppNotification {
         return 'mentioned';
       case NotificationType.dueReminder:
         return 'due_reminder';
+      case NotificationType.appreciation:
+        return 'appreciation';
     }
   }
 
