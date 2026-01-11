@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../utils/date_utils.dart';
+import '../../widgets/common/empty_state.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
@@ -700,31 +701,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 60),
-      child: Column(
-        children: [
-          Icon(
-            Icons.check_circle_outline,
-            size: 64,
-            color: isDark ? AppColors.textSecondary : Colors.grey[400],
-          ),
-          SizedBox(height: AppSpacing.md),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.textPrimary : Colors.grey[800],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark ? AppColors.textSecondary : Colors.grey[500],
-            ),
-          ),
-        ],
+      child: EmptyState(
+        icon: Icons.check_circle_outline,
+        title: message,
+        subtitle: subtitle,
+        iconColor: isDark ? AppColors.textSecondary : Colors.grey[400],
       ),
     );
   }

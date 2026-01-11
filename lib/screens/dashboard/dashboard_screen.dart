@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../utils/date_utils.dart';
+import '../../widgets/common/member_avatar.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
@@ -105,12 +106,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               value: m.userId,
                               child: Row(
                                 children: [
-                                  CircleAvatar(
+                                  MemberAvatar(
+                                    displayName: m.displayName,
                                     radius: 14,
-                                    child: Text(
-                                      (m.displayName ?? 'U')[0].toUpperCase(),
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
                                   ),
                                   SizedBox(width: AppSpacing.sm),
                                   Text(m.displayName ?? 'Unknown'),
@@ -893,17 +891,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       children: [
-                        CircleAvatar(
+                        MemberAvatar(
+                          displayName: member.displayName,
                           radius: 14,
-                          backgroundColor: isDark ? AppColors.surfaceDark : Colors.grey[100],
-                          child: Text(
-                            (member.displayName ?? 'U')[0].toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.grey[300] : Colors.grey[700],
-                            ),
-                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

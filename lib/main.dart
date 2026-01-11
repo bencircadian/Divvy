@@ -16,12 +16,15 @@ import 'providers/theme_provider.dart';
 import 'services/cache_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/supabase_service.dart';
+import 'services/sync_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
   await SupabaseService.initialize();
   await CacheService.initialize();
+  // Initialize SyncManager to handle connectivity and sync coordination
+  SyncManager.instance;
   runApp(const DivvyApp());
 }
 

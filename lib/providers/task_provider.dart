@@ -11,6 +11,9 @@ import '../models/task_history.dart';
 import '../models/task_note.dart';
 import '../services/cache_service.dart';
 import '../services/supabase_service.dart';
+import '../services/task_history_service.dart';
+import '../services/task_image_service.dart';
+import '../services/task_recurrence_service.dart';
 import 'dashboard_provider.dart';
 import 'notification_provider.dart';
 
@@ -298,7 +301,10 @@ class TaskProvider extends ChangeNotifier {
       }).select('id').single();
 
       // Record history
-      await _recordHistory(response['id'] as String, 'created');
+      await TaskHistoryService.recordHistory(
+        taskId: response['id'] as String,
+        action: TaskHistoryService.actionCreated,
+      );
 
       // Reload tasks to show the new task immediately
       await loadTasks(householdId);
@@ -347,7 +353,11 @@ class TaskProvider extends ChangeNotifier {
           .update(updates)
           .eq('id', taskId);
 
-      await _recordHistory(taskId, 'edited', details: updates);
+      await TaskHistoryService.recordHistory(
+        taskId: taskId,
+        action: TaskHistoryService.actionUpdated,
+        changes: updates,
+      );
 
       return true;
     } catch (e) {
@@ -358,162 +368,48 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  // File upload constants
-  static const int _maxFileSizeBytes = 5 * 1024 * 1024; // 5MB
-  static const Set<String> _allowedImageTypes = {'jpg', 'jpeg', 'png', 'gif', 'webp'};
-  static const Set<String> _allowedMimeTypes = {
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp'
-  };
-
-  /// Validate image file by checking magic bytes
-  bool _isValidImageBytes(List<int> bytes) {
-    if (bytes.length < 4) return false;
-
-    // JPEG: starts with FF D8 FF
-    if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) {
-      return true;
-    }
-
-    // PNG: starts with 89 50 4E 47 0D 0A 1A 0A
-    if (bytes.length >= 8 &&
-        bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47 &&
-        bytes[4] == 0x0D && bytes[5] == 0x0A && bytes[6] == 0x1A && bytes[7] == 0x0A) {
-      return true;
-    }
-
-    // GIF: starts with GIF87a or GIF89a
-    if (bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38 &&
-        (bytes[4] == 0x37 || bytes[4] == 0x39) && bytes[5] == 0x61) {
-      return true;
-    }
-
-    // WebP: starts with RIFF....WEBP
-    if (bytes.length >= 12 &&
-        bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46 &&
-        bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /// Upload a cover image for a task with validation
+  /// Upload a cover image for a task (delegates to TaskImageService)
   Future<String?> uploadCoverImage(String taskId, XFile imageFile) async {
-    try {
-      final userId = SupabaseService.currentUser?.id;
-      if (userId == null) return null;
-
-      // Read the file bytes
-      final bytes = await imageFile.readAsBytes();
-
-      // Validate file size (max 5MB)
-      if (bytes.length > _maxFileSizeBytes) {
-        _errorMessage = 'Image too large. Maximum size is 5MB.';
-        notifyListeners();
-        return null;
-      }
-
-      // Get file extension - handle web blob URLs by using mimeType or defaulting to jpg
-      String fileExt = 'jpg';
-      if (imageFile.mimeType != null) {
-        // Validate MIME type
-        if (!_allowedMimeTypes.contains(imageFile.mimeType!.toLowerCase())) {
-          _errorMessage = 'Invalid file type. Only images are allowed.';
-          notifyListeners();
-          return null;
-        }
-        // Extract extension from mimeType (e.g., "image/jpeg" -> "jpeg")
-        final mimeExt = imageFile.mimeType!.split('/').last;
-        fileExt = mimeExt == 'jpeg' ? 'jpg' : mimeExt;
-      } else if (imageFile.path.contains('.') && !imageFile.path.startsWith('blob:')) {
-        fileExt = imageFile.path.split('.').last.toLowerCase();
-      }
-
-      // Validate file extension
-      if (!_allowedImageTypes.contains(fileExt)) {
-        _errorMessage = 'Invalid file type. Allowed: jpg, png, gif, webp';
-        notifyListeners();
-        return null;
-      }
-
-      // Validate file content (check magic bytes for common image formats)
-      if (!_isValidImageBytes(bytes)) {
-        _errorMessage = 'Invalid image file. File may be corrupted.';
-        notifyListeners();
-        return null;
-      }
-
-      final fileName = '${taskId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
-      final filePath = 'task-covers/$fileName';
-
-      // Determine content type
-      final contentType = imageFile.mimeType ?? 'image/${fileExt == 'jpg' ? 'jpeg' : fileExt}';
-
-      // Upload to Supabase Storage
-      await SupabaseService.client.storage
-          .from('task-images')
-          .uploadBinary(filePath, bytes, fileOptions: FileOptions(
-            contentType: contentType,
-            upsert: true,
-          ));
-
-      // Store just the file path (not full URL) - we'll generate signed URLs on-demand
-      await SupabaseService.client
-          .from('tasks')
-          .update({'cover_image_url': filePath})
-          .eq('id', taskId);
-
-      await _recordHistory(taskId, 'cover_added');
-
+    final result = await TaskImageService.uploadCoverImage(taskId, imageFile);
+    if (result != null) {
+      await TaskHistoryService.recordHistory(
+        taskId: taskId,
+        action: 'cover_added',
+      );
       // Reload tasks to show the update
       if (_currentHouseholdId != null) {
         await loadTasks(_currentHouseholdId!);
       }
-
-      return filePath;
-    } catch (e) {
-      debugPrint('Error uploading cover image: $e');
+    } else {
       _errorMessage = 'Failed to upload image';
       notifyListeners();
-      return null;
     }
+    return result;
   }
 
-  /// Generate a signed URL for a cover image (valid for 1 hour)
+  /// Generate a signed URL for a cover image (delegates to TaskImageService)
   Future<String?> getSignedCoverUrl(String filePath) async {
-    try {
-      final response = await SupabaseService.client.storage
-          .from('task-images')
-          .createSignedUrl(filePath, 3600); // 1 hour expiration
-      return response;
-    } catch (e) {
-      debugPrint('Error generating signed URL: $e');
-      return null;
-    }
+    return TaskImageService.getSignedCoverUrl(filePath);
   }
 
-  /// Remove cover image from a task
+  /// Remove cover image from a task (delegates to TaskImageService)
   Future<bool> removeCoverImage(String taskId) async {
-    try {
-      await SupabaseService.client
-          .from('tasks')
-          .update({'cover_image_url': null})
-          .eq('id', taskId);
-
-      await _recordHistory(taskId, 'cover_removed');
-
+    final task = _tasks.firstWhere((t) => t.id == taskId, orElse: () => throw Exception('Task not found'));
+    final result = await TaskImageService.removeCoverImage(taskId, task.coverImageUrl);
+    if (result) {
+      await TaskHistoryService.recordHistory(
+        taskId: taskId,
+        action: 'cover_removed',
+      );
       // Reload tasks to show the update
       if (_currentHouseholdId != null) {
         await loadTasks(_currentHouseholdId!);
       }
-
-      return true;
-    } catch (e) {
-      debugPrint('Error removing cover image: $e');
+    } else {
       _errorMessage = 'Failed to remove image';
       notifyListeners();
-      return false;
     }
+    return result;
   }
 
   Future<bool> toggleTaskComplete(Task task) async {
@@ -531,7 +427,10 @@ class TaskProvider extends ChangeNotifier {
           'completed_by': null,
         }).eq('id', task.id);
 
-        await _recordHistory(task.id, 'uncompleted');
+        await TaskHistoryService.recordHistory(
+          taskId: task.id,
+          action: TaskHistoryService.actionUncompleted,
+        );
       } else {
         // Mark as completed
         await SupabaseService.client.from('tasks').update({
@@ -540,7 +439,10 @@ class TaskProvider extends ChangeNotifier {
           'completed_by': userId,
         }).eq('id', task.id);
 
-        await _recordHistory(task.id, 'completed');
+        await TaskHistoryService.recordHistory(
+          taskId: task.id,
+          action: TaskHistoryService.actionCompleted,
+        );
 
         // Notify household members about completion
         await _notifyTaskCompleted(task, userId);
@@ -549,8 +451,8 @@ class TaskProvider extends ChangeNotifier {
         await DashboardProvider.updateStreakOnCompletion(userId, task.householdId);
 
         // If recurring, create the next occurrence
-        if (task.isRecurring && task.recurrenceRule != null && task.dueDate != null) {
-          await _createNextRecurrence(task);
+        if (TaskRecurrenceService.shouldCreateNextOccurrence(task.copyWith(status: TaskStatus.completed))) {
+          await TaskRecurrenceService.createNextOccurrence(task);
         }
       }
 
@@ -565,36 +467,6 @@ class TaskProvider extends ChangeNotifier {
       _errorMessage = 'Failed to update task';
       notifyListeners();
       return false;
-    }
-  }
-
-  Future<void> _createNextRecurrence(Task task) async {
-    if (task.recurrenceRule == null || task.dueDate == null) return;
-
-    final nextDueDate = task.recurrenceRule!.getNextOccurrence(task.dueDate!);
-
-    // Check if recurrence has ended
-    if (task.recurrenceRule!.hasEnded(nextDueDate)) return;
-
-    final userId = SupabaseService.currentUser?.id;
-    if (userId == null) return;
-
-    try {
-      await SupabaseService.client.from('tasks').insert({
-        'household_id': task.householdId,
-        'title': task.title,
-        'description': task.description,
-        'created_by': userId,
-        'assigned_to': task.assignedTo,
-        'priority': task.priority.name,
-        'due_date': nextDueDate.toIso8601String(),
-        'due_period': task.duePeriod?.name,
-        'is_recurring': true,
-        'recurrence_rule': task.recurrenceRule!.toJson(),
-        'parent_task_id': task.parentTaskId ?? task.id,
-      });
-    } catch (e) {
-      debugPrint('Error creating next recurrence: $e');
     }
   }
 
@@ -626,10 +498,16 @@ class TaskProvider extends ChangeNotifier {
           .from('tasks')
           .update({'assigned_to': assigneeId}).eq('id', taskId);
 
-      await _recordHistory(taskId, 'assigned', details: {
-        'assignee_id': assigneeId,
-        'assignee_name': assigneeName,
-      });
+      await TaskHistoryService.recordHistory(
+        taskId: taskId,
+        action: assigneeId != null
+            ? TaskHistoryService.actionAssigned
+            : TaskHistoryService.actionUnassigned,
+        changes: {
+          'assignee_id': assigneeId,
+          'assignee_name': assigneeName,
+        },
+      );
 
       // Notify the assignee (if not self-assigning)
       if (assigneeId != null && assigneeId != currentUserId) {
@@ -778,7 +656,10 @@ class TaskProvider extends ChangeNotifier {
       });
 
       // Record history
-      await _recordHistory(taskId, 'note_added');
+      await TaskHistoryService.recordHistory(
+        taskId: taskId,
+        action: TaskHistoryService.actionNoteAdded,
+      );
 
       // Handle @mentions
       await _processMentions(taskId, content, userId);
@@ -865,46 +746,10 @@ class TaskProvider extends ChangeNotifier {
 
   // ============ History Methods ============
 
-  /// Load history with pagination
-  /// [limit] - number of history entries to load (default 30)
-  /// [offset] - number of entries to skip for pagination
+  /// Load history (delegates to TaskHistoryService)
   Future<List<TaskHistory>> loadHistory(String taskId, {int limit = 30, int offset = 0}) async {
-    try {
-      final response = await SupabaseService.client
-          .from('task_history')
-          .select('''
-            *,
-            profiles(display_name)
-          ''')
-          .eq('task_id', taskId)
-          .order('created_at', ascending: false)
-          .range(offset, offset + limit - 1);
-
-      return (response as List).map((json) => TaskHistory.fromJson(json)).toList();
-    } catch (e) {
-      debugPrint('Error loading history: $e');
-      return [];
-    }
-  }
-
-  Future<void> _recordHistory(
-    String taskId,
-    String action, {
-    Map<String, dynamic>? details,
-  }) async {
-    final userId = SupabaseService.currentUser?.id;
-    if (userId == null) return;
-
-    try {
-      await SupabaseService.client.from('task_history').insert({
-        'task_id': taskId,
-        'user_id': userId,
-        'action': action,
-        'details': details,
-      });
-    } catch (e) {
-      debugPrint('Error recording history: $e');
-    }
+    // Note: TaskHistoryService doesn't support pagination yet, loads all
+    return TaskHistoryService.loadHistory(taskId);
   }
 
   @override

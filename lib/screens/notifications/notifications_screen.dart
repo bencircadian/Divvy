@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_notification.dart';
 import '../../providers/notification_provider.dart';
+import '../../widgets/common/empty_state.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -82,31 +83,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.notifications_none,
-            size: 64,
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No notifications yet',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "You'll see updates about your tasks here",
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-        ],
-      ),
+    return const EmptyState(
+      icon: Icons.notifications_none,
+      title: 'No notifications yet',
+      subtitle: "You'll see updates about your tasks here",
     );
   }
 
