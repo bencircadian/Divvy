@@ -289,6 +289,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final task = _getTask();
     if (task == null || !_formKey.currentState!.validate()) return;
 
+    debugPrint('Saving task with category: $_category');
+
     final success = await context.read<TaskProvider>().updateTask(
           taskId: task.id,
           title: _titleController.text.trim(),
@@ -304,12 +306,20 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           category: _category,
         );
 
-    if (mounted && success) {
-      setState(() => _isEditing = false);
-      // Reload to get updated data
-      final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
-      if (householdId != null) {
-        context.read<TaskProvider>().loadTasks(householdId);
+    debugPrint('Update result: $success');
+
+    if (mounted) {
+      if (success) {
+        setState(() => _isEditing = false);
+        // Reload to get updated data
+        final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
+        if (householdId != null) {
+          context.read<TaskProvider>().loadTasks(householdId);
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save changes')),
+        );
       }
     }
   }

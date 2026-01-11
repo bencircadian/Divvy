@@ -352,6 +352,8 @@ class TaskProvider extends ChangeNotifier {
         updates['recurrence_rule'] = recurrenceRule.toJson();
       }
 
+      debugPrint('Updating task $taskId with: $updates');
+
       await SupabaseService.client
           .from('tasks')
           .update(updates)
@@ -363,10 +365,11 @@ class TaskProvider extends ChangeNotifier {
         changes: updates,
       );
 
+      debugPrint('Task updated successfully');
       return true;
     } catch (e) {
       debugPrint('Error updating task: $e');
-      _errorMessage = 'Failed to update task';
+      _errorMessage = 'Failed to update task: $e';
       notifyListeners();
       return false;
     }
