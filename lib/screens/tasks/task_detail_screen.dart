@@ -7,11 +7,15 @@ import 'package:image_picker/image_picker.dart';
 import '../../config/app_theme.dart';
 import '../../models/recurrence_rule.dart';
 import '../../models/task.dart';
+import '../../models/task_contributor.dart';
 import '../../models/task_history.dart';
 import '../../models/task_note.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../services/supabase_service.dart';
+import '../../services/task_contributor_service.dart';
+import '../../widgets/tasks/claim_credit_sheet.dart';
+import '../../widgets/tasks/contributor_chips.dart';
 import '../../widgets/tasks/history_timeline.dart';
 import '../../widgets/tasks/note_input.dart';
 import '../../widgets/tasks/note_tile.dart';
@@ -65,11 +69,18 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   String? _signedCoverUrl;
   bool _isLoadingCoverUrl = false;
 
+  // Contributors (claim credit)
+  List<TaskContributor> _contributors = [];
+  bool _isLoadingContributors = false;
+  late TaskContributorService _contributorService;
+
   @override
   void initState() {
     super.initState();
+    _contributorService = TaskContributorService(SupabaseService.client);
     _loadNotesAndHistory();
     _loadCoverImageUrl();
+    _loadContributors();
   }
 
   Future<void> _loadCoverImageUrl() async {
@@ -119,6 +130,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         _notes = notes;
         _history = history;
         _isLoadingNotes = false;
+      });
+    }
+  }
+
+  Future<void> _loadContributors() async {
+    setState(() => _isLoadingContributors = true);
+
+    final contributors = await _contributorService.getTaskContributors(widget.taskId);
+
+    if (mounted) {
+      setState(() {
+        _contributors = contributors;
+        _isLoadingContributors = false;
       });
     }
   }
@@ -364,6 +388,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
+  Future<void> _showClaimCreditSheet(Task task) async {
+    final currentUserId = SupabaseService.currentUser?.id;
+    if (currentUserId == null) return;
+
+    final hasClaimedCredit = _contributors.any((c) => c.userId == currentUserId);
+
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => ClaimCreditSheet(
+        task: task,
+        contributors: _contributors,
+        currentUserId: currentUserId,
+        hasClaimedCredit: hasClaimedCredit,
+        onClaimCredit: (note) async {
+          final contributor = await _contributorService.claimCredit(
+            taskId: task.id,
+            userId: currentUserId,
+            contributionNote: note,
+          );
+          return contributor != null;
+        },
+        onRemoveCredit: () async {
+          return await _contributorService.removeCredit(
+            taskId: task.id,
+            userId: currentUserId,
+          );
+        },
+      ),
+    );
+
+    if (result == true && mounted) {
+      await _loadContributors();
+    }
+  }
+
   void _goBack() {
     context.pop();
   }
@@ -534,6 +594,23 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       width: double.infinity,
                       child: _buildTakeOwnershipButton(task),
                     ),
+                  ] else ...[
+                    // Claim credit section for completed tasks
+                    SizedBox(height: AppSpacing.sm),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showClaimCreditSheet(task),
+                        icon: const Icon(Icons.people_outline),
+                        label: Text(_contributors.isEmpty
+                            ? 'Claim Credit'
+                            : 'Contributors (${_contributors.length})'),
+                      ),
+                    ),
+                    if (_contributors.isNotEmpty) ...[
+                      SizedBox(height: AppSpacing.sm),
+                      ContributorChips(contributors: _contributors),
+                    ],
                   ],
                 ],
               ),
