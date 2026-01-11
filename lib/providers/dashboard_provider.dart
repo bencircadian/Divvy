@@ -37,24 +37,23 @@ class DashboardProvider extends ChangeNotifier {
           .map((json) => UserStreak.fromJson(json))
           .toList();
 
-      // Load task completion counts for this week
-      final now = DateTime.now();
-      final weekStart = now.subtract(Duration(days: now.weekday - 1));
-      final weekStartStr = weekStart.toIso8601String().split('T')[0];
+      // Load task completion counts using SQL aggregation (more efficient)
+      try {
+        final countsResponse = await SupabaseService.client
+            .rpc('get_weekly_task_counts', params: {'p_household_id': householdId});
 
-      final countsResponse = await SupabaseService.client
-          .from('tasks')
-          .select('completed_by')
-          .eq('household_id', householdId)
-          .eq('status', 'completed')
-          .gte('completed_at', weekStartStr);
-
-      _taskCounts = {};
-      for (final task in countsResponse as List) {
-        final completedBy = task['completed_by'] as String?;
-        if (completedBy != null) {
-          _taskCounts[completedBy] = (_taskCounts[completedBy] ?? 0) + 1;
+        _taskCounts = {};
+        for (final row in countsResponse as List) {
+          final userId = row['user_id'] as String?;
+          final count = row['task_count'] as int?;
+          if (userId != null && count != null) {
+            _taskCounts[userId] = count;
+          }
         }
+      } catch (e) {
+        // Fallback to client-side counting if RPC not available
+        debugPrint('RPC not available, falling back to client-side counting: $e');
+        await _loadTaskCountsFallback(householdId);
       }
 
       _isLoading = false;
@@ -64,6 +63,28 @@ class DashboardProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       debugPrint('Error loading dashboard data: $e');
+    }
+  }
+
+  /// Fallback method for loading task counts (client-side counting)
+  Future<void> _loadTaskCountsFallback(String householdId) async {
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final weekStartStr = weekStart.toIso8601String().split('T')[0];
+
+    final countsResponse = await SupabaseService.client
+        .from('tasks')
+        .select('completed_by')
+        .eq('household_id', householdId)
+        .eq('status', 'completed')
+        .gte('completed_at', weekStartStr);
+
+    _taskCounts = {};
+    for (final task in countsResponse as List) {
+      final completedBy = task['completed_by'] as String?;
+      if (completedBy != null) {
+        _taskCounts[completedBy] = (_taskCounts[completedBy] ?? 0) + 1;
+      }
     }
   }
 
@@ -132,23 +153,46 @@ class DashboardProvider extends ChangeNotifier {
   /// Get workload distribution (tasks assigned per member)
   Future<Map<String, int>> getWorkloadDistribution(String householdId) async {
     try {
-      final response = await SupabaseService.client
-          .from('tasks')
-          .select('assigned_to')
-          .eq('household_id', householdId)
-          .eq('status', 'pending');
+      // Try using SQL aggregation first
+      try {
+        final response = await SupabaseService.client
+            .rpc('get_workload_distribution', params: {'p_household_id': householdId});
 
-      final workload = <String, int>{};
-      for (final task in response as List) {
-        final assignedTo = task['assigned_to'] as String?;
-        if (assignedTo != null) {
-          workload[assignedTo] = (workload[assignedTo] ?? 0) + 1;
+        final workload = <String, int>{};
+        for (final row in response as List) {
+          final userId = row['user_id'] as String?;
+          final count = row['task_count'] as int?;
+          if (userId != null && count != null) {
+            workload[userId] = count;
+          }
         }
+        return workload;
+      } catch (e) {
+        // Fallback to client-side counting
+        debugPrint('RPC not available, falling back to client-side counting: $e');
+        return _getWorkloadDistributionFallback(householdId);
       }
-      return workload;
     } catch (e) {
       debugPrint('Error getting workload: $e');
       return {};
     }
+  }
+
+  /// Fallback method for workload distribution (client-side counting)
+  Future<Map<String, int>> _getWorkloadDistributionFallback(String householdId) async {
+    final response = await SupabaseService.client
+        .from('tasks')
+        .select('assigned_to')
+        .eq('household_id', householdId)
+        .eq('status', 'pending');
+
+    final workload = <String, int>{};
+    for (final task in response as List) {
+      final assignedTo = task['assigned_to'] as String?;
+      if (assignedTo != null) {
+        workload[assignedTo] = (workload[assignedTo] ?? 0) + 1;
+      }
+    }
+    return workload;
   }
 }

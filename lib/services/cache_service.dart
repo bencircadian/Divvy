@@ -1,23 +1,62 @@
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/task.dart';
 
 class CacheService {
-  static const String _tasksBoxName = 'tasks_cache';
+  static const String _tasksBoxName = 'tasks_cache_encrypted';
   static const String _lastSyncKey = 'last_sync';
+  static const String _encryptionKeyName = 'hive_encryption_key';
 
   static Box? _tasksBox;
   static bool _isInitialized = false;
+  static const _secureStorage = FlutterSecureStorage();
 
   static Future<void> initialize() async {
     if (_isInitialized) return;
 
     await Hive.initFlutter();
-    _tasksBox = await Hive.openBox(_tasksBoxName);
+
+    // Get or generate encryption key
+    final encryptionCipher = await _getEncryptionCipher();
+
+    // Open encrypted box
+    _tasksBox = await Hive.openBox(
+      _tasksBoxName,
+      encryptionCipher: encryptionCipher,
+    );
     _isInitialized = true;
+  }
+
+  /// Get or generate the encryption cipher for Hive
+  static Future<HiveAesCipher?> _getEncryptionCipher() async {
+    // On web, secure storage is not persistent, so skip encryption
+    // (web data is already sandboxed per origin)
+    if (kIsWeb) {
+      return null;
+    }
+
+    try {
+      String? base64Key = await _secureStorage.read(key: _encryptionKeyName);
+
+      if (base64Key == null) {
+        // Generate a new 32-byte key
+        final key = Hive.generateSecureKey();
+        base64Key = base64Encode(key);
+        await _secureStorage.write(key: _encryptionKeyName, value: base64Key);
+      }
+
+      final keyBytes = base64Decode(base64Key);
+      return HiveAesCipher(Uint8List.fromList(keyBytes));
+    } catch (e) {
+      // If secure storage fails, log and continue without encryption
+      debugPrint('Failed to initialize encrypted cache: $e');
+      return null;
+    }
   }
 
   /// Check if device is online

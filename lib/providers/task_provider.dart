@@ -217,20 +217,50 @@ class TaskProvider extends ChangeNotifier {
         .subscribe();
   }
 
-  Future<void> _handleRealtimeEvent(PostgresChangePayload payload) async {
+  void _handleRealtimeEvent(PostgresChangePayload payload) {
     final eventType = payload.eventType;
 
-    if (eventType == PostgresChangeEvent.insert ||
-        eventType == PostgresChangeEvent.update) {
-      // Reload to get joined profile data
-      if (_currentHouseholdId != null) {
-        await loadTasks(_currentHouseholdId!);
+    if (eventType == PostgresChangeEvent.insert) {
+      // Add new task directly from payload
+      try {
+        final newRecord = payload.newRecord;
+        if (newRecord.isNotEmpty) {
+          final task = Task.fromJson(newRecord);
+          // Avoid duplicates
+          if (!_tasks.any((t) => t.id == task.id)) {
+            _tasks.add(task);
+            // Update cache
+            CacheService.cacheTasks(_tasks);
+            notifyListeners();
+          }
+        }
+      } catch (e) {
+        debugPrint('Error parsing inserted task: $e');
+      }
+    } else if (eventType == PostgresChangeEvent.update) {
+      // Update existing task directly from payload
+      try {
+        final newRecord = payload.newRecord;
+        if (newRecord.isNotEmpty) {
+          final updatedTask = Task.fromJson(newRecord);
+          final index = _tasks.indexWhere((t) => t.id == updatedTask.id);
+          if (index >= 0) {
+            _tasks[index] = updatedTask;
+            // Update cache
+            CacheService.cacheTasks(_tasks);
+            notifyListeners();
+          }
+        }
+      } catch (e) {
+        debugPrint('Error parsing updated task: $e');
       }
     } else if (eventType == PostgresChangeEvent.delete) {
       final oldRecord = payload.oldRecord;
       final deletedId = oldRecord['id'] as String?;
       if (deletedId != null) {
         _tasks.removeWhere((t) => t.id == deletedId);
+        // Update cache
+        CacheService.cacheTasks(_tasks);
         notifyListeners();
       }
     }
@@ -328,7 +358,46 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  /// Upload a cover image for a task
+  // File upload constants
+  static const int _maxFileSizeBytes = 5 * 1024 * 1024; // 5MB
+  static const Set<String> _allowedImageTypes = {'jpg', 'jpeg', 'png', 'gif', 'webp'};
+  static const Set<String> _allowedMimeTypes = {
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp'
+  };
+
+  /// Validate image file by checking magic bytes
+  bool _isValidImageBytes(List<int> bytes) {
+    if (bytes.length < 4) return false;
+
+    // JPEG: starts with FF D8 FF
+    if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) {
+      return true;
+    }
+
+    // PNG: starts with 89 50 4E 47 0D 0A 1A 0A
+    if (bytes.length >= 8 &&
+        bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47 &&
+        bytes[4] == 0x0D && bytes[5] == 0x0A && bytes[6] == 0x1A && bytes[7] == 0x0A) {
+      return true;
+    }
+
+    // GIF: starts with GIF87a or GIF89a
+    if (bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38 &&
+        (bytes[4] == 0x37 || bytes[4] == 0x39) && bytes[5] == 0x61) {
+      return true;
+    }
+
+    // WebP: starts with RIFF....WEBP
+    if (bytes.length >= 12 &&
+        bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46 &&
+        bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Upload a cover image for a task with validation
   Future<String?> uploadCoverImage(String taskId, XFile imageFile) async {
     try {
       final userId = SupabaseService.currentUser?.id;
@@ -337,14 +406,41 @@ class TaskProvider extends ChangeNotifier {
       // Read the file bytes
       final bytes = await imageFile.readAsBytes();
 
+      // Validate file size (max 5MB)
+      if (bytes.length > _maxFileSizeBytes) {
+        _errorMessage = 'Image too large. Maximum size is 5MB.';
+        notifyListeners();
+        return null;
+      }
+
       // Get file extension - handle web blob URLs by using mimeType or defaulting to jpg
       String fileExt = 'jpg';
       if (imageFile.mimeType != null) {
+        // Validate MIME type
+        if (!_allowedMimeTypes.contains(imageFile.mimeType!.toLowerCase())) {
+          _errorMessage = 'Invalid file type. Only images are allowed.';
+          notifyListeners();
+          return null;
+        }
         // Extract extension from mimeType (e.g., "image/jpeg" -> "jpeg")
         final mimeExt = imageFile.mimeType!.split('/').last;
         fileExt = mimeExt == 'jpeg' ? 'jpg' : mimeExt;
       } else if (imageFile.path.contains('.') && !imageFile.path.startsWith('blob:')) {
         fileExt = imageFile.path.split('.').last.toLowerCase();
+      }
+
+      // Validate file extension
+      if (!_allowedImageTypes.contains(fileExt)) {
+        _errorMessage = 'Invalid file type. Allowed: jpg, png, gif, webp';
+        notifyListeners();
+        return null;
+      }
+
+      // Validate file content (check magic bytes for common image formats)
+      if (!_isValidImageBytes(bytes)) {
+        _errorMessage = 'Invalid image file. File may be corrupted.';
+        notifyListeners();
+        return null;
       }
 
       final fileName = '${taskId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
@@ -620,16 +716,19 @@ class TaskProvider extends ChangeNotifier {
           .eq('household_id', task.householdId)
           .neq('user_id', completedByUserId);
 
-      for (final member in membersResponse as List) {
-        final memberId = member['user_id'] as String;
-        await NotificationProvider.createNotification(
-          userId: memberId,
+      // Build batch of notifications
+      final notifications = (membersResponse as List).map((member) {
+        return NotificationProvider.buildNotificationData(
+          userId: member['user_id'] as String,
           type: NotificationType.taskCompleted,
           title: 'Task completed',
           body: '$userName completed "${task.title}"',
           data: {'task_id': task.id},
         );
-      }
+      }).toList();
+
+      // Insert all notifications in a single batch
+      await NotificationProvider.createNotificationBatch(notifications);
     } catch (e) {
       debugPrint('Error sending completion notifications: $e');
     }
@@ -642,7 +741,10 @@ class TaskProvider extends ChangeNotifier {
 
   // ============ Notes Methods ============
 
-  Future<List<TaskNote>> loadNotes(String taskId) async {
+  /// Load notes with pagination
+  /// [limit] - number of notes to load (default 20)
+  /// [offset] - number of notes to skip for pagination
+  Future<List<TaskNote>> loadNotes(String taskId, {int limit = 20, int offset = 0}) async {
     try {
       final response = await SupabaseService.client
           .from('task_notes')
@@ -651,7 +753,8 @@ class TaskProvider extends ChangeNotifier {
             profiles(display_name)
           ''')
           .eq('task_id', taskId)
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
 
       return (response as List).map((json) => TaskNote.fromJson(json)).toList();
     } catch (e) {
@@ -762,7 +865,10 @@ class TaskProvider extends ChangeNotifier {
 
   // ============ History Methods ============
 
-  Future<List<TaskHistory>> loadHistory(String taskId) async {
+  /// Load history with pagination
+  /// [limit] - number of history entries to load (default 30)
+  /// [offset] - number of entries to skip for pagination
+  Future<List<TaskHistory>> loadHistory(String taskId, {int limit = 30, int offset = 0}) async {
     try {
       final response = await SupabaseService.client
           .from('task_history')
@@ -771,7 +877,8 @@ class TaskProvider extends ChangeNotifier {
             profiles(display_name)
           ''')
           .eq('task_id', taskId)
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
 
       return (response as List).map((json) => TaskHistory.fromJson(json)).toList();
     } catch (e) {

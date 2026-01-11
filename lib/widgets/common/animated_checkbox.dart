@@ -182,11 +182,13 @@ class _SuccessGlowState extends State<SuccessGlow>
       ),
     ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onGlowComplete?.call();
-      }
-    });
+    _controller.addStatusListener(_onAnimationStatusChanged);
+  }
+
+  void _onAnimationStatusChanged(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      widget.onGlowComplete?.call();
+    }
   }
 
   @override
@@ -199,6 +201,7 @@ class _SuccessGlowState extends State<SuccessGlow>
 
   @override
   void dispose() {
+    _controller.removeStatusListener(_onAnimationStatusChanged);
     _controller.dispose();
     super.dispose();
   }

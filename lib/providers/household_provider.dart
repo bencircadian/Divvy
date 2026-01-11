@@ -235,10 +235,11 @@ class HouseholdProvider extends ChangeNotifier {
     }
   }
 
+  /// Generate a secure invite code (12 characters = 4.7e18 combinations)
   String _generateInviteCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random.secure();
-    return List.generate(6, (_) => chars[random.nextInt(chars.length)]).join();
+    return List.generate(12, (_) => chars[random.nextInt(chars.length)]).join();
   }
 
   void clearError() {

@@ -60,6 +60,9 @@ dependencies:
   hive_flutter: ^1.1.0
   connectivity_plus: ^6.1.4
 
+  # Secure storage for encryption keys
+  flutter_secure_storage: ^9.2.2
+
   # Deep linking
   app_links: ^6.3.3
 

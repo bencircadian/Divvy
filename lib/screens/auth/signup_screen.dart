@@ -165,7 +165,11 @@ class _SignupScreenState extends State<SignupScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!value.contains('@')) {
+                      // RFC 5322 compliant email regex
+                      final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$',
+                      );
+                      if (!emailRegex.hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -197,8 +201,17 @@ class _SignupScreenState extends State<SignupScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a password';
                       }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
+                      if (value.length < 8) {
+                        return 'Password must be at least 8 characters';
+                      }
+                      if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                        return 'Password must contain an uppercase letter';
+                      }
+                      if (!RegExp(r'[a-z]').hasMatch(value)) {
+                        return 'Password must contain a lowercase letter';
+                      }
+                      if (!RegExp(r'[0-9]').hasMatch(value)) {
+                        return 'Password must contain a number';
                       }
                       return null;
                     },

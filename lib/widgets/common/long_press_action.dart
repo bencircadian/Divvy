@@ -52,16 +52,19 @@ class _LongPressActionState extends State<LongPressAction>
       ),
     );
 
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed && _isHolding) {
-        setState(() => _showOverlay = true);
-        HapticFeedback.mediumImpact();
-      }
-    });
+    _controller.addStatusListener(_onAnimationStatusChanged);
+  }
+
+  void _onAnimationStatusChanged(AnimationStatus status) {
+    if (status == AnimationStatus.completed && _isHolding) {
+      setState(() => _showOverlay = true);
+      HapticFeedback.mediumImpact();
+    }
   }
 
   @override
   void dispose() {
+    _controller.removeStatusListener(_onAnimationStatusChanged);
     _controller.dispose();
     super.dispose();
   }
