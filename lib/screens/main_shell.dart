@@ -90,6 +90,7 @@ class _MainShellState extends State<MainShell> {
     required int unreadCount,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
 
     return Container(
       padding: EdgeInsets.only(
@@ -115,11 +116,11 @@ class _MainShellState extends State<MainShell> {
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                  backgroundColor: primaryColor.withValues(alpha: 0.15),
                   child: Text(
                     userName[0].toUpperCase(),
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: primaryColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -132,7 +133,7 @@ class _MainShellState extends State<MainShell> {
                     width: 12,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: AppColors.success,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Theme.of(context).scaffoldBackgroundColor,
@@ -283,6 +284,7 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildOrganicBottomNav(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
 
     return Container(
       decoration: BoxDecoration(
@@ -309,31 +311,31 @@ class _MainShellState extends State<MainShell> {
                 behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
                   duration: AppAnimations.fast,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary.withValues(alpha: 0.15)
+                        ? primaryColor.withValues(alpha: 0.15)
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    borderRadius: BorderRadius.circular(10), // Square-ish rounded corners
                   ),
-                  child: Row(
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         item.icon,
                         size: 24,
                         color: isSelected
-                            ? AppColors.primary
+                            ? primaryColor
                             : (isDark ? Colors.grey[500] : Colors.grey[600]),
                       ),
                       if (isSelected) ...[
-                        SizedBox(width: AppSpacing.sm),
+                        SizedBox(height: AppSpacing.xs),
                         Text(
                           item.label,
                           style: TextStyle(
-                            color: AppColors.primary,
+                            color: primaryColor,
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 11,
                           ),
                         ),
                       ],
@@ -350,13 +352,14 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildOrganicFab(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
 
     return Container(
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.4),
+            color: primaryColor.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -365,8 +368,9 @@ class _MainShellState extends State<MainShell> {
       child: FloatingActionButton(
         onPressed: _addTask,
         elevation: 0,
-        backgroundColor: AppColors.primary,
-        foregroundColor: isDark ? AppColors.backgroundDarkDeep : Colors.white,
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         child: const Icon(Icons.add_rounded, size: 28),
       ),
     );

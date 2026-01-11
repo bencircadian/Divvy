@@ -87,28 +87,33 @@ class _DivvyAppState extends State<DivvyApp> {
 
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    // Use DM Sans for the organic theme
+    // Use DM Sans for clean, modern typography
     final textTheme = GoogleFonts.dmSansTextTheme(
       brightness == Brightness.dark ? ThemeData.dark().textTheme : ThemeData.light().textTheme,
     );
 
-    // Custom color scheme with new green palette
+    // Dynamic primary color based on theme
+    // Light: Teal (#009688) | Dark: Rose/Pink (#F67280)
+    final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
+    final accentColor = isDark ? AppColors.accentDarkMode : AppColors.accent;
+
     final colorScheme = ColorScheme(
       brightness: brightness,
-      primary: AppColors.primary,
+      primary: primaryColor,
       onPrimary: Colors.white,
-      primaryContainer: AppColors.primary.withValues(alpha: 0.15),
-      onPrimaryContainer: AppColors.primaryDark,
-      secondary: AppColors.primary,
+      primaryContainer: primaryColor.withValues(alpha: 0.15),
+      onPrimaryContainer: isDark ? AppColors.primaryDarkModeLight : AppColors.primaryDark,
+      secondary: accentColor,
       onSecondary: Colors.white,
-      secondaryContainer: AppColors.primary.withValues(alpha: 0.15),
-      onSecondaryContainer: AppColors.primaryDark,
+      secondaryContainer: accentColor.withValues(alpha: 0.15),
+      onSecondaryContainer: accentColor,
+      tertiary: isDark ? AppColors.primary : AppColors.accent, // Cross-accent
       error: AppColors.error,
       onError: Colors.white,
       surface: isDark ? AppColors.cardDark : AppColors.cardLight,
-      onSurface: isDark ? Colors.white : Colors.grey[900]!,
+      onSurface: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
       surfaceContainerHighest: isDark ? AppColors.surfaceDark : Colors.grey[100]!,
-      outline: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+      outline: isDark ? AppColors.dividerDark : AppColors.dividerLight,
       shadow: Colors.black,
     );
 
@@ -132,16 +137,16 @@ class _DivvyAppState extends State<DivvyApp> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: isDark ? Colors.grey[700]! : Colors.grey[200]!),
+          borderSide: BorderSide(color: isDark ? AppColors.dividerDark : Colors.grey[200]!),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: AppColors.primary, width: 2),
+          borderSide: BorderSide(color: primaryColor, width: 2),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(50),
           shape: RoundedRectangleBorder(
@@ -151,8 +156,8 @@ class _DivvyAppState extends State<DivvyApp> {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: BorderSide(color: AppColors.primary),
+          foregroundColor: primaryColor,
+          side: BorderSide(color: primaryColor),
           minimumSize: const Size.fromHeight(50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
@@ -171,20 +176,20 @@ class _DivvyAppState extends State<DivvyApp> {
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
-        foregroundColor: isDark ? const Color(0xFF102219) : Colors.white,
-        elevation: isDark ? 8 : 0,
-        shape: const CircleBorder(),
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        elevation: isDark ? 8 : 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
-        indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+        indicatorColor: primaryColor.withValues(alpha: 0.15),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: primaryColor,
             );
           }
           return TextStyle(
@@ -194,7 +199,7 @@ class _DivvyAppState extends State<DivvyApp> {
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return IconThemeData(color: AppColors.primary);
+            return IconThemeData(color: primaryColor);
           }
           return IconThemeData(color: isDark ? Colors.grey[400] : Colors.grey[600]);
         }),

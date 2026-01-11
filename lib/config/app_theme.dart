@@ -60,29 +60,42 @@ class AppTextStyles {
 
 /// App-wide colors
 class AppColors {
-  // Brand colors - Modern Green palette
-  static const Color primary = Color(0xFF13EC80);
-  static const Color primaryLight = Color(0xFF4FF59E);
-  static const Color primaryDark = Color(0xFF0BBF66);
+  // === LIGHT MODE - Teal & Copper ===
+  static const Color primary = Color(0xFF009688);           // Teal (main brand)
+  static const Color primaryLight = Color(0xFF4DB6AC);      // Light teal
+  static const Color primaryDark = Color(0xFF00796B);       // Dark teal
+  static const Color accent = Color(0xFFE07A5F);            // Copper/Terracotta
+  static const Color accentLight = Color(0xFFF4A261);       // Light copper
+
+  // === DARK MODE - Rose Gold & Teal ===
+  static const Color primaryDarkMode = Color(0xFFF67280);   // Rose/Pink
+  static const Color primaryDarkModeLight = Color(0xFFFFB3BA); // Light pink
+  static const Color accentDarkMode = Color(0xFF4DB6AC);    // Teal accent
 
   // Background colors (Light mode)
-  static const Color backgroundLight = Color(0xFFF6F8F7);
+  static const Color backgroundLight = Color(0xFFF5F5F5);
   static const Color cardLight = Color(0xFFFFFFFF);
   static const Color surfaceLight = Color(0xFFFFFFFF);
 
-  // Background colors (Dark mode) - Organic Bloom theme
-  static const Color backgroundDark = Color(0xFF0D1F17);
-  static const Color backgroundDarkAlt = Color(0xFF102219);
-  static const Color backgroundDarkDeep = Color(0xFF0A1912);
-  static const Color cardDark = Color(0xFF162E22);
-  static const Color surfaceDark = Color(0xFF1A3929);
+  // Background colors (Dark mode) - Navy theme
+  static const Color backgroundDark = Color(0xFF1E1E2E);
+  static const Color backgroundDarkAlt = Color(0xFF2A2A3C);
+  static const Color backgroundDarkDeep = Color(0xFF16161F);
+  static const Color cardDark = Color(0xFF2A2A3C);
+  static const Color surfaceDark = Color(0xFF353548);
 
-  // Organic theme specific
-  static const Color textPrimary = Color(0xFFE8F5E9);
-  static const Color textSecondary = Color(0x80E8F5E9); // 50% opacity
-  static const Color cardBorder = Color(0x14FFFFFF); // 8% white
-  static const Color cardBackground = Color(0x0FFFFFFF); // 6% white
+  // Text colors
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xB3FFFFFF);     // 70% white
+  static const Color textPrimaryLight = Color(0xFF1A1A1A);
+  static const Color textSecondaryLight = Color(0xFF757575);
+
+  // Card styling
+  static const Color cardBorder = Color(0x14FFFFFF);        // 8% white
+  static const Color cardBackground = Color(0x0FFFFFFF);    // 6% white
   static const Color cardBackgroundSubtle = Color(0x08FFFFFF); // 3% white
+  static const Color dividerLight = Color(0xFFE0E0E0);
+  static const Color dividerDark = Color(0xFF404052);
 
   // Status colors
   static const Color success = Color(0xFF4CAF50);
