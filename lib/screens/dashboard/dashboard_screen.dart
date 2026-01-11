@@ -318,23 +318,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildTaskListItem(Task task) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final priorityColor = _getPriorityColor(task.priority);
+    final categoryColor = _getCategoryColor(task);
+    final categoryName = _getCategoryName(task);
 
     String subtitle = '';
     Color subtitleColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
 
     if (task.isOverdue) {
-      subtitle = 'Overdue • High Priority';
+      subtitle = 'Overdue';
       subtitleColor = AppColors.error;
     } else if (task.duePeriod != null) {
       subtitle = task.duePeriod!.name[0].toUpperCase() + task.duePeriod!.name.substring(1);
-      if (task.priority == TaskPriority.high) {
-        subtitle += ' • High Priority';
-        subtitleColor = AppColors.error;
-      }
-    } else if (task.priority == TaskPriority.high) {
-      subtitle = 'Due Today • High Priority';
-      subtitleColor = AppColors.error;
     } else {
       subtitle = 'Due Today';
     }
@@ -345,19 +339,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            // Checkbox placeholder
+            // Category color indicator
             Container(
-              width: 24,
-              height: 24,
+              width: 4,
+              height: 40,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isDark ? Colors.grey[600]! : Colors.grey[300]!,
-                  width: 2,
-                ),
+                color: categoryColor,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             // Task content
             Expanded(
               child: Column(
@@ -371,27 +362,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: isDark ? Colors.white : Colors.grey[900],
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: subtitleColor,
-                    ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      // Category badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: categoryColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          categoryName,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: categoryColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: subtitleColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            // Priority dot
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: priorityColor,
-                shape: BoxShape.circle,
-              ),
-            ),
+            // Priority indicator for high priority
+            if (task.priority == TaskPriority.high)
+              Icon(Icons.priority_high, size: 18, color: AppColors.error),
           ],
         ),
       ),
@@ -510,7 +515,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildUpcomingTaskItem(Task task) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final priorityColor = _getPriorityColor(task.priority);
+    final categoryColor = _getCategoryColor(task);
+    final categoryName = _getCategoryName(task);
 
     return InkWell(
       onTap: () => context.push('/task/${task.id}'),
@@ -518,16 +524,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            // Priority dot
+            // Category color indicator
             Container(
-              width: 8,
-              height: 8,
+              width: 4,
+              height: 40,
               decoration: BoxDecoration(
-                color: priorityColor,
-                shape: BoxShape.circle,
+                color: categoryColor,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             // Task content
             Expanded(
               child: Column(
@@ -541,16 +547,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: isDark ? Colors.white : Colors.grey[900],
                     ),
                   ),
-                  if (task.dueDate != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      TaskDateUtils.formatDueDateShort(task.dueDate!),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      // Category badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: categoryColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          categoryName,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: categoryColor,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      if (task.dueDate != null) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          TaskDateUtils.formatDueDateShort(task.dueDate!),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -947,5 +974,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (ratio > 0.7) return AppColors.error;
     if (ratio > 0.4) return AppColors.warning;
     return AppColors.primary;
+  }
+
+  Color _getCategoryColor(Task task) {
+    final category = task.category?.toLowerCase() ?? '';
+    final lowerTitle = task.title.toLowerCase();
+
+    if (category == 'kitchen' || lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
+      return AppColors.kitchen;
+    } else if (category == 'bathroom' || lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
+      return AppColors.bathroom;
+    } else if (category == 'living' || lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
+      return AppColors.living;
+    } else if (category == 'outdoor' || lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
+      return AppColors.outdoor;
+    } else if (category == 'pet' || lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
+      return AppColors.pet;
+    } else if (category == 'laundry' || lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
+      return AppColors.laundry;
+    } else if (category == 'grocery' || lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
+      return AppColors.grocery;
+    } else if (category == 'maintenance' || lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
+      return AppColors.maintenance;
+    }
+    return AppColors.primary;
+  }
+
+  String _getCategoryName(Task task) {
+    if (task.category != null && task.category!.isNotEmpty) {
+      return task.category![0].toUpperCase() + task.category!.substring(1);
+    }
+
+    final lowerTitle = task.title.toLowerCase();
+    if (lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
+      return 'Kitchen';
+    } else if (lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
+      return 'Bathroom';
+    } else if (lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
+      return 'Living';
+    } else if (lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
+      return 'Outdoor';
+    } else if (lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
+      return 'Pet';
+    } else if (lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
+      return 'Laundry';
+    } else if (lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
+      return 'Grocery';
+    } else if (lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
+      return 'Maintenance';
+    }
+    return 'Task';
   }
 }
