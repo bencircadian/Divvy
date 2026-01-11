@@ -7,6 +7,7 @@ import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../utils/date_utils.dart';
 import '../../widgets/common/member_avatar.dart';
+import '../../widgets/dashboard/dashboard_widgets.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
@@ -137,13 +138,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final taskProvider = context.watch<TaskProvider>();
     final householdProvider = context.watch<HouseholdProvider>();
     final members = householdProvider.members;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
 
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async => _loadData(),
-        color: AppColors.primary,
+        color: primaryColor,
         child: dashboardProvider.isLoading
-            ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+            ? Center(child: CircularProgressIndicator(color: primaryColor))
             : ListView(
                 padding: EdgeInsets.all(AppSpacing.md),
                 children: [
@@ -188,67 +191,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildStatsRow(TaskProvider taskProvider) {
     final activeTasks = taskProvider.incompleteTodayTasks.length;
-    final upcomingTasks = taskProvider.upcomingUniqueTasks.length;
     final completedTasks = taskProvider.completedTasks.length;
 
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Active', '$activeTasks', AppColors.primary)),
+        Expanded(
+          child: StatCard(
+            icon: Icons.checklist_rounded,
+            label: 'Active Tasks',
+            value: '$activeTasks',
+            subtitle: 'Due today',
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Upcoming', '$upcomingTasks', AppColors.warning)),
-        const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Done', '$completedTasks', AppColors.success)),
+        Expanded(
+          child: StatCard(
+            icon: Icons.check_circle_outline,
+            label: 'Completed',
+            value: '$completedTasks',
+            subtitle: 'All time',
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, Color color) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]!,
-        ),
-        boxShadow: AppShadows.cardShadow(isDark),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
+
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.12),
+            color: primaryColor.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
-          child: Icon(icon, color: AppColors.primary, size: 18),
+          child: Icon(icon, color: primaryColor, size: 18),
         ),
         const SizedBox(width: 12),
         Text(
