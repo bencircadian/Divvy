@@ -168,11 +168,20 @@ class AppShadows {
       ];
 }
 
-/// App-wide animation durations
+/// App-wide animation durations and curves
 class AppAnimations {
+  // Durations
   static const Duration fast = Duration(milliseconds: 150);
   static const Duration normal = Duration(milliseconds: 300);
   static const Duration slow = Duration(milliseconds: 500);
+  static const Duration pageTransition = Duration(milliseconds: 350);
+  static const Duration staggerDelay = Duration(milliseconds: 50);
+
+  // Curves
+  static const Curve defaultCurve = Curves.easeOutCubic;
+  static const Curve bouncyCurve = Curves.elasticOut;
+  static const Curve snappyCurve = Curves.easeOutBack;
+  static const Curve smoothCurve = Curves.easeInOutCubic;
 }
 
 /// ============================================================================

@@ -168,7 +168,12 @@ class TaskProvider extends ChangeNotifier {
     try {
       final response = await SupabaseService.client
           .from('tasks')
-          .select('*')
+          .select('''
+            *,
+            assigned_profile:profiles!tasks_assigned_to_fkey(display_name),
+            created_profile:profiles!tasks_created_by_fkey(display_name),
+            completed_profile:profiles!tasks_completed_by_fkey(display_name)
+          ''')
           .eq('household_id', householdId)
           .order('due_date', ascending: true, nullsFirst: false)
           .order('created_at', ascending: false);

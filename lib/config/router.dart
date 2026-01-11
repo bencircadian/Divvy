@@ -14,6 +14,55 @@ import '../screens/onboarding/join_household_screen.dart';
 import '../screens/onboarding/quick_setup_screen.dart';
 import '../screens/tasks/create_task_screen.dart';
 import '../screens/tasks/task_detail_screen.dart';
+import 'app_theme.dart';
+
+/// Custom page transition for smooth navigation
+CustomTransitionPage<T> _buildPageWithTransition<T>({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+  bool slideFromBottom = false,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: AppAnimations.pageTransition,
+    reverseTransitionDuration: AppAnimations.normal,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: AppAnimations.defaultCurve,
+        reverseCurve: Curves.easeIn,
+      );
+
+      if (slideFromBottom) {
+        // Slide from bottom for modals/create screens
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.15),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: FadeTransition(
+            opacity: curvedAnimation,
+            child: child,
+          ),
+        );
+      }
+
+      // Shared axis transition for normal navigation
+      return FadeTransition(
+        opacity: Tween<double>(begin: 0, end: 1).animate(curvedAnimation),
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.03, 0),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: child,
+        ),
+      );
+    },
+  );
+}
 
 class AppRouter {
   static GoRouter router(AuthProvider authProvider, HouseholdProvider householdProvider) {
@@ -88,24 +137,40 @@ class AppRouter {
         GoRoute(
           path: '/login',
           name: 'login',
-          builder: (context, state) => const LoginScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const LoginScreen(),
+          ),
         ),
         GoRoute(
           path: '/signup',
           name: 'signup',
-          builder: (context, state) => const SignupScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const SignupScreen(),
+          ),
         ),
         GoRoute(
           path: '/create-household',
           name: 'create-household',
-          builder: (context, state) => const CreateHouseholdScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const CreateHouseholdScreen(),
+          ),
         ),
         GoRoute(
           path: '/join-household',
           name: 'join-household',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final code = state.uri.queryParameters['code'];
-            return JoinHouseholdScreen(initialCode: code);
+            return _buildPageWithTransition(
+              context: context,
+              state: state,
+              child: JoinHouseholdScreen(initialCode: code),
+            );
           },
         ),
         GoRoute(
@@ -119,39 +184,68 @@ class AppRouter {
         GoRoute(
           path: '/quick-setup',
           name: 'quick-setup',
-          builder: (context, state) => const QuickSetupScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const QuickSetupScreen(),
+          ),
         ),
         GoRoute(
           path: '/home',
           name: 'home',
-          builder: (context, state) => const MainShell(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const MainShell(),
+          ),
         ),
         GoRoute(
           path: '/create-task',
           name: 'create-task',
-          builder: (context, state) => const CreateTaskScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const CreateTaskScreen(),
+            slideFromBottom: true,
+          ),
         ),
         GoRoute(
           path: '/task/:id',
           name: 'task-detail',
-          builder: (context, state) => TaskDetailScreen(
-            taskId: state.pathParameters['id']!,
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: TaskDetailScreen(
+              taskId: state.pathParameters['id']!,
+            ),
           ),
         ),
         GoRoute(
           path: '/notifications',
           name: 'notifications',
-          builder: (context, state) => const NotificationsScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const NotificationsScreen(),
+          ),
         ),
         GoRoute(
           path: '/notifications/settings',
           name: 'notification-settings',
-          builder: (context, state) => const NotificationSettingsScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const NotificationSettingsScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/link-account',
           name: 'link-account',
-          builder: (context, state) => const LinkAccountScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const LinkAccountScreen(),
+          ),
         ),
       ],
     );

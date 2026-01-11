@@ -6,3 +6,4 @@ export 'stat_card.dart';
 export 'progress_task_card.dart';
 export 'weekly_overview_card.dart';
 export 'leaderboard_item.dart';
+export 'stacked_bar_chart.dart';

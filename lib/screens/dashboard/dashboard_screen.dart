@@ -730,62 +730,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
 
-    final maxTasks = workload.values.fold(unassigned, (a, b) => a > b ? a : b);
+    // Build segments for each member
+    final memberIds = members.map((m) => m.userId as String).toList();
+    final segments = <BarSegment>[];
+
+    for (final member in members) {
+      final count = workload[member.userId] ?? 0;
+      if (count > 0) {
+        segments.add(BarSegment(
+          id: member.userId,
+          label: member.displayName ?? 'Unknown',
+          value: count,
+          color: MemberColors.getColorForId(member.userId, memberIds),
+        ));
+      }
+    }
+
+    // Add unassigned segment if there are any
+    if (unassigned > 0) {
+      segments.add(BarSegment(
+        id: 'unassigned',
+        label: 'Unassigned',
+        value: unassigned,
+        color: Colors.grey[400]!,
+      ));
+    }
+
+    final totalTasks = pendingTasks.length;
 
     return Card(
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...members.map((member) {
-              final count = workload[member.userId] ?? 0;
-              final percentage = maxTasks > 0 ? count / maxTasks : 0.0;
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        member.displayName ?? 'Unknown',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.grey[300] : Colors.grey[800],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        child: LinearProgressIndicator(
-                          value: percentage,
-                          minHeight: 12,
-                          backgroundColor: isDark ? AppColors.surfaceDark : Colors.grey[200],
-                          valueColor: AlwaysStoppedAnimation(
-                            _getWorkloadColor(count, maxTasks),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: 24,
-                      child: Text(
-                        '$count',
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+            Row(
+              children: [
+                Text(
+                  '$totalTasks pending task${totalTasks != 1 ? 's' : ''}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.grey[900],
+                  ),
                 ),
-              );
-            }),
+              ],
+            ),
+            SizedBox(height: AppSpacing.md),
+            StackedBarChart(
+              segments: segments,
+              height: 32,
+              showLegend: true,
+              showValues: true,
+            ),
             if (unassigned > 0) ...[
-              SizedBox(height: AppSpacing.sm),
+              SizedBox(height: AppSpacing.md),
               InkWell(
                 onTap: () => _showUnassignedTasksSheet(provider, members),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -801,7 +800,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          '$unassigned unassigned task${unassigned > 1 ? 's' : ''}',
+                          'Tap to assign $unassigned task${unassigned > 1 ? 's' : ''}',
                           style: TextStyle(
                             color: Colors.orange[700],
                             fontSize: 13,
@@ -825,7 +824,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final taskCounts = provider.taskCounts;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (taskCounts.isEmpty) {
+    if (taskCounts.isEmpty || taskCounts.values.every((v) => v == 0)) {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -856,6 +855,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final totalCompleted = taskCounts.values.fold(0, (a, b) => a + b);
 
+    // Build segments for each member
+    final memberIds = members.map((m) => m.userId as String).toList();
+    final segments = <BarSegment>[];
+
+    for (final member in members) {
+      final count = taskCounts[member.userId] ?? 0;
+      if (count > 0) {
+        segments.add(BarSegment(
+          id: member.userId,
+          label: member.displayName ?? 'Unknown',
+          value: count,
+          color: MemberColors.getColorForId(member.userId, memberIds),
+        ));
+      }
+    }
+
     return Card(
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.md),
@@ -876,61 +891,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    '$totalCompleted tasks completed this week',
+                    '$totalCompleted task${totalCompleted != 1 ? 's' : ''} completed this week',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ),
-            Divider(
-              height: 24,
-              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200],
+            SizedBox(height: AppSpacing.md),
+            StackedBarChart(
+              segments: segments,
+              height: 32,
+              showLegend: true,
+              showValues: true,
             ),
-            ...members.asMap().entries.map((entry) {
-              final index = entry.key;
-              final member = entry.value;
-              final count = taskCounts[member.userId] ?? 0;
-              final isLast = index == members.length - 1;
-
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        MemberAvatar(
-                          displayName: member.displayName,
-                          radius: 14,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            member.displayName ?? 'Unknown',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: isDark ? Colors.grey[300] : Colors.grey[800],
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '$count',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: count > 0 ? AppColors.primary : (isDark ? Colors.grey[500] : Colors.grey[400]),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (!isLast)
-                    Divider(
-                      height: 1,
-                      indent: 40,
-                      color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200],
-                    ),
-                ],
-              );
-            }),
           ],
         ),
       ),
@@ -946,14 +919,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case TaskPriority.low:
         return AppColors.primary.withValues(alpha: 0.6);
     }
-  }
-
-  Color _getWorkloadColor(int count, int max) {
-    if (max == 0) return Colors.grey;
-    final ratio = count / max;
-    if (ratio > 0.7) return AppColors.error;
-    if (ratio > 0.4) return AppColors.warning;
-    return AppColors.primary;
   }
 
   Color _getCategoryColor(Task task) {
