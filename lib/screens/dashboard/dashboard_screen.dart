@@ -8,6 +8,7 @@ import '../../models/productivity_insights.dart';
 import '../../models/task.dart';
 import '../../utils/date_utils.dart';
 import '../../widgets/bundles/bundle_card.dart';
+import '../../widgets/bundles/create_bundle_sheet.dart';
 import '../../widgets/common/member_avatar.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
 import '../../widgets/dashboard/insights_card.dart';
@@ -66,6 +67,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _insightsLoading = false;
       });
     }
+  }
+
+  Future<void> _showCreateBundleSheet() async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => const CreateBundleSheet(),
+    );
   }
 
   void _showUnassignedTasksSheet(TaskProvider provider, List members) {
@@ -204,21 +214,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildUpcomingTasks(taskProvider.upcomingUniqueTasks),
                   SizedBox(height: AppSpacing.lg),
 
-                  // Task Bundles Section (if any exist)
+                  // Task Bundles Section
                   Builder(
                     builder: (context) {
                       final bundleProvider = context.watch<BundleProvider>();
                       final activeBundles = bundleProvider.activeBundles;
-                      if (activeBundles.isEmpty) return const SizedBox.shrink();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionHeader(context, 'Bundles', Icons.folder_special),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildSectionHeader(context, 'Bundles', Icons.folder_special),
+                              ),
+                              TextButton.icon(
+                                onPressed: _showCreateBundleSheet,
+                                icon: const Icon(Icons.add, size: 18),
+                                label: const Text('Create'),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                ),
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 12),
-                          ...activeBundles.take(3).map((bundle) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: BundleCard(bundle: bundle, compact: true),
-                          )),
+                          if (activeBundles.isEmpty)
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withValues(alpha: 0.12),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.folder_outlined, color: AppColors.primary, size: 24),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        'Create bundles to group related tasks',
+                                        style: TextStyle(
+                                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          else
+                            ...activeBundles.take(3).map((bundle) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: BundleCard(
+                                bundle: bundle,
+                                compact: true,
+                                onTap: () => context.push('/bundle/${bundle.id}'),
+                              ),
+                            )),
                           SizedBox(height: AppSpacing.lg),
                         ],
                       );

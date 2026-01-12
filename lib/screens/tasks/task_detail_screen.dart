@@ -18,6 +18,7 @@ import '../../services/appreciation_service.dart';
 import '../../services/smart_recurrence_service.dart';
 import '../../services/supabase_service.dart';
 import '../../services/task_contributor_service.dart';
+import '../../widgets/bundles/add_to_bundle_sheet.dart';
 import '../../widgets/common/appreciation_button.dart';
 import '../../widgets/tasks/claim_credit_sheet.dart';
 import '../../widgets/tasks/contributor_chips.dart';
@@ -262,6 +263,26 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _showAddToBundleSheet(Task task) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => AddToBundleSheet(
+        taskId: task.id,
+        currentBundleId: task.bundleId,
+      ),
+    );
+
+    // Reload tasks to reflect bundle changes
+    if (mounted) {
+      final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
+      if (householdId != null) {
+        context.read<TaskProvider>().loadTasks(householdId);
+      }
+    }
   }
 
   Future<void> _pickAndUploadCoverImage() async {
@@ -719,6 +740,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     child: FilledButton.tonal(
                       onPressed: _toggleComplete,
                       child: Text(task.isCompleted ? 'Mark Pending' : 'Mark Complete'),
+                    ),
+                  ),
+                  // Add to Bundle button (always visible)
+                  SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showAddToBundleSheet(task),
+                      icon: const Icon(Icons.folder_outlined),
+                      label: Text(task.bundleId != null ? 'In Bundle' : 'Add to Bundle'),
                     ),
                   ),
                   if (!task.isCompleted) ...[

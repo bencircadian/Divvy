@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../providers/household_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
+import '../screens/bundles/bundle_detail_screen.dart';
 import '../screens/main_shell.dart';
 import '../screens/notifications/notification_settings_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
@@ -245,6 +246,17 @@ class AppRouter {
             context: context,
             state: state,
             child: const LinkAccountScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/bundle/:id',
+          name: 'bundle-detail',
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: BundleDetailScreen(
+              bundleId: state.pathParameters['id']!,
+            ),
           ),
         ),
       ],
