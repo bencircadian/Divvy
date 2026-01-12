@@ -15,7 +15,7 @@ class VersionService {
   VersionService._internal();
 
   /// Current app build number (increment this with each deploy).
-  static const int currentBuildNumber = 5;
+  static const int currentBuildNumber = 6;
 
   /// Stream controller for update availability.
   final _updateAvailableController = StreamController<bool>.broadcast();
