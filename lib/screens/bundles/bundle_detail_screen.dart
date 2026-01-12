@@ -6,6 +6,7 @@ import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../models/task_bundle.dart';
 import '../../providers/bundle_provider.dart';
+import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../widgets/bundles/bundle_progress_bar.dart';
 
@@ -108,6 +109,151 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
     context.read<BundleProvider>().loadBundle(widget.bundleId);
   }
 
+  Future<void> _showAddTasksSheet(TaskBundle bundle) async {
+    final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
+    if (householdId == null) return;
+
+    // Load tasks if not already loaded
+    await context.read<TaskProvider>().loadTasks(householdId);
+
+    if (!mounted) return;
+
+    final taskProvider = context.read<TaskProvider>();
+    final bundleTaskIds = (bundle.tasks ?? []).map((t) => t.id).toSet();
+    // Get tasks not already in this bundle
+    final availableTasks = taskProvider.tasks
+        .where((t) => !bundleTaskIds.contains(t.id) && t.bundleId == null)
+        .toList();
+
+    final color = _parseColor(bundle.color);
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Container(
+                margin: EdgeInsets.only(top: AppSpacing.md),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Title
+              Padding(
+                padding: EdgeInsets.all(AppSpacing.md),
+                child: Row(
+                  children: [
+                    Text(
+                      'Add Tasks to Bundle',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
+              ),
+              // Task list
+              if (availableTasks.isEmpty)
+                Padding(
+                  padding: EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                      ),
+                      SizedBox(height: AppSpacing.md),
+                      Text(
+                        'All tasks are already in bundles',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      SizedBox(height: AppSpacing.md),
+                      FilledButton.icon(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          context.push('/create-task');
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text('Create New Task'),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    itemCount: availableTasks.length,
+                    itemBuilder: (context, index) {
+                      final task = availableTasks[index];
+                      return Card(
+                        margin: EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: color.withValues(alpha: 0.1),
+                            child: Icon(Icons.task_alt, color: color, size: 20),
+                          ),
+                          title: Text(task.title),
+                          subtitle: task.dueDate != null
+                              ? Text('Due ${_formatDate(task.dueDate!)}')
+                              : null,
+                          trailing: IconButton(
+                            icon: Icon(Icons.add_circle, color: color),
+                            onPressed: () async {
+                              final success = await context.read<BundleProvider>().addTaskToBundle(
+                                taskId: task.id,
+                                bundleId: bundle.id,
+                              );
+                              if (success && ctx.mounted) {
+                                Navigator.pop(ctx);
+                              }
+                            },
+                          ),
+                          onTap: () async {
+                            final success = await context.read<BundleProvider>().addTaskToBundle(
+                              taskId: task.id,
+                              bundleId: bundle.id,
+                            );
+                            if (success && ctx.mounted) {
+                              Navigator.pop(ctx);
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              SizedBox(height: AppSpacing.md),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Reload bundle after adding tasks
+    if (mounted) {
+      context.read<BundleProvider>().loadBundle(widget.bundleId);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -130,6 +276,11 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
       appBar: AppBar(
         title: Text(bundle.name),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add_task),
+            tooltip: 'Add Tasks',
+            onPressed: () => _showAddTasksSheet(bundle),
+          ),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'delete') {
@@ -150,6 +301,12 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
             ],
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddTasksSheet(bundle),
+        backgroundColor: color,
+        icon: const Icon(Icons.add),
+        label: const Text('Add Tasks'),
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),
@@ -261,8 +418,17 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
                     ),
                     SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Add tasks from the task detail screen',
+                      'Tap the button below to add existing tasks',
                       style: theme.textTheme.bodySmall,
+                    ),
+                    SizedBox(height: AppSpacing.lg),
+                    FilledButton.icon(
+                      onPressed: () => _showAddTasksSheet(bundle),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Tasks'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: color,
+                      ),
                     ),
                   ],
                 ),
