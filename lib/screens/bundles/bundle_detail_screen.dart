@@ -120,10 +120,23 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
 
     final taskProvider = context.read<TaskProvider>();
     final bundleTaskIds = (bundle.tasks ?? []).map((t) => t.id).toSet();
-    // Get tasks not already in this bundle
+
+    // Get unique tasks (not instances of recurring tasks) that aren't in any bundle
+    // For recurring tasks, only show the parent task, not individual instances
     final availableTasks = taskProvider.tasks
-        .where((t) => !bundleTaskIds.contains(t.id) && t.bundleId == null)
+        .where((t) =>
+            !bundleTaskIds.contains(t.id) &&
+            t.bundleId == null &&
+            t.parentTaskId == null)  // Only parent/original tasks, not instances
         .toList();
+
+    // Remove duplicates by title (in case there are multiple non-recurring tasks with same name)
+    final seenTitles = <String>{};
+    final uniqueTasks = availableTasks.where((t) {
+      if (seenTitles.contains(t.title)) return false;
+      seenTitles.add(t.title);
+      return true;
+    }).toList();
 
     final color = _parseColor(bundle.color);
 
@@ -167,7 +180,7 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
                 ),
               ),
               // Task list
-              if (availableTasks.isEmpty)
+              if (uniqueTasks.isEmpty)
                 Padding(
                   padding: EdgeInsets.all(AppSpacing.xl),
                   child: Column(
@@ -201,20 +214,24 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
                   child: ListView.builder(
                     shrinkWrap: true,
                     padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                    itemCount: availableTasks.length,
+                    itemCount: uniqueTasks.length,
                     itemBuilder: (context, index) {
-                      final task = availableTasks[index];
+                      final task = uniqueTasks[index];
                       return Card(
                         margin: EdgeInsets.only(bottom: AppSpacing.sm),
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundColor: color.withValues(alpha: 0.1),
-                            child: Icon(Icons.task_alt, color: color, size: 20),
+                            child: Icon(
+                              task.isRecurring ? Icons.repeat : Icons.task_alt,
+                              color: color,
+                              size: 20,
+                            ),
                           ),
                           title: Text(task.title),
-                          subtitle: task.dueDate != null
-                              ? Text('Due ${_formatDate(task.dueDate!)}')
-                              : null,
+                          subtitle: task.isRecurring
+                              ? const Text('Recurring task')
+                              : (task.category != null ? Text(task.category!) : null),
                           trailing: IconButton(
                             icon: Icon(Icons.add_circle, color: color),
                             onPressed: () async {
