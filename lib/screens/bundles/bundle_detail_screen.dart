@@ -8,7 +8,6 @@ import '../../models/task_bundle.dart';
 import '../../providers/bundle_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
-import '../../widgets/bundles/bundle_progress_bar.dart';
 
 /// Screen for viewing and managing a task bundle.
 class BundleDetailScreen extends StatefulWidget {
@@ -101,12 +100,6 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
         context.pop();
       }
     }
-  }
-
-  void _toggleTaskComplete(Task task) {
-    context.read<TaskProvider>().toggleTaskComplete(task);
-    // Reload bundle to update progress
-    context.read<BundleProvider>().loadBundle(widget.bundleId);
   }
 
   Future<void> _showAddTasksSheet(TaskBundle bundle) async {
@@ -286,8 +279,6 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
 
     final color = _parseColor(bundle.color);
     final tasks = bundle.tasks ?? [];
-    final completedTasks = tasks.where((t) => t.isCompleted).toList();
-    final pendingTasks = tasks.where((t) => !t.isCompleted).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -376,42 +367,19 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: AppSpacing.md),
-                BundleProgressBar(
-                  progress: bundle.progress,
-                  color: color,
-                ),
-                SizedBox(height: AppSpacing.sm),
-                Text(
-                  '${bundle.completedTasks} of ${bundle.totalTasks} tasks completed',
-                  style: theme.textTheme.bodySmall,
-                ),
               ],
             ),
           ),
           SizedBox(height: AppSpacing.lg),
 
-          // Pending tasks section
-          if (pendingTasks.isNotEmpty) ...[
+          // Tasks in bundle
+          if (tasks.isNotEmpty) ...[
             Text(
-              'To Do (${pendingTasks.length})',
+              'Tasks (${tasks.length})',
               style: theme.textTheme.titleMedium,
             ),
             SizedBox(height: AppSpacing.sm),
-            ...pendingTasks.map((task) => _buildTaskTile(task, color)),
-            SizedBox(height: AppSpacing.lg),
-          ],
-
-          // Completed tasks section
-          if (completedTasks.isNotEmpty) ...[
-            Text(
-              'Completed (${completedTasks.length})',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-            SizedBox(height: AppSpacing.sm),
-            ...completedTasks.map((task) => _buildTaskTile(task, color)),
+            ...tasks.map((task) => _buildTaskTile(task, color)),
           ],
 
           // Empty state
@@ -457,8 +425,6 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
   }
 
   Widget _buildTaskTile(Task task, Color bundleColor) {
-    final theme = Theme.of(context);
-
     return Dismissible(
       key: ValueKey(task.id),
       direction: DismissDirection.endToStart,
@@ -475,26 +441,18 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
       child: Card(
         margin: EdgeInsets.only(bottom: AppSpacing.sm),
         child: ListTile(
-          leading: Checkbox(
-            value: task.isCompleted,
-            onChanged: (_) => _toggleTaskComplete(task),
-            activeColor: bundleColor,
-          ),
-          title: Text(
-            task.title,
-            style: TextStyle(
-              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-              color: task.isCompleted
-                  ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
-                  : null,
+          leading: CircleAvatar(
+            backgroundColor: bundleColor.withValues(alpha: 0.1),
+            child: Icon(
+              task.isRecurring ? Icons.repeat : Icons.task_alt,
+              color: bundleColor,
+              size: 20,
             ),
           ),
-          subtitle: task.dueDate != null
-              ? Text(
-                  'Due ${_formatDate(task.dueDate!)}',
-                  style: theme.textTheme.bodySmall,
-                )
-              : null,
+          title: Text(task.title),
+          subtitle: task.isRecurring
+              ? const Text('Recurring task')
+              : (task.category != null ? Text(task.category!) : null),
           trailing: IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: () => context.push('/task/${task.id}'),
@@ -505,15 +463,4 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final taskDate = DateTime(date.year, date.month, date.day);
-
-    if (taskDate == today) return 'Today';
-    if (taskDate == today.add(const Duration(days: 1))) return 'Tomorrow';
-    if (taskDate == today.subtract(const Duration(days: 1))) return 'Yesterday';
-
-    return '${date.month}/${date.day}';
-  }
 }
