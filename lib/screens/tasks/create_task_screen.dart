@@ -452,51 +452,46 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Container(
+      height: screenHeight * 0.75,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) {
-          return SafeArea(
-            top: false,
-            child: Column(
-              children: [
-                // Handle
-                Container(
-                  margin: EdgeInsets.only(top: AppSpacing.md),
-                  width: 40,
-                  height: AppSpacing.xs,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                // Title
-                Padding(
-                  padding: EdgeInsets.all(AppSpacing.md),
-                  child: Text(
-                    'Choose a template',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                // Content
-                Expanded(
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _selectedCategory == null
-                          ? _buildCategoryList()
-                          : _buildTemplateList(scrollController),
-                ),
-              ],
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            // Handle
+            Container(
+              margin: EdgeInsets.only(top: AppSpacing.md),
+              width: 40,
+              height: AppSpacing.xs,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          );
-        },
+            // Title
+            Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: Text(
+                'Choose a template',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            // Content
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _selectedCategory == null
+                      ? _buildCategoryList()
+                      : _buildTemplateList(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -537,7 +532,7 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
     );
   }
 
-  Widget _buildTemplateList(ScrollController scrollController) {
+  Widget _buildTemplateList() {
     return Column(
       children: [
         // Back button
@@ -563,7 +558,6 @@ class _TemplatePickerSheetState extends State<_TemplatePickerSheet> {
         const Divider(),
         Expanded(
           child: ListView.builder(
-            controller: scrollController,
             padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
             itemCount: _filteredTemplates.length,
             itemBuilder: (context, index) {
