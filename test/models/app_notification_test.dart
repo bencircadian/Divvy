@@ -134,11 +134,12 @@ void main() {
 
   group('NotificationType enum', () {
     test('has correct values', () {
-      expect(NotificationType.values.length, 4);
+      expect(NotificationType.values.length, 5);
       expect(NotificationType.taskAssigned.name, 'taskAssigned');
       expect(NotificationType.taskCompleted.name, 'taskCompleted');
       expect(NotificationType.mentioned.name, 'mentioned');
       expect(NotificationType.dueReminder.name, 'dueReminder');
+      expect(NotificationType.appreciation.name, 'appreciation');
     });
   });
 }

@@ -74,6 +74,12 @@ dependencies:
   # Image picker
   image_picker: ^1.1.2
 
+  # HTTP client
+  http: ^1.2.0
+
+  # Web platform (for JS interop)
+  web: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,7 +1,6 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 /// Web implementation to reload the page.
 void reloadPage() {
-  html.window.location.reload();
+  web.window.location.reload();
 }
