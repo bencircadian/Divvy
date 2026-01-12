@@ -328,17 +328,17 @@ class _MainShellState extends State<MainShell> {
                             ? primaryColor
                             : (isDark ? Colors.grey[500] : Colors.grey[600]),
                       ),
-                      if (isSelected) ...[
-                        SizedBox(height: AppSpacing.xs),
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            color: primaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11,
-                          ),
+                      SizedBox(height: AppSpacing.xs),
+                      Text(
+                        item.label,
+                        style: TextStyle(
+                          color: isSelected
+                              ? primaryColor
+                              : (isDark ? Colors.grey[500] : Colors.grey[600]),
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          fontSize: 11,
                         ),
-                      ],
+                      ),
                     ],
                   ),
                 ),
