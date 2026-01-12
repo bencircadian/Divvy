@@ -122,8 +122,8 @@ Add these redirect URLs in Supabase Dashboard → Authentication → URL Configu
 After finishing responding to my request or running a command, notify me with a sound:
 
 **Windows:**
-```powershell
-powershell -c "[System.Media.SystemSounds]::Asterisk.Play()"
+```cmd
+rundll32 user32.dll,MessageBeep
 ```
 
 **macOS:**
