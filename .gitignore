@@ -52,3 +52,4 @@ app.*.map.json
 nul
 
 .vercel
+tmpclaude-*
