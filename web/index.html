@@ -292,6 +292,25 @@
       document.body.style.height = '100%';
     }
   </script>
+  <script>
+    // Handle service worker updates - auto-reload when new version available
+    if ('serviceWorker' in navigator) {
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+
+      // Check for updates periodically
+      setInterval(() => {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if (reg) reg.update();
+        });
+      }, 60000);
+    }
+  </script>
   <script src="flutter_bootstrap.js" async=""></script>
 
 
