@@ -218,7 +218,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Builder(
                     builder: (context) {
                       final bundleProvider = context.watch<BundleProvider>();
-                      final activeBundles = bundleProvider.activeBundles;
+                      // Show all bundles, not just active ones (which excludes empty bundles)
+                      final allBundles = bundleProvider.bundles;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -238,7 +239,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          if (activeBundles.isEmpty)
+                          if (allBundles.isEmpty)
                             Card(
                               child: Padding(
                                 padding: const EdgeInsets.all(20),
@@ -266,7 +267,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             )
                           else
-                            ...activeBundles.take(3).map((bundle) => Padding(
+                            ...allBundles.take(3).map((bundle) => Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: BundleCard(
                                 bundle: bundle,
