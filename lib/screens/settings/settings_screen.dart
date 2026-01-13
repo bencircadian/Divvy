@@ -136,6 +136,21 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(),
 
+          // Display section
+          _buildSectionHeader(context, 'Display'),
+          SwitchListTile(
+            secondary: const Icon(Icons.folder_outlined),
+            title: const Text('Task Bundles'),
+            subtitle: Text(
+              authProvider.bundlesEnabled == true
+                  ? 'Group related tasks together'
+                  : 'Show all tasks individually',
+            ),
+            value: authProvider.bundlesEnabled ?? true,
+            onChanged: (value) => authProvider.setBundlesPreference(value),
+          ),
+          const Divider(),
+
           // Notifications section
           _buildSectionHeader(context, 'Notifications'),
           ListTile(

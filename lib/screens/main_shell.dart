@@ -7,6 +7,7 @@ import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/household_provider.dart';
 import '../providers/notification_provider.dart';
+import '../widgets/bundles/bundle_preference_dialog.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'home/home_screen.dart';
 import 'settings/settings_screen.dart';
@@ -20,6 +21,26 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  bool _hasShownBundleDialog = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Show bundle preference dialog after first frame if needed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkBundlePreference();
+    });
+  }
+
+  void _checkBundlePreference() {
+    if (_hasShownBundleDialog) return;
+
+    final authProvider = context.read<AuthProvider>();
+    if (authProvider.needsBundlePreferencePrompt) {
+      _hasShownBundleDialog = true;
+      BundlePreferenceDialog.show(context);
+    }
+  }
 
   final _screens = const [
     DashboardScreen(),

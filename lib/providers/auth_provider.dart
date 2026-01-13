@@ -29,6 +29,13 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
+  /// Whether bundles are enabled for this user (null = not set yet)
+  bool? get bundlesEnabled => _profile?.bundlesEnabled;
+
+  /// Whether we need to prompt the user to choose their bundle preference
+  bool get needsBundlePreferencePrompt =>
+      _profile != null && _profile!.bundlesEnabled == null;
+
   /// Get list of linked identity providers for current user
   List<String> get linkedProviders {
     return _user?.identities?.map((i) => i.provider).toList() ?? [];
@@ -404,6 +411,29 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = 'Failed to update profile.';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Set the user's preference for task bundles
+  Future<bool> setBundlesPreference(bool enabled) async {
+    if (_user == null) return false;
+
+    try {
+      await SupabaseService.client
+          .from('profiles')
+          .update({'bundles_enabled': enabled})
+          .eq('id', _user!.id);
+
+      // Update local profile
+      if (_profile != null) {
+        _profile = _profile!.copyWith(bundlesEnabled: enabled);
+        notifyListeners();
+      }
+      return true;
+    } catch (e) {
+      _errorMessage = 'Failed to update bundle preference.';
       notifyListeners();
       return false;
     }

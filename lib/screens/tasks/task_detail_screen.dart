@@ -12,6 +12,7 @@ import '../../models/task.dart';
 import '../../models/task_contributor.dart';
 import '../../models/task_history.dart';
 import '../../models/task_note.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../services/appreciation_service.dart';
@@ -742,16 +743,18 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       child: Text(task.isCompleted ? 'Mark Pending' : 'Mark Complete'),
                     ),
                   ),
-                  // Add to Bundle button (always visible)
-                  SizedBox(height: AppSpacing.sm),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showAddToBundleSheet(task),
-                      icon: const Icon(Icons.folder_outlined),
-                      label: Text(task.bundleId != null ? 'In Bundle' : 'Add to Bundle'),
+                  // Add to Bundle button (only shown if bundles enabled)
+                  if (context.watch<AuthProvider>().bundlesEnabled ?? true) ...[
+                    SizedBox(height: AppSpacing.sm),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showAddToBundleSheet(task),
+                        icon: const Icon(Icons.folder_outlined),
+                        label: Text(task.bundleId != null ? 'In Bundle' : 'Add to Bundle'),
+                      ),
                     ),
-                  ),
+                  ],
                   if (!task.isCompleted) ...[
                     SizedBox(height: AppSpacing.sm),
                     SizedBox(

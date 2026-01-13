@@ -12,6 +12,7 @@ import '../../widgets/bundles/create_bundle_sheet.dart';
 import '../../widgets/common/member_avatar.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
 import '../../widgets/dashboard/insights_card.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/bundle_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
@@ -177,9 +178,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final dashboardProvider = context.watch<DashboardProvider>();
     final taskProvider = context.watch<TaskProvider>();
     final householdProvider = context.watch<HouseholdProvider>();
+    final authProvider = context.watch<AuthProvider>();
     final members = householdProvider.members;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
+    final bundlesEnabled = authProvider.bundlesEnabled ?? true;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -214,72 +217,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildUpcomingTasks(taskProvider.upcomingUniqueTasks),
                   SizedBox(height: AppSpacing.lg),
 
-                  // Task Bundles Section
-                  Builder(
-                    builder: (context) {
-                      final bundleProvider = context.watch<BundleProvider>();
-                      // Show all bundles, not just active ones (which excludes empty bundles)
-                      final allBundles = bundleProvider.bundles;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildSectionHeader(context, 'Bundles', Icons.folder_special),
-                              ),
-                              TextButton.icon(
-                                onPressed: _showCreateBundleSheet,
-                                icon: const Icon(Icons.add, size: 18),
-                                label: const Text('Create'),
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  // Task Bundles Section (only shown if user has bundles enabled)
+                  if (bundlesEnabled)
+                    Builder(
+                      builder: (context) {
+                        final bundleProvider = context.watch<BundleProvider>();
+                        // Show all bundles, not just active ones (which excludes empty bundles)
+                        final allBundles = bundleProvider.bundles;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildSectionHeader(context, 'Bundles', Icons.folder_special),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          if (allBundles.isEmpty)
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary.withValues(alpha: 0.12),
-                                        shape: BoxShape.circle,
+                                TextButton.icon(
+                                  onPressed: _showCreateBundleSheet,
+                                  icon: const Icon(Icons.add, size: 18),
+                                  label: const Text('Create'),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            if (allBundles.isEmpty)
+                              Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withValues(alpha: 0.12),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(Icons.folder_outlined, color: AppColors.primary, size: 24),
                                       ),
-                                      child: Icon(Icons.folder_outlined, color: AppColors.primary, size: 24),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Text(
-                                        'Create bundles to group related tasks',
-                                        style: TextStyle(
-                                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          'Create bundles to group related tasks',
+                                          style: TextStyle(
+                                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )
-                          else
-                            ...allBundles.take(3).map((bundle) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: BundleCard(
-                                bundle: bundle,
-                                compact: true,
-                                onTap: () => context.push('/bundle/${bundle.id}'),
-                              ),
-                            )),
-                          SizedBox(height: AppSpacing.lg),
-                        ],
-                      );
-                    },
-                  ),
+                              )
+                            else
+                              ...allBundles.take(3).map((bundle) => Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: BundleCard(
+                                  bundle: bundle,
+                                  compact: true,
+                                  onTap: () => context.push('/bundle/${bundle.id}'),
+                                ),
+                              )),
+                            SizedBox(height: AppSpacing.lg),
+                          ],
+                        );
+                      },
+                    ),
 
                   // Streaks Section
                   _buildSectionHeader(context, 'Streaks', Icons.local_fire_department),
