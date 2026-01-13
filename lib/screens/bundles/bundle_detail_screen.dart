@@ -97,6 +97,11 @@ class _BundleDetailScreenState extends State<BundleDetailScreen> {
     if (confirmed == true && mounted) {
       final success = await context.read<BundleProvider>().deleteBundle(bundle.id);
       if (success && mounted) {
+        // Refresh tasks so they appear on the dashboard with bundle_id = null
+        final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
+        if (householdId != null) {
+          context.read<TaskProvider>().loadTasks(householdId);
+        }
         context.pop();
       }
     }
