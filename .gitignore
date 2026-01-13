@@ -53,3 +53,6 @@ nul
 
 .vercel
 tmpclaude-*
+
+# Terminal Paste Image folder
+.cp-images/

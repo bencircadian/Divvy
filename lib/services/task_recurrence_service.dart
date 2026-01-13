@@ -24,12 +24,16 @@ class TaskRecurrenceService {
         'household_id': completedTask.householdId,
         'title': completedTask.title,
         'description': completedTask.description,
+        'created_by': completedTask.createdBy,
         'priority': completedTask.priority.name,
         'due_date': nextDueDate.toIso8601String(),
         'due_period': completedTask.duePeriod?.name,
         'assigned_to': completedTask.assignedTo,
+        'is_recurring': true,
         'recurrence_rule': completedTask.recurrenceRule!.toJson(),
-        'is_completed': false,
+        'parent_task_id': completedTask.parentTaskId ?? completedTask.id,
+        'status': 'pending',
+        'category': completedTask.category,
       }).select().single();
 
       return Task.fromJson(response);

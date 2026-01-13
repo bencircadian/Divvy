@@ -36497,33 +36497,36 @@ if(s===71&&a[1]===73&&a[2]===70&&a[3]===56)return!0
 if(s===82&&a[1]===73&&a[2]===70&&a[3]===70&&a[8]===87&&a[9]===69&&a[10]===66&&a[11]===80)return!0
 return!1},
 aGu(a){return A.bui(a)},
-bui(a){var s=0,r=A.u(t.LN),q,p=2,o=[],n,m,l,k,j,i,h,g,f
+bui(a){var s=0,r=A.u(t.LN),q,p=2,o=[],n,m,l,k,j,i,h,g,f,e
 var $async$aGu=A.p(function(b,c){if(b===1){o.push(c)
-s=p}for(;;)switch(s){case 0:g=a.ax
-if(g==null){q=null
+s=p}for(;;)switch(s){case 0:f=a.ax
+if(f==null){q=null
 s=1
 break}p=4
 k=a.x
-n=g.adw(k==null?new A.b4(Date.now(),0,!1):k)
+n=f.adw(k==null?new A.b4(Date.now(),0,!1):k)
 k=$.bA().b
 k===$&&A.a()
 k=k.b2("tasks")
 j=n.du()
 i=a.y
 i=i==null?null:i.b
+f=f.cJ()
+h=a.ay
+if(h==null)h=a.a
 s=7
-return A.j(k.eo(0,A.a2(["household_id",a.b,"title",a.c,"description",a.d,"priority",a.w.b,"due_date",j,"due_period",i,"assigned_to",a.f,"recurrence_rule",g.cJ(),"is_completed",!1],t.N,t.X)).ff(0).jZ(0),$async$aGu)
+return A.j(k.eo(0,A.a2(["household_id",a.b,"title",a.c,"description",a.d,"created_by",a.e,"priority",a.w.b,"due_date",j,"due_period",i,"assigned_to",a.f,"is_recurring",!0,"recurrence_rule",f,"parent_task_id",h,"status","pending","category",a.CW],t.N,t.X)).ff(0).jZ(0),$async$aGu)
 case 7:m=c
-g=A.Mv(m)
-q=g
+h=A.Mv(m)
+q=h
 s=1
 break
 p=2
 s=6
 break
 case 4:p=3
-f=o.pop()
-l=A.a1(f)
+e=o.pop()
+l=A.a1(e)
 A.bw().$1("Error creating next recurrence: "+A.i(l))
 q=null
 s=1
