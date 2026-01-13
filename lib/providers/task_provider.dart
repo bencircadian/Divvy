@@ -178,7 +178,18 @@ class TaskProvider extends ChangeNotifier {
           .order('due_date', ascending: true, nullsFirst: false)
           .order('created_at', ascending: false);
 
-      _tasks = (response as List).map((json) => Task.fromJson(json)).toList();
+      // Parse tasks individually to avoid one bad task breaking all loading
+      final List<Task> parsedTasks = [];
+      for (final json in response as List) {
+        try {
+          parsedTasks.add(Task.fromJson(json));
+        } catch (e) {
+          debugPrint('Error parsing task ${json['id']}: $e');
+          debugPrint('Task data: $json');
+        }
+      }
+      _tasks = parsedTasks;
+      debugPrint('Loaded ${_tasks.length} tasks from ${(response as List).length} records');
 
       // Cache tasks for offline use
       await CacheService.cacheTasks(_tasks);
