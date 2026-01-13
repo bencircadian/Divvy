@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'recurrence_rule.dart';
 import 'task_contributor.dart';
 
@@ -92,9 +94,7 @@ class Task {
           : null,
       completedBy: json['completed_by'] as String?,
       isRecurring: json['is_recurring'] as bool? ?? false,
-      recurrenceRule: json['recurrence_rule'] != null
-          ? RecurrenceRule.fromJson(json['recurrence_rule'] as Map<String, dynamic>)
-          : null,
+      recurrenceRule: _parseRecurrenceRule(json['recurrence_rule']),
       parentTaskId: json['parent_task_id'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       category: json['category'] as String?,
@@ -235,5 +235,25 @@ class Task {
       default:
         return null;
     }
+  }
+
+  /// Parse recurrence_rule which may be a JSON string or a Map
+  static RecurrenceRule? _parseRecurrenceRule(dynamic value) {
+    if (value == null) return null;
+
+    try {
+      if (value is String) {
+        // Parse JSON string to Map
+        final decoded = jsonDecode(value) as Map<String, dynamic>;
+        return RecurrenceRule.fromJson(decoded);
+      } else if (value is Map<String, dynamic>) {
+        // Already a Map
+        return RecurrenceRule.fromJson(value);
+      }
+    } catch (e) {
+      // If parsing fails, return null rather than crashing
+      return null;
+    }
+    return null;
   }
 }
