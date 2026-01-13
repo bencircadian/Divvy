@@ -1,0 +1,317 @@
+<!DOCTYPE html><html><head>
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Household task management app">
+  <meta name="theme-color" content="#009688">
+
+  <!-- Prevent text selection and context menu for app-like feel -->
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Divvy">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/Icon-192.png">
+
+  <!-- Splash screens for iOS -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <title>Divvy</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Make it feel like a native app */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      /* Prevent pull-to-refresh and overscroll bounce */
+      overscroll-behavior: none;
+      overscroll-behavior-y: none;
+      /* Enable smooth momentum scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
+      /* Only allow vertical panning and pinch zoom */
+      touch-action: pan-y pinch-zoom;
+      /* Disable text selection */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      /* Optimize rendering */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      /* Force GPU acceleration */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+
+    /* Optimize scrolling containers for iOS */
+    * {
+      /* Smooth scrolling behavior */
+      scroll-behavior: smooth;
+      /* Enable momentum scrolling */
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Loading screen styles */
+    .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #009688 0%, #00796B 100%);
+    }
+
+    .loading-wordmark {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .loading-logo {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: #009688;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .loading-ivvy {
+      font-size: 38px;
+      font-weight: 600;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: -1px;
+      margin-left: 2px;
+    }
+
+    .loading-tagline {
+      margin-top: 16px;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      font-style: italic;
+      opacity: 0.9;
+      letter-spacing: 0.3px;
+    }
+
+    .loading-spinner {
+      margin-top: 32px;
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Safe area handling for notched devices */
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    /* Hide scrollbars but keep functionality */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    * {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    /* Disable tap highlight on mobile */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+  <style id="splash-screen-style">
+    html {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      background-color: #009688;
+          background-size: 100% 100%;
+    }
+
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+
+    .contain {
+      display:block;
+      width:100%; height:100%;
+      object-fit: contain;
+    }
+
+    .stretch {
+      display:block;
+      width:100%; height:100%;
+    }
+
+    .cover {
+      display:block;
+      width:100%; height:100%;
+      object-fit: cover;
+    }
+
+    .bottom {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      -ms-transform: translate(-50%, 0);
+      transform: translate(-50%, 0);
+    }
+
+    .bottomLeft {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+    .bottomRight {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+  </style>
+  <script id="splash-screen-script">
+    function removeSplashFromWeb() {
+      document.getElementById("splash")?.remove();
+      document.getElementById("splash-branding")?.remove();
+      document.body.style.background = "transparent";
+    }
+  </script>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+</head>
+<body>
+  <picture id="splash">
+      <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
+      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
+      <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
+  </picture>
+  <!-- Native-feeling loading screen -->
+  <div class="loading-container" id="loading">
+    <div class="loading-wordmark">
+      <div class="loading-logo">d</div>
+      <span class="loading-ivvy">ivvy</span>
+    </div>
+    <div class="loading-tagline">keep the peace, split the work</div>
+    <div class="loading-spinner"></div>
+  </div>
+
+  <script>
+    // Force CanvasKit renderer for smoother scrolling
+    window.flutterWebRenderer = "canvaskit";
+
+    // Remove loading screen when Flutter is ready
+    window.addEventListener('flutter-first-frame', function() {
+      const loader = document.getElementById('loading');
+      if (loader) {
+        loader.style.transition = 'opacity 0.3s ease-out';
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 300);
+      }
+    });
+
+    // Prevent context menu
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    // Prevent double-tap zoom with passive listener for better scroll performance
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
+
+    // Optimize scroll event listeners for iOS Chrome
+    // Use passive listeners where possible for better scroll performance
+    document.addEventListener('touchstart', function() {}, { passive: true });
+    document.addEventListener('touchmove', function() {}, { passive: true });
+    document.addEventListener('wheel', function() {}, { passive: true });
+
+    // Detect iOS and apply specific optimizations
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      // Add iOS-specific class for any needed CSS targeting
+      document.documentElement.classList.add('ios-device');
+
+      // Fix iOS momentum scrolling issues
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+    }
+  </script>
+  <script>
+    // Handle service worker updates - auto-reload when new version available
+    if ('serviceWorker' in navigator) {
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+
+      // Check for updates periodically
+      setInterval(() => {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if (reg) reg.update();
+        });
+      }, 60000);
+    }
+  </script>
+  <script src="flutter_bootstrap.js" async=""></script>
+
+
+</body></html>
