@@ -1,11 +1,7 @@
 {
   "outputDirectory": "build/web",
-  "redirects": [
-    { "source": "/privacy", "destination": "/privacy.html", "permanent": false }
-  ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/index.html",
