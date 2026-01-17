@@ -1,6 +1,7 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/((?!privacy).*)", "destination": "/index.html" }
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/privacy", "dest": "/privacy.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
