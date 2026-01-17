@@ -60,12 +60,15 @@ git commit -m "Your changes description"
 git add -f build/web
 git commit -m "Build: Deploy web with <brief description>"
 
-# 5. Push to trigger Vercel deployment
+# 5. Push to GitHub
 git push
+
+# 6. Deploy to Vercel (webhook unreliable, always run manually)
+npx vercel --prod
 ```
 
-- Vercel auto-deploys from master when `build/web` files change
-- Source code changes alone do NOT trigger deployment
+- GitHub webhook to Vercel is unreliable, so always deploy manually with `npx vercel --prod`
+- Production URL: https://divvy-app-sage.vercel.app
 
 ## Conventions
 - Use Provider for state management
