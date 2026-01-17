@@ -434,9 +434,35 @@ class MockTaskProvider extends ChangeNotifier {
   Future<bool> toggleTaskComplete(Task task) async {
     final index = _tasks.indexWhere((t) => t.id == task.id);
     if (index >= 0) {
-      _tasks[index] = task.copyWith(
-        status: task.isCompleted ? TaskStatus.pending : TaskStatus.completed,
-        completedAt: task.isCompleted ? null : DateTime.now(),
+      final newStatus = task.isCompleted ? TaskStatus.pending : TaskStatus.completed;
+      final newCompletedAt = task.isCompleted ? null : DateTime.now();
+
+      // Create new Task directly since copyWith doesn't allow setting null
+      _tasks[index] = Task(
+        id: task.id,
+        householdId: task.householdId,
+        title: task.title,
+        description: task.description,
+        createdBy: task.createdBy,
+        assignedTo: task.assignedTo,
+        status: newStatus,
+        priority: task.priority,
+        dueDate: task.dueDate,
+        duePeriod: task.duePeriod,
+        createdAt: task.createdAt,
+        completedAt: newCompletedAt,
+        completedBy: task.isCompleted ? null : task.completedBy,
+        isRecurring: task.isRecurring,
+        recurrenceRule: task.recurrenceRule,
+        parentTaskId: task.parentTaskId,
+        coverImageUrl: task.coverImageUrl,
+        category: task.category,
+        bundleId: task.bundleId,
+        bundleOrder: task.bundleOrder,
+        assignedToName: task.assignedToName,
+        createdByName: task.createdByName,
+        completedByName: task.isCompleted ? null : task.completedByName,
+        contributors: task.contributors,
       );
       notifyListeners();
     }
