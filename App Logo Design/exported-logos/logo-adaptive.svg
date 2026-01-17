@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4DB6AC"/>
+      <stop offset="100%" stop-color="#00796B"/>
+    </linearGradient>
+  </defs>
+  <rect x="102.4" y="102.4" width="819.2" height="819.2" rx="229.37600000000003" fill="url(#bgGradient)"/>
+  <text x="512" y="552.96" text-anchor="middle" dominant-baseline="central" fill="white" font-family="DM Sans, Arial, sans-serif" font-weight="700" font-size="655.3600000000001px" letter-spacing="-0.02em">d</text>
+</svg>
