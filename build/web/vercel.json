@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/:path((?!.*\\.html$)(?!.*\\.js$)(?!.*\\.css$)(?!.*\\.png$)(?!.*\\.json$)(?!.*\\.ico$)(?!.*\\.wasm$)(?!.*\\.ttf$).*)", "destination": "/index.html" }
+  ]
+}
