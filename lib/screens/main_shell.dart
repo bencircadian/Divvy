@@ -7,9 +7,11 @@ import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/household_provider.dart';
 import '../providers/notification_provider.dart';
+import '../providers/task_provider.dart';
 import '../widgets/bundles/bundle_preference_dialog.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'home/home_screen.dart';
+import 'onboarding/feature_tour_screen.dart';
 import 'settings/settings_screen.dart';
 
 class MainShell extends StatefulWidget {
@@ -22,14 +24,27 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   bool _hasShownBundleDialog = false;
+  bool _showOnboarding = false;
+  bool _hasCheckedOnboarding = false;
 
   @override
   void initState() {
     super.initState();
+    // Check for first launch and show onboarding
+    _checkFirstLaunch();
     // Show bundle preference dialog after first frame if needed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkBundlePreference();
     });
+  }
+
+  Future<void> _checkFirstLaunch() async {
+    if (_hasCheckedOnboarding) return;
+    _hasCheckedOnboarding = true;
+    final isFirstLaunch = await FeatureTourScreen.isFirstLaunch();
+    if (isFirstLaunch && mounted) {
+      setState(() => _showOnboarding = true);
+    }
   }
 
   void _checkBundlePreference() {
@@ -49,8 +64,8 @@ class _MainShellState extends State<MainShell> {
   ];
 
   final _navItems = const [
-    _NavItem(icon: Icons.dashboard_rounded, label: 'Dashboard'),
-    _NavItem(icon: Icons.checklist_rounded, label: 'Tasks'),
+    _NavItem(icon: Icons.dashboard_rounded, label: 'Overview'),
+    _NavItem(icon: Icons.checklist_rounded, label: 'My Tasks'),
     _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
   ];
 
@@ -73,6 +88,13 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    // Show onboarding tour on first launch
+    if (_showOnboarding) {
+      return FeatureTourScreen(
+        onComplete: () => setState(() => _showOnboarding = false),
+      );
+    }
+
     final householdProvider = context.watch<HouseholdProvider>();
     final authProvider = context.watch<AuthProvider>();
     final notificationProvider = context.watch<NotificationProvider>();
@@ -306,6 +328,8 @@ class _MainShellState extends State<MainShell> {
   Widget _buildOrganicBottomNav(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
+    final taskProvider = context.watch<TaskProvider>();
+    final overdueCount = taskProvider.pendingTasks.where((t) => t.isOverdue).length;
 
     return Container(
       decoration: BoxDecoration(
@@ -342,12 +366,21 @@ class _MainShellState extends State<MainShell> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        item.icon,
-                        size: 24,
-                        color: isSelected
-                            ? primaryColor
-                            : (isDark ? Colors.grey[500] : Colors.grey[600]),
+                      // Show badge on Tasks tab (index 1) if there are overdue tasks
+                      Badge(
+                        isLabelVisible: index == 1 && overdueCount > 0,
+                        backgroundColor: AppColors.error,
+                        label: Text(
+                          overdueCount > 9 ? '9+' : '$overdueCount',
+                          style: const TextStyle(fontSize: 10, color: Colors.white),
+                        ),
+                        child: Icon(
+                          item.icon,
+                          size: 24,
+                          color: isSelected
+                              ? primaryColor
+                              : (isDark ? Colors.grey[500] : Colors.grey[600]),
+                        ),
                       ),
                       SizedBox(height: AppSpacing.xs),
                       Text(

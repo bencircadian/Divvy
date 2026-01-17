@@ -23,8 +23,21 @@ class TaskProvider extends ChangeNotifier {
   String? _errorMessage;
   String? _currentHouseholdId;
   RealtimeChannel? _tasksChannel;
+  String _searchQuery = '';
 
   List<Task> get tasks => List.unmodifiable(_tasks);
+  String get searchQuery => _searchQuery;
+
+  void setSearchQuery(String query) {
+    _searchQuery = query.toLowerCase();
+    notifyListeners();
+  }
+
+  void clearSearch() {
+    _searchQuery = '';
+    notifyListeners();
+  }
+
   List<Task> get pendingTasks =>
       _tasks.where((t) => t.status == TaskStatus.pending).toList();
   List<Task> get completedTasks =>

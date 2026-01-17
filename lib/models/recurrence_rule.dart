@@ -78,12 +78,22 @@ class RecurrenceRule {
         }
 
       case RecurrenceFrequency.monthly:
-        var nextMonth = DateTime(from.year, from.month + interval, from.day);
-        // Handle months with fewer days
-        while (nextMonth.month > (from.month + interval) % 12) {
-          nextMonth = nextMonth.subtract(const Duration(days: 1));
+        // Calculate target year and month
+        int targetMonth = from.month + interval;
+        int targetYear = from.year;
+        while (targetMonth > 12) {
+          targetMonth -= 12;
+          targetYear++;
         }
-        return nextMonth;
+
+        // Find the last valid day in the target month
+        int targetDay = from.day;
+        int daysInTargetMonth = DateTime(targetYear, targetMonth + 1, 0).day;
+        if (targetDay > daysInTargetMonth) {
+          targetDay = daysInTargetMonth;
+        }
+
+        return DateTime(targetYear, targetMonth, targetDay);
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../config/app_theme.dart';
@@ -11,12 +12,20 @@ class OrganicTaskCard extends StatelessWidget {
   final Task task;
   final int index;
   final TaskProvider taskProvider;
+  final bool isSelected;
+  final bool isSelectionMode;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSelectionTap;
 
   const OrganicTaskCard({
     super.key,
     required this.task,
     required this.index,
     required this.taskProvider,
+    this.isSelected = false,
+    this.isSelectionMode = false,
+    this.onLongPress,
+    this.onSelectionTap,
   });
 
   @override
@@ -40,22 +49,73 @@ class OrganicTaskCard extends StatelessWidget {
             bottomRight: Radius.circular(20),
           );
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-      child: GestureDetector(
-        onTap: () => context.push('/task/${task.id}'),
-        child: AnimatedContainer(
+    // Check if task is overdue
+    final isOverdue = task.isOverdue && !task.isCompleted;
+
+    // Swipe background color based on completion state
+    final swipeColor = task.isCompleted ? Colors.orange : AppColors.success;
+    final swipeIcon = task.isCompleted ? Icons.replay : Icons.check;
+    final swipeText = task.isCompleted ? 'Undo' : 'Done';
+
+    return Dismissible(
+      key: Key(task.id),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (_) async {
+        HapticFeedback.mediumImpact();
+        await taskProvider.toggleTaskComplete(task);
+        return false; // Don't dismiss, just toggle
+      },
+      background: Container(
+        margin: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+        decoration: BoxDecoration(
+          color: swipeColor,
+          borderRadius: borderRadius,
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              swipeText,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(swipeIcon, color: Colors.white),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+        child: GestureDetector(
+          onTap: isSelectionMode
+              ? onSelectionTap
+              : () => context.push('/task/${task.id}'),
+          onLongPress: onLongPress,
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: task.isCompleted
-                ? (isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey[100])
-                : (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white),
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.15)
+                : isOverdue
+                    ? AppColors.error.withValues(alpha: isDark ? 0.08 : 0.05)
+                    : task.isCompleted
+                        ? (isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey[100])
+                        : (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white),
             borderRadius: borderRadius,
             border: Border.all(
-              color: task.isCompleted
-                  ? (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]!)
-                  : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!),
+              color: isSelected
+                  ? AppColors.primary
+                  : isOverdue
+                      ? AppColors.error.withValues(alpha: 0.3)
+                      : task.isCompleted
+                          ? (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]!)
+                          : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!),
+              width: isSelected ? 2 : 1,
             ),
           ),
           child: Opacity(
@@ -65,7 +125,10 @@ class OrganicTaskCard extends StatelessWidget {
               children: [
                 // Checkbox
                 GestureDetector(
-                  onTap: () => taskProvider.toggleTaskComplete(task),
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    taskProvider.toggleTaskComplete(task);
+                  },
                   child: Container(
                     width: 24,
                     height: 24,
@@ -165,6 +228,7 @@ class OrganicTaskCard extends StatelessWidget {
           ),
         ),
       ),
+      ), // Dismissible
     );
   }
 

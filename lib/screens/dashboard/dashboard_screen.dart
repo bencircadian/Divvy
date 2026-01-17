@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -40,13 +41,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  void _loadData() {
-    final householdId = context.read<HouseholdProvider>().currentHousehold?.id;
+  Future<void> _loadData({bool showFeedback = false}) async {
+    if (showFeedback) {
+      HapticFeedback.mediumImpact();
+    }
+    final householdProvider = context.read<HouseholdProvider>();
+    final dashboardProvider = context.read<DashboardProvider>();
+    final taskProvider = context.read<TaskProvider>();
+    final bundleProvider = context.read<BundleProvider>();
+    final householdId = householdProvider.currentHousehold?.id;
     if (householdId != null) {
-      context.read<DashboardProvider>().loadDashboardData(householdId);
-      context.read<TaskProvider>().loadTasks(householdId);
-      context.read<BundleProvider>().loadBundles(householdId);
-      _loadInsights(householdId);
+      await dashboardProvider.loadDashboardData(householdId);
+      await taskProvider.loadTasks(householdId);
+      await bundleProvider.loadBundles(householdId);
+      await _loadInsights(householdId);
+      if (showFeedback && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Dashboard refreshed'),
+            duration: Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -186,7 +203,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () async => _loadData(),
+        onRefresh: () => _loadData(showFeedback: true),
         color: primaryColor,
         child: dashboardProvider.isLoading
             ? Center(child: CircularProgressIndicator(color: primaryColor))
@@ -419,6 +436,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final categoryColor = _getCategoryColor(task);
     final categoryName = _getCategoryName(task);
+    final taskProvider = context.read<TaskProvider>();
 
     String subtitle = '';
     Color subtitleColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
@@ -435,9 +453,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return InkWell(
       onTap: () => context.push('/task/${task.id}'),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
+            // Completion checkbox
+            GestureDetector(
+              onTap: () async {
+                HapticFeedback.mediumImpact();
+                await taskProvider.toggleTaskComplete(task);
+              },
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: task.isCompleted
+                        ? AppColors.success
+                        : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
+                    width: 2,
+                  ),
+                  color: task.isCompleted ? AppColors.success : Colors.transparent,
+                ),
+                child: task.isCompleted
+                    ? const Icon(Icons.check, size: 16, color: Colors.white)
+                    : null,
+              ),
+            ),
+            const SizedBox(width: 12),
             // Category color indicator
             Container(
               width: 4,
@@ -616,13 +659,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final categoryColor = _getCategoryColor(task);
     final categoryName = _getCategoryName(task);
+    final taskProvider = context.read<TaskProvider>();
 
     return InkWell(
       onTap: () => context.push('/task/${task.id}'),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
+            // Completion checkbox
+            GestureDetector(
+              onTap: () async {
+                HapticFeedback.mediumImpact();
+                await taskProvider.toggleTaskComplete(task);
+              },
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: task.isCompleted
+                        ? AppColors.success
+                        : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
+                    width: 2,
+                  ),
+                  color: task.isCompleted ? AppColors.success : Colors.transparent,
+                ),
+                child: task.isCompleted
+                    ? const Icon(Icons.check, size: 16, color: Colors.white)
+                    : null,
+              ),
+            ),
+            const SizedBox(width: 12),
             // Category color indicator
             Container(
               width: 4,
