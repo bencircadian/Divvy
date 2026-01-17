@@ -39,10 +39,33 @@ lib/
 - `flutter build apk` - Build Android APK
 - `flutter build ios` - Build for iOS (macOS only)
 
-## Deployment
-- **Platform**: Vercel (web)
-- **IMPORTANT**: Always commit, push, AND trigger Vercel redeploy after every code change
-- Vercel auto-deploys from the master branch on push
+## Deployment (Vercel Web)
+
+**IMPORTANT**: Vercel serves pre-built files from `build/web`. After making code changes, you MUST rebuild and push the build files for deployment.
+
+### Deployment Workflow (ALWAYS follow after code changes):
+```bash
+# 1. Run tests and analyze
+flutter analyze
+flutter test
+
+# 2. Build web release
+flutter build web --release
+
+# 3. Commit source changes first (if not already done)
+git add -A
+git commit -m "Your changes description"
+
+# 4. Force-add and commit build files
+git add -f build/web
+git commit -m "Build: Deploy web with <brief description>"
+
+# 5. Push to trigger Vercel deployment
+git push
+```
+
+- Vercel auto-deploys from master when `build/web` files change
+- Source code changes alone do NOT trigger deployment
 
 ## Conventions
 - Use Provider for state management
