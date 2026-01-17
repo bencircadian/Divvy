@@ -51,7 +51,7 @@ void main() {
       expect(find.text('Should not appear'), findsNothing);
     });
 
-    testWidgets('displays d logo', (tester) async {
+    testWidgets('displays logo', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -62,7 +62,10 @@ void main() {
 
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('d'), findsOneWidget);
+      // Check for Image.asset or fallback 'd' text (in test env, asset may not load)
+      final hasImage = find.byType(Image).evaluate().isNotEmpty;
+      final hasFallback = find.text('d').evaluate().isNotEmpty;
+      expect(hasImage || hasFallback, true);
     });
 
     testWidgets('animation controllers are disposed properly', (tester) async {

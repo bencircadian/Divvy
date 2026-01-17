@@ -138,16 +138,6 @@ class _LoadingAnimationState extends State<LoadingAnimation>
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              primaryColor,
-                              isDark
-                                  ? primaryColor.withValues(alpha: 0.8)
-                                  : Color.lerp(primaryColor, Colors.black, 0.15)!,
-                            ],
-                          ),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -157,15 +147,39 @@ class _LoadingAnimationState extends State<LoadingAnimation>
                             ),
                           ],
                         ),
-                        child: Center(
-                          child: Text(
-                            'd',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.w700,
-                              height: 1.1,
-                              letterSpacing: -1,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.asset(
+                            'assets/icon/app_icon.png',
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    primaryColor,
+                                    isDark
+                                        ? primaryColor.withValues(alpha: 0.8)
+                                        : Color.lerp(primaryColor, Colors.black, 0.15)!,
+                                  ],
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'd',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.1,
+                                    letterSpacing: -1,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),

@@ -60916,7 +60916,7 @@ $0(){return A.jq(this.a,"/notification-settings",t.X)},
 $S:0}
 A.aEm.prototype={
 $0(){var s=null,r=this.a,q=A.n(r).ax,p=q.rx
-A.bDU(B.IZ,"Divvy","1.0.0",A.b([A.J("keep the peace, split the work",s,s,s,A.bb(s,s,p==null?q.k3:p,s,s,s,s,s,s,s,s,s,B.cQ,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),B.bH,B.aeG],t.p),r)},
+A.bDU(B.IZ,"Divvy","1.0.0",A.b([A.J("Keep the peace, share the work",s,s,s,A.bb(s,s,p==null?q.k3:p,s,s,s,s,s,s,s,s,s,B.cQ,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),B.bH,B.aeG],t.p),r)},
 $S:0}
 A.aEe.prototype={
 $0(){return this.a.aot(this.b,this.c)},
@@ -63478,7 +63478,7 @@ B.b.G(o,A.b([n,A.J("ivvy",s,s,s,A.bb(s,s,m,s,s,s,s,s,s,s,s,q*0.7,s,s,B.ao,s,1,!0
 o=A.b([A.aQ(o,B.m,B.i,B.X,0)],p)
 if(this.d){n=A.a4(s,q*0.4,s)
 m=r?B.aJ:B.ag
-B.b.G(o,A.b([n,A.J("Share tasks, share life",s,s,s,A.bb(s,s,m,s,s,s,s,s,s,s,s,q*0.32,s,s,B.a2,s,s,!0,s,0.5,s,s,s,s,s,s),s,s,s)],p))}return A.aP(o,B.m,B.i,B.X)}}
+B.b.G(o,A.b([n,A.J("Keep the peace, share the work",s,s,s,A.bb(s,s,m,s,s,s,s,s,s,s,s,q*0.32,s,s,B.a2,s,s,!0,s,0.5,s,s,s,s,s,s),s,s,s)],p))}return A.aP(o,B.m,B.i,B.X)}}
 A.ahy.prototype={
 $3(a,b,c){return new A.yD(this.a.c,this.b,null)},
 $S:232}

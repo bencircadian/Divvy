@@ -60,7 +60,7 @@ class AppLogo extends StatelessWidget {
         if (showTagline) ...[
           SizedBox(height: size * 0.4),
           Text(
-            'Share tasks, share life',
+            'Keep the peace, share the work',
             style: TextStyle(
               fontSize: size * 0.32,
               fontWeight: FontWeight.w500,

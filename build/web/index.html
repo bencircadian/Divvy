@@ -28,6 +28,11 @@
   <title>Divvy</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- Google Fonts - DM Sans for consistent typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     /* Make it feel like a native app */
     html, body {
@@ -90,34 +95,33 @@
     .loading-logo {
       width: 48px;
       height: 48px;
-      background: white;
-      border-radius: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 32px;
-      font-weight: 700;
-      color: #009688;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .loading-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .loading-ivvy {
       font-size: 38px;
       font-weight: 600;
       color: white;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      letter-spacing: -1px;
-      margin-left: 2px;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: -0.5px;
+      margin-left: 8px;
     }
 
     .loading-tagline {
-      margin-top: 16px;
-      color: white;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 15px;
-      font-style: italic;
-      opacity: 0.9;
-      letter-spacing: 0.3px;
+      margin-top: 20px;
+      color: rgba(255,255,255,0.9);
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
     }
 
     .loading-spinner {
@@ -238,10 +242,10 @@
   <!-- Native-feeling loading screen -->
   <div class="loading-container" id="loading">
     <div class="loading-wordmark">
-      <div class="loading-logo">d</div>
+      <div class="loading-logo"><img src="icons/Icon-192.png" alt="Divvy"></div>
       <span class="loading-ivvy">ivvy</span>
     </div>
-    <div class="loading-tagline">keep the peace, split the work</div>
+    <div class="loading-tagline">Keep the peace, share the work</div>
     <div class="loading-spinner"></div>
   </div>
 
