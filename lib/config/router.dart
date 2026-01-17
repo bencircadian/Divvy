@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../providers/household_provider.dart';
 import '../screens/auth/login_screen.dart';
+import '../screens/auth/reset_password_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/bundles/bundle_detail_screen.dart';
 import '../screens/main_shell.dart';
@@ -79,10 +80,16 @@ class AppRouter {
         final isHouseholdSetupRoute = state.matchedLocation == '/create-household' ||
             state.matchedLocation == '/join-household';
         final isQuickSetup = state.matchedLocation == '/quick-setup';
+        final isResetPassword = state.matchedLocation == '/reset-password';
 
-        // Not authenticated -> go to login
-        if (!isAuthenticated && !isAuthRoute) {
+        // Not authenticated -> go to login (allow reset-password for recovery flow)
+        if (!isAuthenticated && !isAuthRoute && !isResetPassword) {
           return '/login';
+        }
+
+        // Allow reset-password route when authenticated (user just clicked recovery link)
+        if (isResetPassword) {
+          return null;
         }
 
         // Wait for household data to load before redirecting
@@ -151,6 +158,15 @@ class AppRouter {
             context: context,
             state: state,
             child: const SignupScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/reset-password',
+          name: 'reset-password',
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const ResetPasswordScreen(),
           ),
         ),
         GoRoute(

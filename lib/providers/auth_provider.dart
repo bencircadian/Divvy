@@ -444,6 +444,30 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Send password reset email
+  Future<bool> sendPasswordResetEmail(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await SupabaseService.client.auth.resetPasswordForEmail(email);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Failed to send reset email. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // ============ Identity Linking Methods ============
 
   /// Link Google identity to current account (triggers OAuth redirect)

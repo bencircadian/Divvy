@@ -343,8 +343,8 @@ class _MainShellState extends State<MainShell> {
       child: SafeArea(
         top: false,
         child: Container(
-          height: 72,
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.sm),
+          height: 64,
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(_navItems.length, (index) {
@@ -356,7 +356,7 @@ class _MainShellState extends State<MainShell> {
                 behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
                   duration: AppAnimations.fast,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? primaryColor.withValues(alpha: 0.15)

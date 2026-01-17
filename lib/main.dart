@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/app_theme.dart';
 import 'config/router.dart';
@@ -40,6 +43,24 @@ class DivvyApp extends StatefulWidget {
 class _DivvyAppState extends State<DivvyApp> {
   GoRouter? _router;
   bool _deepLinkInitialized = false;
+  StreamSubscription<AuthState>? _authSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupAuthListener();
+  }
+
+  void _setupAuthListener() {
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.passwordRecovery) {
+        // User clicked password reset link - navigate to reset screen
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _router?.go('/reset-password');
+        });
+      }
+    });
+  }
 
   void _initializeDeepLinks(GoRouter router) {
     if (!_deepLinkInitialized && !kIsWeb) {
@@ -50,6 +71,7 @@ class _DivvyAppState extends State<DivvyApp> {
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     DeepLinkService().dispose();
     super.dispose();
   }
