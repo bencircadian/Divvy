@@ -146,6 +146,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     tasks.sort((a, b) {
       switch (_sortOrder) {
         case _TaskSortOrder.dueDate:
+          // For completed tasks, sort by completion date (most recent first)
+          if (_activeTab == 'done') {
+            final aCompleted = a.completedAt ?? a.createdAt;
+            final bCompleted = b.completedAt ?? b.createdAt;
+            return bCompleted.compareTo(aCompleted); // Descending (most recent first)
+          }
+          // For pending tasks, sort by due date (soonest first)
           if (a.dueDate == null && b.dueDate == null) return 0;
           if (a.dueDate == null) return 1;
           if (b.dueDate == null) return -1;
@@ -580,45 +587,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
       child: Row(
         children: [
-          // Tab pills
-          Expanded(
-            child: Row(
-              children: tabs.map((tab) {
-                final isActive = _activeTab == tab;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _activeTab = tab),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        gradient: isActive
-                            ? const LinearGradient(
-                                colors: [AppColors.primary, AppColors.primaryDark],
-                              )
-                            : null,
-                        color: isActive
-                            ? null
-                            : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        tab[0].toUpperCase() + tab.substring(1),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+          // Tab pills - wrap in Flexible to prevent overflow
+          Flexible(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: tabs.map((tab) {
+                  final isActive = _activeTab == tab;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _activeTab = tab),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: isActive
+                              ? const LinearGradient(
+                                  colors: [AppColors.primary, AppColors.primaryDark],
+                                )
+                              : null,
                           color: isActive
-                              ? (isDark ? const Color(0xFF102219) : Colors.white)
-                              : (isDark ? AppColors.textSecondary : Colors.grey[600]),
+                              ? null
+                              : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          tab[0].toUpperCase() + tab.substring(1),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                            color: isActive
+                                ? (isDark ? const Color(0xFF102219) : Colors.white)
+                                : (isDark ? AppColors.textSecondary : Colors.grey[600]),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
+          const SizedBox(width: 8),
           // Sort dropdown button
           PopupMenuButton<_TaskSortOrder>(
             initialValue: _sortOrder,
