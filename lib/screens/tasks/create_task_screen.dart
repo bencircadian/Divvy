@@ -32,6 +32,18 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   String? _category;
   bool _isSubmitting = false;
 
+  // Available categories
+  static const List<String> _categories = [
+    'kitchen',
+    'bathroom',
+    'living',
+    'outdoor',
+    'pet',
+    'laundry',
+    'grocery',
+    'maintenance',
+  ];
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -239,6 +251,40 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
             SizedBox(height: AppSpacing.lg),
 
+            // Category
+            Text(
+              'Category',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: _categories.map((cat) {
+                final isSelected = _category == cat;
+                final color = _getCategoryColor(cat);
+                final displayName = cat[0].toUpperCase() + cat.substring(1);
+                return FilterChip(
+                  avatar: Icon(
+                    _getCategoryIcon(cat),
+                    size: 18,
+                    color: isSelected ? Colors.white : color,
+                  ),
+                  label: Text(displayName),
+                  selected: isSelected,
+                  selectedColor: color,
+                  checkmarkColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : null,
+                  ),
+                  onSelected: (selected) {
+                    setState(() => _category = selected ? cat : null);
+                  },
+                );
+              }).toList(),
+            ),
+            SizedBox(height: AppSpacing.lg),
+
             // Due Date Section
             Text(
               'Due Date',
@@ -400,6 +446,52 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     final d = DateTime(date.year, date.month, date.day);
 
     return d == today || d == tomorrow || d == nextWeek;
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'kitchen':
+        return Icons.kitchen;
+      case 'bathroom':
+        return Icons.bathtub;
+      case 'living':
+        return Icons.weekend;
+      case 'outdoor':
+        return Icons.park;
+      case 'pet':
+        return Icons.pets;
+      case 'laundry':
+        return Icons.local_laundry_service;
+      case 'grocery':
+        return Icons.shopping_cart;
+      case 'maintenance':
+        return Icons.build;
+      default:
+        return Icons.category;
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'kitchen':
+        return AppColors.kitchen;
+      case 'bathroom':
+        return AppColors.bathroom;
+      case 'living':
+        return AppColors.living;
+      case 'outdoor':
+        return AppColors.outdoor;
+      case 'pet':
+        return AppColors.pet;
+      case 'laundry':
+        return AppColors.laundry;
+      case 'grocery':
+        return AppColors.grocery;
+      case 'maintenance':
+        return AppColors.maintenance;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
