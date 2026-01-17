@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/productivity_insights.dart';
 import '../../models/task.dart';
+import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 import '../../widgets/bundles/bundle_card.dart';
 import '../../widgets/bundles/create_bundle_sheet.dart';
@@ -434,8 +435,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildTaskListItem(Task task) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final categoryColor = _getCategoryColor(task);
-    final categoryName = _getCategoryName(task);
+    final categoryColor = CategoryUtils.getCategoryColor(task);
+    final categoryName = CategoryUtils.getCategoryName(task);
     final taskProvider = context.read<TaskProvider>();
 
     String subtitle = '';
@@ -657,8 +658,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildUpcomingTaskItem(Task task) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final categoryColor = _getCategoryColor(task);
-    final categoryName = _getCategoryName(task);
+    final categoryColor = CategoryUtils.getCategoryColor(task);
+    final categoryName = CategoryUtils.getCategoryName(task);
     final taskProvider = context.read<TaskProvider>();
 
     return InkWell(
@@ -1109,53 +1110,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Color _getCategoryColor(Task task) {
-    final category = task.category?.toLowerCase() ?? '';
-    final lowerTitle = task.title.toLowerCase();
-
-    if (category == 'kitchen' || lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
-      return AppColors.kitchen;
-    } else if (category == 'bathroom' || lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
-      return AppColors.bathroom;
-    } else if (category == 'living' || lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
-      return AppColors.living;
-    } else if (category == 'outdoor' || lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
-      return AppColors.outdoor;
-    } else if (category == 'pet' || lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
-      return AppColors.pet;
-    } else if (category == 'laundry' || lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
-      return AppColors.laundry;
-    } else if (category == 'grocery' || lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
-      return AppColors.grocery;
-    } else if (category == 'maintenance' || lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
-      return AppColors.maintenance;
-    }
-    return AppColors.primary;
-  }
-
-  String _getCategoryName(Task task) {
-    if (task.category != null && task.category!.isNotEmpty) {
-      return task.category![0].toUpperCase() + task.category!.substring(1);
-    }
-
-    final lowerTitle = task.title.toLowerCase();
-    if (lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
-      return 'Kitchen';
-    } else if (lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
-      return 'Bathroom';
-    } else if (lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
-      return 'Living';
-    } else if (lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
-      return 'Outdoor';
-    } else if (lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
-      return 'Pet';
-    } else if (lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
-      return 'Laundry';
-    } else if (lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
-      return 'Grocery';
-    } else if (lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
-      return 'Maintenance';
-    }
-    return 'Task';
-  }
 }

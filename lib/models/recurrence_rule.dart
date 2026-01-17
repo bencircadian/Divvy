@@ -145,11 +145,33 @@ class RecurrenceRule {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is RecurrenceRule &&
-        other.frequency == frequency &&
-        other.interval == interval;
+    if (other is! RecurrenceRule) return false;
+
+    // Compare days lists properly
+    bool daysEqual = false;
+    if (days == null && other.days == null) {
+      daysEqual = true;
+    } else if (days != null && other.days != null && days!.length == other.days!.length) {
+      daysEqual = true;
+      for (int i = 0; i < days!.length; i++) {
+        if (days![i] != other.days![i]) {
+          daysEqual = false;
+          break;
+        }
+      }
+    }
+
+    return other.frequency == frequency &&
+        other.interval == interval &&
+        daysEqual &&
+        other.endDate == endDate;
   }
 
   @override
-  int get hashCode => frequency.hashCode ^ interval.hashCode;
+  int get hashCode => Object.hash(
+    frequency,
+    interval,
+    days != null ? Object.hashAll(days!) : null,
+    endDate,
+  );
 }

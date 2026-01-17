@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
 import 'supabase_service.dart';
+import '../config/supabase_config.dart';
 
 /// Background message handler - must be a top-level function
 @pragma('vm:entry-point')
@@ -21,9 +23,15 @@ class PushNotificationService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static String? _deviceToken;
   static bool _isInitialized = false;
+  static GoRouter? _router;
 
   /// Get the current device token
   static String? get deviceToken => _deviceToken;
+
+  /// Set the router for navigation on notification tap
+  static void setRouter(GoRouter router) {
+    _router = router;
+  }
 
   /// Initialize push notifications
   static Future<void> initialize() async {
@@ -152,10 +160,9 @@ class PushNotificationService {
 
     // Navigate to relevant screen based on notification data
     final taskId = message.data['task_id'] as String?;
-    if (taskId != null) {
-      // TODO: Navigate to task detail
-      // This would require access to the router/navigator
-      debugPrint('Should navigate to task: $taskId');
+    if (taskId != null && _router != null) {
+      _router!.go('/task/$taskId');
+      debugPrint('Navigating to task: $taskId');
     }
   }
 
@@ -199,14 +206,12 @@ class PushNotificationService {
   }) async {
     try {
       final supabaseUrl = SupabaseService.client.rest.url.replaceAll('/rest/v1', '');
-      final anonKey = const String.fromEnvironment('SUPABASE_ANON_KEY',
-          defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvenVlYWRycWZ0eGFzamJxdmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyNjM5NzMsImV4cCI6MjA2MjgzOTk3M30.vP9xnHBCZG-DLR3Y8xutYb7xQPm_5DS8K3K-XV3Qi0Y');
 
       final response = await http.post(
         Uri.parse('$supabaseUrl/functions/v1/send-push-notification'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $anonKey',
+          'Authorization': 'Bearer ${SupabaseConfig.anonKey}',
         },
         body: jsonEncode({
           'user_id': userId,

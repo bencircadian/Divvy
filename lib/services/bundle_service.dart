@@ -135,34 +135,33 @@ class BundleService {
   /// Get bundles with tasks for a household.
   Future<List<TaskBundle>> getBundlesWithTasks(String householdId) async {
     try {
-      final bundlesResponse = await _supabase
+      // Single query with nested select to avoid N+1 problem
+      final response = await _supabase
           .from('task_bundles')
-          .select()
-          .eq('household_id', householdId)
-          .order('created_at', ascending: false);
-
-      final bundles = <TaskBundle>[];
-      for (final bundleJson in bundlesResponse as List) {
-        final bundleId = bundleJson['id'] as String;
-
-        final tasksResponse = await _supabase
-            .from('tasks')
-            .select('''
+          .select('''
+            *,
+            tasks:tasks!tasks_bundle_id_fkey(
               *,
               assigned_profile:profiles!tasks_assigned_to_fkey(display_name),
               created_profile:profiles!tasks_created_by_fkey(display_name),
               completed_profile:profiles!tasks_completed_by_fkey(display_name)
-            ''')
-            .eq('bundle_id', bundleId)
-            .order('bundle_order', ascending: true);
+            )
+          ''')
+          .eq('household_id', householdId)
+          .order('created_at', ascending: false);
 
-        bundles.add(TaskBundle.fromJson({
-          ...bundleJson,
-          'tasks': tasksResponse,
-        }));
-      }
-
-      return bundles;
+      return (response as List).map((json) {
+        // Sort tasks by bundle_order within each bundle
+        final tasks = json['tasks'] as List?;
+        if (tasks != null) {
+          tasks.sort((a, b) {
+            final orderA = a['bundle_order'] as int? ?? 999;
+            final orderB = b['bundle_order'] as int? ?? 999;
+            return orderA.compareTo(orderB);
+          });
+        }
+        return TaskBundle.fromJson(json);
+      }).toList();
     } catch (e) {
       debugPrint('Error getting bundles with tasks: $e');
       return [];

@@ -142,9 +142,3 @@ class TaskBundle {
     '#00BCD4', // Cyan
   ];
 }
-
-/// Extension on Task to add bundle-related fields.
-extension TaskBundleExtension on Task {
-  /// Get bundle order if set in metadata, otherwise return null.
-  int? get bundleOrder => null; // This would be added as a field in Task model
-}

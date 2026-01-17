@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/app_notification.dart';
 import '../models/notification_preferences.dart';
-import '../services/notification_service.dart';
 import '../services/supabase_service.dart';
 
 class NotificationProvider extends ChangeNotifier {
@@ -173,45 +172,6 @@ class NotificationProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error clearing notifications: $e');
     }
-  }
-
-  /// @deprecated Use NotificationService.createNotification instead
-  static Future<void> createNotification({
-    required String userId,
-    required NotificationType type,
-    required String title,
-    required String body,
-    Map<String, dynamic>? data,
-  }) async {
-    await NotificationService.createNotification(
-      userId: userId,
-      type: type,
-      title: title,
-      body: body,
-      data: data,
-    );
-  }
-
-  /// @deprecated Use NotificationService.createNotificationBatch instead
-  static Future<void> createNotificationBatch(List<Map<String, dynamic>> notifications) async {
-    await NotificationService.createNotificationBatch(notifications);
-  }
-
-  /// @deprecated Use NotificationService.buildNotificationData instead
-  static Map<String, dynamic> buildNotificationData({
-    required String userId,
-    required NotificationType type,
-    required String title,
-    required String body,
-    Map<String, dynamic>? data,
-  }) {
-    return NotificationService.buildNotificationData(
-      userId: userId,
-      type: type,
-      title: title,
-      body: body,
-      data: data,
-    );
   }
 
   @override

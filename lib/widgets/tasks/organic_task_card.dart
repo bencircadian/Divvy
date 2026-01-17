@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../providers/task_provider.dart';
+import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 
 /// An organic-styled task card with alternating border radius.
@@ -31,7 +32,7 @@ class OrganicTaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final categoryColor = _getCategoryColor(task);
+    final categoryColor = CategoryUtils.getCategoryColor(task);
 
     // Alternate border radius for organic feel
     final isEven = index % 2 == 0;
@@ -178,7 +179,7 @@ class OrganicTaskCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
-                              _getCategoryName(task),
+                              CategoryUtils.getCategoryName(task),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: categoryColor,
@@ -230,60 +231,5 @@ class OrganicTaskCard extends StatelessWidget {
       ),
       ), // Dismissible
     );
-  }
-
-  /// Get category color based on task category or title inference
-  Color _getCategoryColor(Task task) {
-    final category = task.category?.toLowerCase() ?? '';
-    final lowerTitle = task.title.toLowerCase();
-
-    // Check category first, then fall back to title inference
-    if (category == 'kitchen' || lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
-      return AppColors.kitchen;
-    } else if (category == 'bathroom' || lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
-      return AppColors.bathroom;
-    } else if (category == 'living' || lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
-      return AppColors.living;
-    } else if (category == 'outdoor' || lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
-      return AppColors.outdoor;
-    } else if (category == 'pet' || lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
-      return AppColors.pet;
-    } else if (category == 'laundry' || lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
-      return AppColors.laundry;
-    } else if (category == 'grocery' || lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
-      return AppColors.grocery;
-    } else if (category == 'maintenance' || lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
-      return AppColors.maintenance;
-    }
-    return AppColors.primary;
-  }
-
-  /// Get category name - uses task.category if set, otherwise infers from title
-  String _getCategoryName(Task task) {
-    // Use explicit category if set
-    if (task.category != null && task.category!.isNotEmpty) {
-      return task.category![0].toUpperCase() + task.category!.substring(1);
-    }
-
-    // Fallback to inference for legacy tasks
-    final lowerTitle = task.title.toLowerCase();
-    if (lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
-      return 'Kitchen';
-    } else if (lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
-      return 'Bathroom';
-    } else if (lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
-      return 'Living';
-    } else if (lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
-      return 'Outdoor';
-    } else if (lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
-      return 'Pet';
-    } else if (lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
-      return 'Laundry';
-    } else if (lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
-      return 'Grocery';
-    } else if (lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
-      return 'Maintenance';
-    }
-    return 'Task';
   }
 }

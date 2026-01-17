@@ -42,10 +42,6 @@ class SettingsScreen extends StatelessWidget {
             ),
             title: Text(authProvider.profile?.displayName ?? 'Unknown'),
             subtitle: Text(authProvider.user?.email ?? ''),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: Edit profile
-            },
           ),
           const Divider(),
 
@@ -104,24 +100,6 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.home),
             title: Text(householdProvider.currentHousehold?.name ?? 'No household'),
             subtitle: Text('${householdProvider.members.length} members'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: Household settings
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person_add),
-            title: const Text('Invite members'),
-            subtitle: Text('Code: ${householdProvider.currentHousehold?.inviteCode ?? ''}'),
-            trailing: IconButton(
-              icon: const Icon(Icons.copy),
-              onPressed: () {
-                // TODO: Copy invite code
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invite code copied!')),
-                );
-              },
-            ),
           ),
           const Divider(),
 

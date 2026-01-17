@@ -77,4 +77,35 @@ class TaskHistory {
         return 'added a note';
     }
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'task_id': taskId,
+      'user_id': userId,
+      'action': action.name,
+      'details': details,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  TaskHistory copyWith({
+    String? id,
+    String? taskId,
+    String? userId,
+    TaskAction? action,
+    Map<String, dynamic>? details,
+    DateTime? createdAt,
+    String? userName,
+  }) {
+    return TaskHistory(
+      id: id ?? this.id,
+      taskId: taskId ?? this.taskId,
+      userId: userId ?? this.userId,
+      action: action ?? this.action,
+      details: details ?? this.details,
+      createdAt: createdAt ?? this.createdAt,
+      userName: userName ?? this.userName,
+    );
+  }
 }

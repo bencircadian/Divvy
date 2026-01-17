@@ -10,13 +10,14 @@ import '../models/task.dart';
 import '../models/task_history.dart';
 import '../models/task_note.dart';
 import '../services/cache_service.dart';
+import '../services/mention_service.dart';
 import '../services/supabase_service.dart';
 import '../services/notification_service.dart';
 import '../services/push_notification_service.dart';
+import '../services/streak_service.dart';
 import '../services/task_history_service.dart';
 import '../services/task_image_service.dart';
 import '../services/task_recurrence_service.dart';
-import 'dashboard_provider.dart';
 
 class TaskProvider extends ChangeNotifier {
   List<Task> _tasks = [];
@@ -25,6 +26,7 @@ class TaskProvider extends ChangeNotifier {
   String? _currentHouseholdId;
   RealtimeChannel? _tasksChannel;
   String _searchQuery = '';
+  Timer? _cacheDebounceTimer;
 
   List<Task> get tasks => List.unmodifiable(_tasks);
   String get searchQuery => _searchQuery;
@@ -252,6 +254,7 @@ class TaskProvider extends ChangeNotifier {
 
   void _handleRealtimeEvent(PostgresChangePayload payload) {
     final eventType = payload.eventType;
+    bool needsCacheUpdate = false;
 
     if (eventType == PostgresChangeEvent.insert) {
       // Add new task directly from payload
@@ -262,8 +265,7 @@ class TaskProvider extends ChangeNotifier {
           // Avoid duplicates
           if (!_tasks.any((t) => t.id == task.id)) {
             _tasks.add(task);
-            // Update cache
-            CacheService.cacheTasks(_tasks);
+            needsCacheUpdate = true;
             notifyListeners();
           }
         }
@@ -279,8 +281,7 @@ class TaskProvider extends ChangeNotifier {
           final index = _tasks.indexWhere((t) => t.id == updatedTask.id);
           if (index >= 0) {
             _tasks[index] = updatedTask;
-            // Update cache
-            CacheService.cacheTasks(_tasks);
+            needsCacheUpdate = true;
             notifyListeners();
           }
         }
@@ -292,10 +293,17 @@ class TaskProvider extends ChangeNotifier {
       final deletedId = oldRecord['id'] as String?;
       if (deletedId != null) {
         _tasks.removeWhere((t) => t.id == deletedId);
-        // Update cache
-        CacheService.cacheTasks(_tasks);
+        needsCacheUpdate = true;
         notifyListeners();
       }
+    }
+
+    // Debounce cache writes to avoid excessive serialization on burst events
+    if (needsCacheUpdate) {
+      _cacheDebounceTimer?.cancel();
+      _cacheDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+        CacheService.cacheTasks(_tasks);
+      });
     }
   }
 
@@ -485,7 +493,7 @@ class TaskProvider extends ChangeNotifier {
         await _notifyTaskCompleted(task, userId);
 
         // Update user's streak
-        await DashboardProvider.updateStreakOnCompletion(userId, task.householdId);
+        await StreakService.updateStreakOnCompletion(userId, task.householdId);
 
         // If recurring, create the next occurrence
         if (TaskRecurrenceService.shouldCreateNextOccurrence(task.copyWith(status: TaskStatus.completed))) {
@@ -716,84 +724,19 @@ class TaskProvider extends ChangeNotifier {
         action: TaskHistoryService.actionNoteAdded,
       );
 
-      // Handle @mentions
-      await _processMentions(taskId, content, userId);
+      // Handle @mentions using consolidated MentionService
+      final task = _tasks.firstWhere((t) => t.id == taskId, orElse: () => throw Exception('Task not found'));
+      await MentionService.processMentions(
+        taskId: taskId,
+        content: content,
+        authorId: userId,
+        taskTitle: task.title,
+      );
 
       return true;
     } catch (e) {
       debugPrint('Error adding note: $e');
       return false;
-    }
-  }
-
-  Future<void> _processMentions(String taskId, String content, String authorId) async {
-    if (!content.contains('@')) return;
-
-    try {
-      // Get the task to find the household
-      final task = _tasks.firstWhere((t) => t.id == taskId);
-
-      // Get the author's name
-      final authorResponse = await SupabaseService.client
-          .from('profiles')
-          .select('display_name')
-          .eq('id', authorId)
-          .single();
-      final authorName = authorResponse['display_name'] as String? ?? 'Someone';
-
-      // Get all household members with their display names
-      final membersResponse = await SupabaseService.client
-          .from('household_members')
-          .select('user_id, profiles(display_name)')
-          .eq('household_id', task.householdId);
-
-      // Create a map of lowercase names to user IDs
-      final memberMap = <String, String>{};
-      final memberNames = <String>[];
-      for (final member in membersResponse as List) {
-        final displayName = member['profiles']?['display_name'] as String?;
-        if (displayName != null) {
-          memberMap[displayName.toLowerCase()] = member['user_id'] as String;
-          memberNames.add(displayName);
-        }
-      }
-
-      // Sort by length (longest first) to match "John Smith" before "John"
-      memberNames.sort((a, b) => b.length.compareTo(a.length));
-
-      // Find mentions by matching against actual member names
-      final notifiedUsers = <String>{};
-      final contentLower = content.toLowerCase();
-
-      for (final name in memberNames) {
-        final pattern = '@${name.toLowerCase()}';
-        if (contentLower.contains(pattern)) {
-          final mentionedUserId = memberMap[name.toLowerCase()];
-          if (mentionedUserId != null &&
-              mentionedUserId != authorId &&
-              !notifiedUsers.contains(mentionedUserId)) {
-            notifiedUsers.add(mentionedUserId);
-
-            // In-app notification
-            await NotificationService.createNotification(
-              userId: mentionedUserId,
-              type: NotificationType.mentioned,
-              title: 'You were mentioned',
-              body: '$authorName mentioned you in "${task.title}"',
-              data: {'task_id': taskId},
-            );
-            // Push notification
-            PushNotificationService.sendPushNotification(
-              userId: mentionedUserId,
-              title: 'You were mentioned',
-              body: '$authorName mentioned you in "${task.title}"',
-              data: {'task_id': taskId},
-            );
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Error processing mentions: $e');
     }
   }
 
@@ -818,6 +761,7 @@ class TaskProvider extends ChangeNotifier {
   @override
   void dispose() {
     _tasksChannel?.unsubscribe();
+    _cacheDebounceTimer?.cancel();
     super.dispose();
   }
 }

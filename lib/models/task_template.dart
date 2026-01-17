@@ -83,4 +83,33 @@ class TaskTemplate {
   bool get needsPetName => title.contains('{pet_name}') || (description?.contains('{pet_name}') ?? false);
 
   bool get needsChildName => title.contains('{child_name}') || (description?.contains('{child_name}') ?? false);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category': category,
+      'title': title,
+      'description': description,
+      'suggested_recurrence': suggestedRecurrence,
+      'is_system': isSystem,
+    };
+  }
+
+  TaskTemplate copyWith({
+    String? id,
+    String? category,
+    String? title,
+    String? description,
+    Map<String, dynamic>? suggestedRecurrence,
+    bool? isSystem,
+  }) {
+    return TaskTemplate(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      suggestedRecurrence: suggestedRecurrence ?? this.suggestedRecurrence,
+      isSystem: isSystem ?? this.isSystem,
+    );
+  }
 }

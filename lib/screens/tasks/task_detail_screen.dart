@@ -28,6 +28,7 @@ import '../../widgets/tasks/note_input.dart';
 import '../../widgets/tasks/note_tile.dart';
 import '../../widgets/tasks/recurrence_picker.dart';
 import '../../widgets/tasks/schedule_suggestion_dialog.dart';
+import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -1447,7 +1448,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               runSpacing: 8,
               children: _categories.map((cat) {
                 final isSelected = _category == cat;
-                final color = _getCategoryColorByName(cat);
+                final color = CategoryUtils.getColorForCategory(cat);
                 final displayName = cat[0].toUpperCase() + cat.substring(1);
                 return FilterChip(
                   avatar: Icon(
@@ -1620,8 +1621,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildCategoryBadge(Task task) {
-    final categoryColor = _getCategoryColor(task);
-    final categoryName = _getCategoryName(task);
+    final categoryColor = CategoryUtils.getCategoryColor(task);
+    final categoryName = CategoryUtils.getCategoryName(task);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1674,76 +1675,4 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-  Color _getCategoryColorByName(String category) {
-    switch (category.toLowerCase()) {
-      case 'kitchen':
-        return AppColors.kitchen;
-      case 'bathroom':
-        return AppColors.bathroom;
-      case 'living':
-        return AppColors.living;
-      case 'outdoor':
-        return AppColors.outdoor;
-      case 'pet':
-        return AppColors.pet;
-      case 'laundry':
-        return AppColors.laundry;
-      case 'grocery':
-        return AppColors.grocery;
-      case 'maintenance':
-        return AppColors.maintenance;
-      default:
-        return AppColors.primary;
-    }
-  }
-
-  Color _getCategoryColor(Task task) {
-    final category = task.category?.toLowerCase() ?? '';
-    final lowerTitle = task.title.toLowerCase();
-
-    if (category == 'kitchen' || lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
-      return AppColors.kitchen;
-    } else if (category == 'bathroom' || lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
-      return AppColors.bathroom;
-    } else if (category == 'living' || lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
-      return AppColors.living;
-    } else if (category == 'outdoor' || lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
-      return AppColors.outdoor;
-    } else if (category == 'pet' || lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
-      return AppColors.pet;
-    } else if (category == 'laundry' || lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
-      return AppColors.laundry;
-    } else if (category == 'grocery' || lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
-      return AppColors.grocery;
-    } else if (category == 'maintenance' || lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
-      return AppColors.maintenance;
-    }
-    return AppColors.primary;
-  }
-
-  String _getCategoryName(Task task) {
-    if (task.category != null && task.category!.isNotEmpty) {
-      return task.category![0].toUpperCase() + task.category!.substring(1);
-    }
-
-    final lowerTitle = task.title.toLowerCase();
-    if (lowerTitle.contains('kitchen') || lowerTitle.contains('dish') || lowerTitle.contains('cook')) {
-      return 'Kitchen';
-    } else if (lowerTitle.contains('bathroom') || lowerTitle.contains('toilet') || lowerTitle.contains('shower')) {
-      return 'Bathroom';
-    } else if (lowerTitle.contains('living') || lowerTitle.contains('vacuum') || lowerTitle.contains('dust')) {
-      return 'Living';
-    } else if (lowerTitle.contains('outdoor') || lowerTitle.contains('garden') || lowerTitle.contains('yard')) {
-      return 'Outdoor';
-    } else if (lowerTitle.contains('pet') || lowerTitle.contains('dog') || lowerTitle.contains('cat') || lowerTitle.contains('feed')) {
-      return 'Pet';
-    } else if (lowerTitle.contains('laundry') || lowerTitle.contains('wash') || lowerTitle.contains('clothes')) {
-      return 'Laundry';
-    } else if (lowerTitle.contains('grocery') || lowerTitle.contains('shop') || lowerTitle.contains('buy')) {
-      return 'Grocery';
-    } else if (lowerTitle.contains('fix') || lowerTitle.contains('repair') || lowerTitle.contains('maintenance')) {
-      return 'Maintenance';
-    }
-    return 'Task';
-  }
 }

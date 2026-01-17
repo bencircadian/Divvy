@@ -83,6 +83,8 @@ class _DivvyAppState extends State<DivvyApp> {
     if (!_deepLinkInitialized && !kIsWeb) {
       _deepLinkInitialized = true;
       DeepLinkService().initialize(router);
+      // Set router for push notification navigation
+      PushNotificationService.setRouter(router);
     }
   }
 

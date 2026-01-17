@@ -10,6 +10,7 @@ import '../../models/task_template.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../services/supabase_service.dart';
+import '../../utils/category_utils.dart';
 import '../../widgets/tasks/recurrence_picker.dart';
 
 class CreateTaskScreen extends StatefulWidget {
@@ -262,7 +263,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               runSpacing: AppSpacing.sm,
               children: _categories.map((cat) {
                 final isSelected = _category == cat;
-                final color = _getCategoryColor(cat);
+                final color = CategoryUtils.getColorForCategory(cat);
                 final displayName = cat[0].toUpperCase() + cat.substring(1);
                 return FilterChip(
                   avatar: Icon(
@@ -471,28 +472,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     }
   }
 
-  Color _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'kitchen':
-        return AppColors.kitchen;
-      case 'bathroom':
-        return AppColors.bathroom;
-      case 'living':
-        return AppColors.living;
-      case 'outdoor':
-        return AppColors.outdoor;
-      case 'pet':
-        return AppColors.pet;
-      case 'laundry':
-        return AppColors.laundry;
-      case 'grocery':
-        return AppColors.grocery;
-      case 'maintenance':
-        return AppColors.maintenance;
-      default:
-        return Colors.grey;
-    }
-  }
 }
 
 class _TemplatePickerSheet extends StatefulWidget {
