@@ -157,7 +157,7 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.notifications),
             title: const Text('Notification settings'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/notification-settings'),
+            onTap: () => context.push('/notifications/settings'),
           ),
           const Divider(),
 

@@ -11,7 +11,7 @@ class TaskHistoryService {
     try {
       final response = await SupabaseService.client
           .from('task_history')
-          .select()
+          .select('*, profiles:user_id(display_name)')
           .eq('task_id', taskId)
           .order('created_at', ascending: false);
 

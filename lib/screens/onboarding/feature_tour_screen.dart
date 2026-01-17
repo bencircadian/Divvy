@@ -6,22 +6,27 @@ import '../../config/app_theme.dart';
 /// A feature tour screen shown on first app launch
 class FeatureTourScreen extends StatefulWidget {
   final VoidCallback onComplete;
+  final String? userId;
 
-  const FeatureTourScreen({super.key, required this.onComplete});
+  const FeatureTourScreen({super.key, required this.onComplete, this.userId});
 
   @override
   State<FeatureTourScreen> createState() => _FeatureTourScreenState();
 
-  /// Check if this is the user's first launch
-  static Future<bool> isFirstLaunch() async {
+  /// Check if this is the user's first launch (user-specific)
+  static Future<bool> isFirstLaunch(String? userId) async {
+    if (userId == null) return false; // Don't show onboarding if no user
     final box = await Hive.openBox('app_preferences');
-    return box.get('has_seen_tour', defaultValue: true);
+    final key = 'has_seen_tour_$userId';
+    return box.get(key, defaultValue: true);
   }
 
-  /// Mark the tour as seen
-  static Future<void> markTourSeen() async {
+  /// Mark the tour as seen (user-specific)
+  static Future<void> markTourSeen(String? userId) async {
+    if (userId == null) return;
     final box = await Hive.openBox('app_preferences');
-    await box.put('has_seen_tour', false);
+    final key = 'has_seen_tour_$userId';
+    await box.put(key, false);
   }
 }
 
@@ -68,7 +73,7 @@ class _FeatureTourScreenState extends State<FeatureTourScreen> {
   }
 
   void _completeTour() async {
-    await FeatureTourScreen.markTourSeen();
+    await FeatureTourScreen.markTourSeen(widget.userId);
     widget.onComplete();
   }
 

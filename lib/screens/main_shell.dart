@@ -41,7 +41,8 @@ class _MainShellState extends State<MainShell> {
   Future<void> _checkFirstLaunch() async {
     if (_hasCheckedOnboarding) return;
     _hasCheckedOnboarding = true;
-    final isFirstLaunch = await FeatureTourScreen.isFirstLaunch();
+    final userId = context.read<AuthProvider>().user?.id;
+    final isFirstLaunch = await FeatureTourScreen.isFirstLaunch(userId);
     if (isFirstLaunch && mounted) {
       setState(() => _showOnboarding = true);
     }
@@ -91,6 +92,7 @@ class _MainShellState extends State<MainShell> {
     // Show onboarding tour on first launch
     if (_showOnboarding) {
       return FeatureTourScreen(
+        userId: context.read<AuthProvider>().user?.id,
         onComplete: () => setState(() => _showOnboarding = false),
       );
     }

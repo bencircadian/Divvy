@@ -114,7 +114,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     // Navigate to related task if available
     final taskId = notification.data['task_id'] as String?;
     if (taskId != null) {
-      context.push('/tasks/$taskId');
+      context.push('/task/$taskId');
     }
   }
 

@@ -71,6 +71,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   bool _isAddingNote = false;
   bool _showHistory = false;
 
+  // Recurring task completion history
+  List<Map<String, dynamic>> _recurringHistory = [];
+  bool _isLoadingRecurringHistory = false;
+  bool _showRecurringHistory = false;
+
   // Cover image
   final ImagePicker _imagePicker = ImagePicker();
   bool _isUploadingCover = false;
@@ -152,6 +157,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         _history = history;
         _isLoadingNotes = false;
       });
+    }
+
+    // Load recurring history if applicable
+    _loadRecurringHistory();
+  }
+
+  Future<void> _loadRecurringHistory() async {
+    final task = _getTask();
+    if (task == null || !task.isRecurring) return;
+
+    setState(() => _isLoadingRecurringHistory = true);
+
+    try {
+      // Get the root parent ID - either this task's parent or this task itself
+      final rootParentId = task.parentTaskId ?? task.id;
+
+      // Query all completed tasks with this parent
+      final response = await SupabaseService.client
+          .from('tasks')
+          .select('id, title, completed_at, completed_by, profiles:completed_by(display_name)')
+          .or('parent_task_id.eq.$rootParentId,id.eq.$rootParentId')
+          .eq('is_complete', true)
+          .not('completed_at', 'is', null)
+          .order('completed_at', ascending: false)
+          .limit(20);
+
+      if (mounted) {
+        setState(() {
+          _recurringHistory = List<Map<String, dynamic>>.from(response);
+          _isLoadingRecurringHistory = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingRecurringHistory = false);
+      }
     }
   }
 
@@ -829,50 +870,60 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             SizedBox(height: AppSpacing.md),
           ],
 
-          const Divider(),
-          SizedBox(height: AppSpacing.sm),
+          SizedBox(height: AppSpacing.md),
 
-          // Due date
-          _buildDetailRow(
-            icon: Icons.schedule,
-            label: 'Due',
-            value: task.dueDate != null
-                ? TaskDateUtils.formatDueDate(task.dueDate!, period: task.duePeriod)
-                : 'No due date',
-            isOverdue: task.isOverdue,
-          ),
+          // Task metadata chips in a wrap layout
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              // Due date
+              _buildDetailChip(
+                icon: Icons.schedule,
+                label: 'Due',
+                value: task.dueDate != null
+                    ? TaskDateUtils.formatDueDate(task.dueDate!, period: task.duePeriod)
+                    : 'No due date',
+                iconColor: task.isOverdue ? Colors.red : Colors.blue,
+                isOverdue: task.isOverdue,
+              ),
 
-          // Priority
-          _buildDetailRow(
-            icon: Icons.flag_outlined,
-            label: 'Priority',
-            value: task.priority.name[0].toUpperCase() + task.priority.name.substring(1),
-            valueColor: task.priority == TaskPriority.high
-                ? Colors.red
-                : task.priority == TaskPriority.low
-                    ? Colors.grey
-                    : null,
-          ),
+              // Priority
+              _buildDetailChip(
+                icon: Icons.flag_rounded,
+                label: 'Priority',
+                value: task.priority.name[0].toUpperCase() + task.priority.name.substring(1),
+                iconColor: task.priority == TaskPriority.high
+                    ? Colors.red
+                    : task.priority == TaskPriority.low
+                        ? Colors.grey
+                        : Colors.orange,
+              ),
 
-          // Assigned to
-          _buildDetailRow(
-            icon: Icons.person_outline,
-            label: 'Assigned to',
-            value: task.assignedToName ?? 'Unassigned',
-          ),
+              // Assigned to
+              _buildDetailChip(
+                icon: Icons.person_rounded,
+                label: 'Assigned to',
+                value: task.assignedToName ?? 'Unassigned',
+                iconColor: task.assignedTo != null ? AppColors.success : Colors.grey,
+              ),
 
-          // Created by
-          _buildDetailRow(
-            icon: Icons.create_outlined,
-            label: 'Created by',
-            value: task.createdByName ?? 'Unknown',
-          ),
+              // Created by
+              _buildDetailChip(
+                icon: Icons.edit_rounded,
+                label: 'Created by',
+                value: task.createdByName ?? 'Unknown',
+                iconColor: Colors.purple,
+              ),
 
-          // Created at
-          _buildDetailRow(
-            icon: Icons.calendar_today_outlined,
-            label: 'Created',
-            value: DateFormat('MMM d, yyyy').format(task.createdAt),
+              // Created at
+              _buildDetailChip(
+                icon: Icons.calendar_today_rounded,
+                label: 'Created',
+                value: DateFormat('MMM d, yyyy').format(task.createdAt),
+                iconColor: Colors.teal,
+              ),
+            ],
           ),
 
           SizedBox(height: AppSpacing.lg),
@@ -886,6 +937,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
           // History section
           _buildHistorySection(),
+
+          // Recurring completion history (only for recurring tasks)
+          if (_getTask()?.isRecurring == true) ...[
+            SizedBox(height: AppSpacing.lg),
+            const Divider(),
+            _buildRecurringHistorySection(),
+          ],
               ],
             ),
           ),
@@ -1143,30 +1201,171 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _buildDetailRow({
+  Widget _buildRecurringHistorySection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _showRecurringHistory = !_showRecurringHistory),
+          child: Row(
+            children: [
+              Icon(Icons.repeat_rounded, size: 20, color: AppColors.primary),
+              SizedBox(width: AppSpacing.sm),
+              Text(
+                'Completion History',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const Spacer(),
+              if (_isLoadingRecurringHistory)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                Icon(
+                  _showRecurringHistory ? Icons.expand_less : Icons.expand_more,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+            ],
+          ),
+        ),
+        if (_showRecurringHistory) ...[
+          const SizedBox(height: 12),
+          if (_recurringHistory.isEmpty)
+            Text(
+              'No completions recorded yet',
+              style: TextStyle(
+                color: isDark ? AppColors.textSecondary : Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _recurringHistory.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final item = _recurringHistory[index];
+                final completedAt = item['completed_at'] != null
+                    ? DateTime.parse(item['completed_at'] as String)
+                    : null;
+                final completedByName =
+                    item['profiles']?['display_name'] as String? ?? 'Unknown';
+
+                return Container(
+                  padding: EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.cardDark : Colors.grey[50],
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(
+                      color: isDark ? AppColors.cardBorder : Colors.grey[200]!,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Icon(
+                          Icons.check_circle_rounded,
+                          size: 16,
+                          color: AppColors.success,
+                        ),
+                      ),
+                      SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              completedByName,
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            if (completedAt != null)
+                              Text(
+                                DateFormat('MMM d, yyyy • h:mm a').format(completedAt),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? AppColors.textSecondary : Colors.grey[600],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDetailChip({
     required IconData icon,
     required String label,
     required String value,
-    Color? valueColor,
+    Color? iconColor,
+    Color? backgroundColor,
     bool isOverdue = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveIconColor = isOverdue ? Colors.red : (iconColor ?? AppColors.primary);
+    final effectiveBgColor = backgroundColor ??
+        (isDark ? AppColors.cardDark : Colors.grey[100]);
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: effectiveBgColor,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: isOverdue ? Border.all(color: Colors.red.withValues(alpha: 0.3), width: 1) : null,
+      ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20, color: isOverdue ? Colors.red : Colors.grey[600]),
-          const SizedBox(width: 12),
-          Text(
-            '$label:',
-            style: TextStyle(color: Colors.grey[600]),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: effectiveIconColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, size: 16, color: effectiveIconColor),
           ),
           SizedBox(width: AppSpacing.sm),
-          Text(
-            value,
-            style: TextStyle(
-              color: isOverdue ? Colors.red : valueColor,
-              fontWeight: isOverdue ? FontWeight.bold : null,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: isDark ? AppColors.textSecondary : Colors.grey[500],
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  color: isOverdue
+                      ? Colors.red
+                      : (isDark ? AppColors.textPrimary : Colors.grey[800]),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ],
       ),
