@@ -1,7 +1,6 @@
 {
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/privacy", "dest": "/privacy.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/:path((?!.*\\.html$)(?!.*\\.js$)(?!.*\\.css$)(?!.*\\.png$)(?!.*\\.json$)(?!.*\\.ico$)(?!.*\\.wasm$)(?!.*\\.ttf$).*)", "destination": "/index.html" }
   ]
 }
