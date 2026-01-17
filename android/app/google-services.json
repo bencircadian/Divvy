@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "771833823540",
+    "project_id": "divvy-83361",
+    "storage_bucket": "divvy-83361.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:771833823540:android:74fe1e09c0a93d14e4e561",
+        "android_client_info": {
+          "package_name": "com.divvy.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxnKjvusGHrWwA_dk5b15i07ccQPXEJ2s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

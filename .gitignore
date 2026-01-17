@@ -61,3 +61,4 @@ tmpclaude-*
 
 # Terminal Paste Image folder
 .cp-images/
+supabase/.temp/

@@ -12,6 +12,7 @@ import '../models/task_note.dart';
 import '../services/cache_service.dart';
 import '../services/supabase_service.dart';
 import '../services/notification_service.dart';
+import '../services/push_notification_service.dart';
 import '../services/task_history_service.dart';
 import '../services/task_image_service.dart';
 import '../services/task_recurrence_service.dart';
@@ -548,9 +549,17 @@ class TaskProvider extends ChangeNotifier {
       // Notify the assignee (if not self-assigning)
       if (assigneeId != null && assigneeId != currentUserId) {
         final task = _tasks.firstWhere((t) => t.id == taskId);
+        // In-app notification
         await NotificationService.createNotification(
           userId: assigneeId,
           type: NotificationType.taskAssigned,
+          title: 'Task assigned to you',
+          body: '"${task.title}" has been assigned to you',
+          data: {'task_id': taskId},
+        );
+        // Push notification
+        PushNotificationService.sendPushNotification(
+          userId: assigneeId,
           title: 'Task assigned to you',
           body: '"${task.title}" has been assigned to you',
           data: {'task_id': taskId},
@@ -641,8 +650,18 @@ class TaskProvider extends ChangeNotifier {
         );
       }).toList();
 
-      // Insert all notifications in a single batch
+      // Insert all in-app notifications in a single batch
       await NotificationService.createNotificationBatch(notifications);
+
+      // Send push notifications to all household members
+      for (final member in membersResponse as List) {
+        PushNotificationService.sendPushNotification(
+          userId: member['user_id'] as String,
+          title: 'Task completed',
+          body: '$userName completed "${task.title}"',
+          data: {'task_id': task.id},
+        );
+      }
     } catch (e) {
       debugPrint('Error sending completion notifications: $e');
     }
@@ -755,9 +774,17 @@ class TaskProvider extends ChangeNotifier {
               !notifiedUsers.contains(mentionedUserId)) {
             notifiedUsers.add(mentionedUserId);
 
+            // In-app notification
             await NotificationService.createNotification(
               userId: mentionedUserId,
               type: NotificationType.mentioned,
+              title: 'You were mentioned',
+              body: '$authorName mentioned you in "${task.title}"',
+              data: {'task_id': taskId},
+            );
+            // Push notification
+            PushNotificationService.sendPushNotification(
+              userId: mentionedUserId,
               title: 'You were mentioned',
               body: '$authorName mentioned you in "${task.title}"',
               data: {'task_id': taskId},

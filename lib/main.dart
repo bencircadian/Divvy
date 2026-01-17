@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -10,6 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/app_theme.dart';
 import 'config/router.dart';
+import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/bundle_provider.dart';
 import 'providers/dashboard_provider.dart';
@@ -19,6 +21,7 @@ import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
 import 'services/cache_service.dart';
 import 'services/deep_link_service.dart';
+import 'services/push_notification_service.dart';
 import 'services/supabase_service.dart';
 import 'services/sync_manager.dart';
 import 'widgets/common/update_banner.dart';
@@ -26,8 +29,22 @@ import 'widgets/common/update_banner.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
+
+  // Initialize Firebase (only on mobile platforms)
+  if (!kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   await SupabaseService.initialize();
   await CacheService.initialize();
+
+  // Initialize push notifications (only on mobile)
+  if (!kIsWeb) {
+    await PushNotificationService.initialize();
+  }
+
   // Initialize SyncManager to handle connectivity and sync coordination
   SyncManager.instance;
   runApp(const DivvyApp());

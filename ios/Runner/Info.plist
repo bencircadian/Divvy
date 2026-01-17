@@ -67,5 +67,10 @@
 		<string>Divvy needs camera access to take photos for tasks.</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>Divvy needs permission to save images to your photo library.</string>
+		<!-- Push Notifications Background Mode -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>remote-notification</string>
+		</array>
 	</dict>
 </plist>
