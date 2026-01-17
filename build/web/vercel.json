@@ -1,6 +1,47 @@
 {
+  "framework": null,
+  "outputDirectory": "build/web",
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/:path((?!.*\\.html$)(?!.*\\.js$)(?!.*\\.css$)(?!.*\\.png$)(?!.*\\.json$)(?!.*\\.ico$)(?!.*\\.wasm$)(?!.*\\.ttf$).*)", "destination": "/index.html" }
+    { "source": "/delete-account", "destination": "/delete-account.html" },
+    { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/privacy",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/flutter_service_worker.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/flutter_bootstrap.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/version.json",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/main.dart.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
   ]
 }
