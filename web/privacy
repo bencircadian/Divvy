@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Divvy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        .last-updated {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #1976D2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        p, li {
+            margin-bottom: 10px;
+        }
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .contact {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        a {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Privacy Policy</h1>
+        <p class="last-updated">Last updated: January 17, 2026</p>
+
+        <p>Divvy ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our household task management application.</p>
+
+        <h2>Information We Collect</h2>
+        <p>We collect the following types of information:</p>
+        <ul>
+            <li><strong>Account Information:</strong> When you create an account, we collect your email address and authentication credentials. If you sign in with Google or Apple, we receive your name and email from those services.</li>
+            <li><strong>Task Data:</strong> Information you provide when creating and managing household tasks, including task names, descriptions, due dates, assignments, and completion status.</li>
+            <li><strong>Household Data:</strong> Information about your household, including household name and member relationships.</li>
+            <li><strong>Usage Data:</strong> Information about how you interact with the app, including features used and app performance data.</li>
+        </ul>
+
+        <h2>How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul>
+            <li>Provide and maintain the Divvy service</li>
+            <li>Sync your tasks across devices</li>
+            <li>Enable collaboration with household members</li>
+            <li>Send notifications about task updates and reminders</li>
+            <li>Improve and optimize our services</li>
+            <li>Respond to your requests and provide support</li>
+        </ul>
+
+        <h2>Data Storage and Security</h2>
+        <p>Your data is stored securely using industry-standard practices:</p>
+        <ul>
+            <li><strong>Cloud Storage:</strong> We use Supabase, a secure backend service, to store your account and task data. Data is encrypted in transit and at rest.</li>
+            <li><strong>Local Storage:</strong> The app stores data locally on your device using encrypted storage (Hive with AES encryption) to enable offline functionality.</li>
+            <li><strong>Authentication:</strong> We use secure authentication through Supabase Auth, with optional Google and Apple Sign-In for added convenience and security.</li>
+        </ul>
+
+        <h2>Data Sharing</h2>
+        <p>We do not sell your personal information. We may share your information only in these circumstances:</p>
+        <ul>
+            <li><strong>With Household Members:</strong> Task and household information is shared with members of your household as part of the app's core functionality.</li>
+            <li><strong>Service Providers:</strong> We use third-party services (Supabase for backend, Google/Apple for authentication) that process data on our behalf under strict privacy agreements.</li>
+            <li><strong>Legal Requirements:</strong> We may disclose information if required by law or to protect our rights and safety.</li>
+        </ul>
+
+        <h2>Your Rights</h2>
+        <p>You have the right to:</p>
+        <ul>
+            <li>Access your personal data</li>
+            <li>Correct inaccurate data</li>
+            <li>Delete your account and associated data</li>
+            <li>Export your data</li>
+            <li>Opt out of non-essential communications</li>
+        </ul>
+
+        <h2>Data Retention</h2>
+        <p>We retain your data for as long as your account is active. If you delete your account, we will delete your personal data within 30 days, except where we are required to retain it for legal purposes.</p>
+
+        <h2>Children's Privacy</h2>
+        <p>Divvy is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+
+        <div class="contact">
+            <h2>Contact Us</h2>
+            <p>If you have questions about this Privacy Policy or our privacy practices, please contact us at:</p>
+            <p><strong>Email:</strong> <a href="mailto:privacy@divvy-app.com">privacy@divvy-app.com</a></p>
+        </div>
+    </div>
+</body>
+</html>
