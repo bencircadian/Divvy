@@ -30,7 +30,8 @@ void main() {
 
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Custom loading message'), findsOneWidget);
+      // Message includes animated dots, so check for text containing the message
+      expect(find.textContaining('Custom loading message'), findsOneWidget);
     });
 
     testWidgets('hides message when showMessage is false', (tester) async {
@@ -50,7 +51,7 @@ void main() {
       expect(find.text('Should not appear'), findsNothing);
     });
 
-    testWidgets('displays D logo', (tester) async {
+    testWidgets('displays d logo', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -61,7 +62,7 @@ void main() {
 
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('D'), findsOneWidget);
+      expect(find.text('d'), findsOneWidget);
     });
 
     testWidgets('animation controllers are disposed properly', (tester) async {

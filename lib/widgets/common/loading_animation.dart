@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
@@ -5,11 +6,13 @@ import '../../config/app_theme.dart';
 class LoadingAnimation extends StatefulWidget {
   final String? message;
   final bool showMessage;
+  final bool fullScreen;
 
   const LoadingAnimation({
     super.key,
     this.message,
     this.showMessage = true,
+    this.fullScreen = false,
   });
 
   @override
@@ -18,157 +21,272 @@ class LoadingAnimation extends StatefulWidget {
 
 class _LoadingAnimationState extends State<LoadingAnimation>
     with TickerProviderStateMixin {
+  late AnimationController _pulseController;
   late AnimationController _rotationController;
-  late AnimationController _bounceController;
-  late AnimationController _fadeController;
-  late Animation<double> _bounceAnimation;
+  late AnimationController _dotsController;
+  late Animation<double> _pulseAnimation;
+  int _messageIndex = 0;
+  Timer? _messageTimer;
 
   final List<String> _loadingMessages = [
-    'Getting things ready...',
-    'Loading your tasks...',
-    'Almost there...',
-    'Organizing your day...',
-    'Syncing with household...',
+    'Getting things ready',
+    'Loading your tasks',
+    'Almost there',
+    'Organizing your day',
+    'Syncing with household',
   ];
 
   @override
   void initState() {
     super.initState();
 
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     _rotationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat();
 
-    _bounceController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+    _dotsController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
-    )..repeat(reverse: true);
+    )..repeat();
 
-    _bounceAnimation = Tween<double>(begin: 0, end: -10).animate(
-      CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
-    );
+    // Cycle through messages every 3 seconds
+    if (widget.message == null) {
+      _messageIndex = math.Random().nextInt(_loadingMessages.length);
+      _startMessageCycle();
+    }
+  }
 
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    )..repeat(reverse: true);
+  void _startMessageCycle() {
+    _messageTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (mounted) {
+        setState(() {
+          _messageIndex = (_messageIndex + 1) % _loadingMessages.length;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _messageTimer?.cancel();
+    _pulseController.dispose();
     _rotationController.dispose();
-    _bounceController.dispose();
-    _fadeController.dispose();
+    _dotsController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final random = math.Random();
-    final message = widget.message ?? _loadingMessages[random.nextInt(_loadingMessages.length)];
+    final message = widget.message ?? _loadingMessages[_messageIndex];
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = isDark ? AppColors.primaryDarkMode : AppColors.primary;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
-    return Center(
+    Widget content = Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Animated logo/icon
+          // Elegant animated logo
           AnimatedBuilder(
-            animation: Listenable.merge([_rotationController, _bounceAnimation]),
+            animation: Listenable.merge([_pulseAnimation, _rotationController]),
             builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, _bounceAnimation.value),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Outer rotating ring
-                    Transform.rotate(
-                      angle: _rotationController.value * 2 * math.pi,
-                      child: Container(
-                        width: 80,
-                        height: 80,
+              return Transform.scale(
+                scale: _pulseAnimation.value,
+                child: SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Outer glow ring
+                      Container(
+                        width: 120,
+                        height: 120,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: primaryColor.withValues(alpha: 0.3),
-                            width: 3,
-                          ),
-                        ),
-                        child: CustomPaint(
-                          painter: _ArcPainter(
-                            color: primaryColor,
-                            progress: 0.3,
+                          gradient: RadialGradient(
+                            colors: [
+                              primaryColor.withValues(alpha: 0.15),
+                              primaryColor.withValues(alpha: 0.0),
+                            ],
                           ),
                         ),
                       ),
-                    ),
-                    // Inner D logo
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.circular(14),
+                      // Rotating track
+                      CustomPaint(
+                        size: const Size(100, 100),
+                        painter: _ModernSpinnerPainter(
+                          color: primaryColor,
+                          progress: _rotationController.value,
+                          trackColor: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.grey.withValues(alpha: 0.15),
+                        ),
                       ),
-                      child: const Center(
-                        child: Text(
-                          'D',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
+                      // Center logo
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              primaryColor,
+                              isDark
+                                  ? primaryColor.withValues(alpha: 0.8)
+                                  : Color.lerp(primaryColor, Colors.black, 0.15)!,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryColor.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            'd',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.w700,
+                              height: 1.1,
+                              letterSpacing: -1,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
           ),
 
           if (widget.showMessage) ...[
-            const SizedBox(height: 24),
-            // Animated loading text
-            FadeTransition(
-              opacity: Tween<double>(begin: 0.5, end: 1.0).animate(_fadeController),
-              child: Text(
-                message,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+            const SizedBox(height: 40),
+            // Animated loading text with dots
+            AnimatedBuilder(
+              animation: _dotsController,
+              builder: (context, child) {
+                final dotCount = (_dotsController.value * 3).floor() + 1;
+                final dots = '.' * dotCount;
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    '$message$dots',
+                    key: ValueKey('$message-$dotCount'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.7)
+                          : Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ],
       ),
     );
+
+    if (widget.fullScreen) {
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        body: SafeArea(child: content),
+      );
+    }
+
+    return content;
   }
 }
 
-class _ArcPainter extends CustomPainter {
+class _ModernSpinnerPainter extends CustomPainter {
   final Color color;
   final double progress;
+  final Color trackColor;
 
-  _ArcPainter({required this.color, required this.progress});
+  _ModernSpinnerPainter({
+    required this.color,
+    required this.progress,
+    required this.trackColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    // Draw track
+    final trackPaint = Paint()
+      ..color = trackColor
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    canvas.drawArc(rect, -math.pi / 2, 2 * math.pi * progress, false, paint);
+    canvas.drawCircle(center, radius, trackPaint);
+
+    // Draw gradient arc
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    final gradient = SweepGradient(
+      startAngle: 0,
+      endAngle: math.pi * 2,
+      colors: [
+        color.withValues(alpha: 0.0),
+        color.withValues(alpha: 0.3),
+        color,
+      ],
+      stops: const [0.0, 0.5, 1.0],
+      transform: GradientRotation(progress * math.pi * 2 - math.pi / 2),
+    );
+
+    final arcPaint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      rect,
+      progress * math.pi * 2 - math.pi / 2,
+      math.pi * 0.8,
+      false,
+      arcPaint,
+    );
+
+    // Draw leading dot
+    final dotAngle = progress * math.pi * 2 - math.pi / 2 + math.pi * 0.8;
+    final dotX = center.dx + radius * math.cos(dotAngle);
+    final dotY = center.dy + radius * math.sin(dotAngle);
+
+    final dotPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset(dotX, dotY), 4, dotPaint);
   }
 
   @override
-  bool shouldRepaint(covariant _ArcPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.color != color;
+  bool shouldRepaint(covariant _ModernSpinnerPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.color != color ||
+        oldDelegate.trackColor != trackColor;
   }
 }
 

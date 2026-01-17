@@ -219,11 +219,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           RefreshIndicator(
             onRefresh: () async {
               HapticFeedback.mediumImpact();
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
               await householdProvider.loadUserHousehold();
               await taskProvider.loadTasks(household.id);
               await dashboardProvider.loadDashboardData(household.id);
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                scaffoldMessenger.showSnackBar(
                   const SnackBar(
                     content: Text('Tasks refreshed'),
                     duration: Duration(seconds: 1),
