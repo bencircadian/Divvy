@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:web/web.dart' as web;
 
 /// Web implementation that creates an HTML img element
@@ -19,7 +20,7 @@ Widget buildWebImage({
 
 /// Web-specific image widget that overlays an HTML img element.
 /// Creates an absolutely positioned img element in the DOM and
-/// positions it over this widget using post-frame callbacks.
+/// positions it over this widget using a Ticker for continuous updates.
 class _WebImage extends StatefulWidget {
   final String url;
   final double size;
@@ -36,22 +37,24 @@ class _WebImage extends StatefulWidget {
   State<_WebImage> createState() => _WebImageState();
 }
 
-class _WebImageState extends State<_WebImage> with WidgetsBindingObserver {
+class _WebImageState extends State<_WebImage>
+    with SingleTickerProviderStateMixin {
   final GlobalKey _containerKey = GlobalKey();
   web.HTMLImageElement? _imgElement;
   bool _imageLoaded = false;
   bool _imageError = false;
+  Ticker? _ticker;
+  Offset? _lastPosition;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _createAndPositionImage();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _ticker?.dispose();
     _removeImage();
     super.dispose();
   }
@@ -69,11 +72,6 @@ class _WebImageState extends State<_WebImage> with WidgetsBindingObserver {
     }
   }
 
-  @override
-  void didChangeMetrics() {
-    _updatePosition();
-  }
-
   void _createAndPositionImage() {
     _imgElement = web.HTMLImageElement()
       ..src = widget.url
@@ -84,13 +82,15 @@ class _WebImageState extends State<_WebImage> with WidgetsBindingObserver {
       ..style.borderRadius = '50%'
       ..style.pointerEvents = 'none'
       ..style.zIndex = '1000'
-      ..style.opacity = '0'; // Start hidden
+      ..style.opacity = '0'
+      ..style.transition = 'none'; // No transitions for smooth tracking
 
     _imgElement!.onLoad.listen((_) {
       if (mounted) {
         setState(() => _imageLoaded = true);
         _updatePosition();
         _imgElement?.style.opacity = '1';
+        _startTicker();
       }
     });
 
@@ -109,21 +109,42 @@ class _WebImageState extends State<_WebImage> with WidgetsBindingObserver {
     });
   }
 
+  void _startTicker() {
+    _ticker?.dispose();
+    _ticker = createTicker((_) => _updatePosition());
+    _ticker!.start();
+  }
+
   void _updatePosition() {
     if (_imgElement == null || !mounted) return;
 
     final renderBox =
         _containerKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null || !renderBox.attached) return;
+    if (renderBox == null || !renderBox.attached) {
+      // Widget not visible, hide the image
+      _imgElement?.style.opacity = '0';
+      return;
+    }
 
     final position = renderBox.localToGlobal(Offset.zero);
-    _imgElement!.style.left = '${position.dx}px';
-    _imgElement!.style.top = '${position.dy}px';
+
+    // Only update DOM if position changed (optimization)
+    if (_lastPosition != position) {
+      _lastPosition = position;
+      _imgElement!.style.left = '${position.dx}px';
+      _imgElement!.style.top = '${position.dy}px';
+      if (_imageLoaded) {
+        _imgElement!.style.opacity = '1';
+      }
+    }
   }
 
   void _removeImage() {
+    _ticker?.dispose();
+    _ticker = null;
     _imgElement?.remove();
     _imgElement = null;
+    _lastPosition = null;
   }
 
   @override
