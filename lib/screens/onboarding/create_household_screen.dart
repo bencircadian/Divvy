@@ -131,7 +131,8 @@ class _CreateHouseholdScreenState extends State<CreateHouseholdScreen> {
             const SizedBox(height: 24),
             SizedBox(
               height: 50,
-              child: ElevatedButton.icon(
+              width: double.infinity,
+              child: FilledButton.icon(
                 onPressed: _isCreating ? null : _createHousehold,
                 icon: _isCreating
                     ? const SizedBox(

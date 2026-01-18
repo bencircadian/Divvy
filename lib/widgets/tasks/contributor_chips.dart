@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/task_contributor.dart';
+import '../common/member_avatar.dart';
 
 /// Widget to display contributor avatars as overlapping chips.
 class ContributorChips extends StatelessWidget {
@@ -111,8 +112,6 @@ class _ContributorAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Container(
       width: size,
       height: size,
@@ -123,22 +122,10 @@ class _ContributorAvatar extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: CircleAvatar(
+      child: MemberAvatar(
+        displayName: contributor.displayName,
+        avatarUrl: contributor.avatarUrl,
         radius: (size - 4) / 2,
-        backgroundColor: colorScheme.primaryContainer,
-        backgroundImage: contributor.avatarUrl != null
-            ? NetworkImage(contributor.avatarUrl!)
-            : null,
-        child: contributor.avatarUrl == null
-            ? Text(
-                contributor.initials,
-                style: TextStyle(
-                  fontSize: size * 0.35,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              )
-            : null,
       ),
     );
   }
@@ -159,25 +146,11 @@ class ContributorDetailChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Chip(
-      avatar: CircleAvatar(
+      avatar: MemberAvatar(
+        displayName: contributor.displayName,
+        avatarUrl: contributor.avatarUrl,
         radius: 14,
-        backgroundColor: colorScheme.primaryContainer,
-        backgroundImage: contributor.avatarUrl != null
-            ? NetworkImage(contributor.avatarUrl!)
-            : null,
-        child: contributor.avatarUrl == null
-            ? Text(
-                contributor.initials,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              )
-            : null,
       ),
       label: Text(contributor.displayName ?? 'Unknown'),
       deleteIcon: showRemove ? const Icon(Icons.close, size: 16) : null,

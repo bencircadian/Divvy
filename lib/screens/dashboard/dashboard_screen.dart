@@ -11,6 +11,7 @@ import '../../services/onboarding_progress_service.dart';
 import '../../utils/date_utils.dart';
 import '../../widgets/bundles/bundle_card.dart';
 import '../../widgets/bundles/create_bundle_sheet.dart';
+import '../../widgets/common/empty_state.dart';
 import '../../widgets/common/member_avatar.dart';
 import '../../widgets/tasks/organic_task_card.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
@@ -269,32 +270,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             const SizedBox(height: 12),
                             if (allBundles.isEmpty)
-                              Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(alpha: 0.12),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(Icons.folder_outlined, color: AppColors.primary, size: 24),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Text(
-                                          'Create bundles to group related tasks',
-                                          style: TextStyle(
-                                            color: isDark ? Colors.grey[300] : Colors.grey[700],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
+                              Card(child: CardEmptyState.noBundles())
                             else
                               ...allBundles.take(3).map((bundle) => Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
@@ -386,36 +362,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildTodaysTasks(List<Task> tasks) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final taskProvider = context.read<TaskProvider>();
 
     if (tasks.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.check_circle, color: AppColors.success, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'All caught up! No tasks due today.',
-                  style: TextStyle(
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return Card(child: CardEmptyState.tasksDone());
     }
 
     return Column(
@@ -434,36 +384,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildUpcomingTasks(List<Task> tasks) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final taskProvider = context.read<TaskProvider>();
 
     if (tasks.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.info.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.event_available, color: AppColors.info, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'No upcoming tasks scheduled.',
-                  style: TextStyle(
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return Card(child: CardEmptyState.noUpcoming());
     }
 
     final previewTasks = tasks.take(3).toList();
@@ -527,32 +451,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (streaks.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.local_fire_department, color: Colors.orange, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Complete tasks daily to build your streak!',
-                  style: TextStyle(
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return Card(child: CardEmptyState.noStreaks());
     }
 
     return Card(
@@ -571,17 +470,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     children: [
-                      CircleAvatar(
+                      MemberAvatar(
+                        displayName: streak.displayName,
+                        radius: 20,
                         backgroundColor: isTopStreak
                             ? Colors.orange.withValues(alpha: 0.15)
-                            : (isDark ? AppColors.surfaceDark : Colors.grey[100]),
-                        child: Text(
-                          (streak.displayName ?? 'U')[0].toUpperCase(),
-                          style: TextStyle(
-                            color: isTopStreak ? Colors.orange[700] : (isDark ? Colors.grey[300] : Colors.grey[700]),
-                            fontWeight: isTopStreak ? FontWeight.bold : FontWeight.w500,
-                          ),
-                        ),
+                            : null,
+                        foregroundColor: isTopStreak ? Colors.orange[700] : null,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -691,29 +586,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildEmptyWorkloadCard(bool isDark) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.celebration, color: AppColors.success, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                'All caught up! No pending tasks.',
-                style: TextStyle(
-                  color: isDark ? Colors.grey[300] : Colors.grey[700],
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: CardEmptyState(
+        icon: Icons.celebration,
+        message: 'All caught up! No pending tasks.',
+        color: AppColors.success,
       ),
     );
   }

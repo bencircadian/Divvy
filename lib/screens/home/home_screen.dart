@@ -11,6 +11,7 @@ import '../../models/task.dart';
 import '../../services/onboarding_progress_service.dart';
 import '../../widgets/common/confetti_animation.dart';
 import '../../widgets/common/empty_state.dart';
+import '../../widgets/common/member_avatar.dart';
 import '../../widgets/common/skeleton_loader.dart';
 import '../../widgets/onboarding/onboarding_checklist.dart';
 import '../../widgets/tasks/organic_task_card.dart';
@@ -417,37 +418,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             GestureDetector(
               onTap: () => context.go('/home?tab=2'),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: profile?.avatarUrl == null
-                      ? const LinearGradient(
-                          colors: [AppColors.primary, AppColors.primaryDark],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : null,
-                  image: profile?.avatarUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(profile!.avatarUrl!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: profile?.avatarUrl == null
-                    ? Center(
-                        child: Text(
-                          firstName[0].toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? const Color(0xFF102219) : Colors.white,
-                          ),
-                        ),
-                      )
-                    : null,
+              child: MemberAvatar(
+                displayName: profile?.displayName ?? firstName,
+                avatarUrl: profile?.avatarUrl,
+                radius: 22,
               ),
             ),
           ],

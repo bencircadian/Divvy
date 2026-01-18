@@ -101,6 +101,86 @@ class EmptyState extends StatelessWidget {
   }
 }
 
+/// Empty state for use inside Card widgets with an icon bubble.
+/// Follows the dashboard design pattern with colored icon container.
+class CardEmptyState extends StatelessWidget {
+  final IconData icon;
+  final String message;
+  final Color color;
+
+  const CardEmptyState({
+    super.key,
+    required this.icon,
+    required this.message,
+    required this.color,
+  });
+
+  /// Factory for "all caught up" task state
+  factory CardEmptyState.tasksDone() => const CardEmptyState(
+        icon: Icons.check_circle,
+        message: 'All caught up! No tasks due today.',
+        color: AppColors.success,
+      );
+
+  /// Factory for no upcoming tasks
+  factory CardEmptyState.noUpcoming() => const CardEmptyState(
+        icon: Icons.event_available,
+        message: 'No upcoming tasks scheduled.',
+        color: AppColors.info,
+      );
+
+  /// Factory for no streaks
+  factory CardEmptyState.noStreaks() => CardEmptyState(
+        icon: Icons.local_fire_department,
+        message: 'Complete tasks daily to build your streak!',
+        color: Colors.orange,
+      );
+
+  /// Factory for no workload
+  factory CardEmptyState.noWorkload() => const CardEmptyState(
+        icon: Icons.balance,
+        message: 'Tasks will appear here once assigned.',
+        color: AppColors.primary,
+      );
+
+  /// Factory for no bundles
+  factory CardEmptyState.noBundles() => const CardEmptyState(
+        icon: Icons.folder_outlined,
+        message: 'Group related tasks into bundles.',
+        color: AppColors.primary,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Compact empty state for use in cards or smaller containers.
 class EmptyStateCompact extends StatelessWidget {
   final IconData icon;

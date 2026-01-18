@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../config/app_theme.dart';
+import '../common/member_avatar.dart';
 
 /// A leaderboard item showing user ranking.
 /// Example: Avatar + "Sarah" + "1,250 points" + "Leading by 50"
@@ -70,20 +71,10 @@ class LeaderboardItem extends StatelessWidget {
               SizedBox(width: AppSpacing.sm),
             ],
             // Avatar
-            CircleAvatar(
+            MemberAvatar(
+              displayName: name,
+              avatarUrl: avatarUrl,
               radius: 22,
-              backgroundColor: primaryColor.withValues(alpha: 0.15),
-              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-              child: avatarUrl == null
-                  ? Text(
-                      name[0].toUpperCase(),
-                      style: TextStyle(
-                        color: primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    )
-                  : null,
             ),
             SizedBox(width: AppSpacing.md),
             // Name and points

@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/common/app_logo.dart';
+import '../../widgets/common/member_avatar.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -26,19 +27,10 @@ class SettingsScreen extends StatelessWidget {
           // Profile section
           _buildSectionHeader(context, 'Profile'),
           ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              backgroundImage: authProvider.profile?.avatarUrl != null
-                  ? NetworkImage(authProvider.profile!.avatarUrl!)
-                  : null,
-              child: authProvider.profile?.avatarUrl == null
-                  ? Text(
-                      (authProvider.profile?.displayName ?? 'U')[0].toUpperCase(),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    )
-                  : null,
+            leading: MemberAvatar(
+              displayName: authProvider.profile?.displayName,
+              avatarUrl: authProvider.profile?.avatarUrl,
+              radius: 20,
             ),
             title: Text(authProvider.profile?.displayName ?? 'Unknown'),
             subtitle: Text(authProvider.user?.email ?? ''),
