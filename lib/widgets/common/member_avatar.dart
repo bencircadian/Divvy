@@ -56,20 +56,31 @@ class _MemberAvatarState extends State<MemberAvatar> {
       return;
     }
 
+    String? url;
+
     // If it's already a URL (http/https), use it directly
     if (widget.avatarUrl!.startsWith('http')) {
       debugPrint('MemberAvatar: Using direct URL');
-      setState(() => _resolvedUrl = widget.avatarUrl);
-      return;
+      url = widget.avatarUrl;
+    } else {
+      // It's a storage path - get signed URL
+      debugPrint('MemberAvatar: Getting signed URL for storage path');
+      url = await ProfileAvatarService.getSignedUrl(widget.avatarUrl!);
     }
 
-    // It's a storage path - get signed URL
-    debugPrint('MemberAvatar: Getting signed URL for storage path');
-    final signedUrl = await ProfileAvatarService.getSignedUrl(widget.avatarUrl!);
+    if (url != null && mounted) {
+      // Precache the image to force it to load
+      try {
+        debugPrint('MemberAvatar: Precaching image: $url');
+        await precacheImage(NetworkImage(url), context);
+        debugPrint('MemberAvatar: Image precached successfully');
+      } catch (e) {
+        debugPrint('MemberAvatar: Precache error: $e');
+      }
 
-    if (mounted) {
-      debugPrint('MemberAvatar: Resolved to $signedUrl');
-      setState(() => _resolvedUrl = signedUrl);
+      if (mounted) {
+        setState(() => _resolvedUrl = url);
+      }
     }
   }
 
