@@ -253,7 +253,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 _buildHeader(context, authProvider, isDark),
 
                 // Onboarding checklist (shown for new users)
-                const OnboardingChecklist(),
+                // Use a key to force rebuild when task completion status changes
+                OnboardingChecklist(
+                  key: ValueKey('checklist_${OnboardingProgressService.hasCompletedFirstTask}'),
+                ),
 
                 // Progress blob with weekly stats
                 _buildProgressBlob(

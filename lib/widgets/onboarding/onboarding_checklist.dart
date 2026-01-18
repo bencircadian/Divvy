@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../config/app_theme.dart';
+import '../../providers/household_provider.dart';
 import '../../services/onboarding_progress_service.dart';
 
 /// A collapsible onboarding checklist widget (like Loom's onboarding).
 ///
 /// Shows progress on key actions after initial setup.
 class OnboardingChecklist extends StatefulWidget {
-  const OnboardingChecklist({super.key});
+  /// Callback when user taps "invite member" item
+  final VoidCallback? onInviteTap;
+
+  /// Callback when user taps "complete profile" item
+  final VoidCallback? onProfileTap;
+
+  const OnboardingChecklist({
+    super.key,
+    this.onInviteTap,
+    this.onProfileTap,
+  });
 
   @override
   State<OnboardingChecklist> createState() => _OnboardingChecklistState();
@@ -60,13 +71,31 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
 
   @override
   Widget build(BuildContext context) {
+    // Watch household provider for member count changes
+    final householdProvider = context.watch<HouseholdProvider>();
+    final memberCount = householdProvider.members.length;
+
+    // Auto-mark invite as complete if household has 2+ members
+    final hasMultipleMembers = memberCount >= 2;
+    if (hasMultipleMembers && !OnboardingProgressService.hasInvitedFirstMember) {
+      // Schedule this for after the build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        OnboardingProgressService.markFirstMemberInvited();
+        if (mounted) setState(() {});
+      });
+    }
+
     // Don't show if dismissed or complete
     if (!OnboardingProgressService.shouldShow) {
       return const SizedBox.shrink();
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final progress = OnboardingProgressService.progressPercentage;
+
+    // Calculate progress including auto-completed items
+    final hasInvited = OnboardingProgressService.hasInvitedFirstMember || hasMultipleMembers;
+    final completedCount = _getCompletedCount(hasInvited);
+    final progress = completedCount / 3;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -144,7 +173,7 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
                           ),
                         ),
                         Text(
-                          '$_completedCount/3 completed',
+                          '$completedCount/3 completed',
                           style: TextStyle(
                             fontSize: 13,
                             color: isDark
@@ -190,21 +219,39 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
                   title: 'Complete your first task',
                   subtitle: 'Mark a task as done',
                   isCompleted: OnboardingProgressService.hasCompletedFirstTask,
-                  onTap: () => context.go('/home'),
+                  onTap: () {
+                    // Just stay on home - user can complete a task here
+                  },
                 ),
                 _buildChecklistItem(
                   icon: Icons.person_add_outlined,
                   title: 'Invite a household member',
-                  subtitle: 'Share tasks with others',
-                  isCompleted: OnboardingProgressService.hasInvitedFirstMember,
-                  onTap: () => context.go('/settings'),
+                  subtitle: hasMultipleMembers
+                      ? 'You have $memberCount members'
+                      : 'Share tasks with others',
+                  isCompleted: hasInvited,
+                  onTap: widget.onInviteTap ?? () {
+                    // Default: show a snackbar with instructions
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Go to Settings tab to invite members'),
+                      ),
+                    );
+                  },
                 ),
                 _buildChecklistItem(
                   icon: Icons.person_outline,
                   title: 'Complete your profile',
                   subtitle: 'Add your name and photo',
                   isCompleted: OnboardingProgressService.hasCompletedProfile,
-                  onTap: () => context.go('/settings'),
+                  onTap: widget.onProfileTap ?? () {
+                    // Default: show a snackbar with instructions
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Go to Settings tab to edit your profile'),
+                      ),
+                    );
+                  },
                   isLast: true,
                 ),
               ],
@@ -215,10 +262,10 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
     );
   }
 
-  int get _completedCount {
+  int _getCompletedCount(bool hasInvited) {
     int count = 0;
     if (OnboardingProgressService.hasCompletedFirstTask) count++;
-    if (OnboardingProgressService.hasInvitedFirstMember) count++;
+    if (hasInvited) count++;
     if (OnboardingProgressService.hasCompletedProfile) count++;
     return count;
   }

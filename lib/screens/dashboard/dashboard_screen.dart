@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/productivity_insights.dart';
 import '../../models/task.dart';
+import '../../services/onboarding_progress_service.dart';
 import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 import '../../widgets/bundles/bundle_card.dart';
@@ -14,6 +15,7 @@ import '../../widgets/bundles/create_bundle_sheet.dart';
 import '../../widgets/common/member_avatar.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
 import '../../widgets/dashboard/insights_card.dart';
+import '../../widgets/onboarding/onboarding_checklist.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/bundle_provider.dart';
 import '../../providers/dashboard_provider.dart';
@@ -211,6 +213,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             : ListView(
                 padding: EdgeInsets.all(AppSpacing.md),
                 children: [
+                  // Onboarding checklist (shown for new users)
+                  OnboardingChecklist(
+                    key: ValueKey('dashboard_checklist_${OnboardingProgressService.hasCompletedFirstTask}'),
+                  ),
+
                   // Stats Row
                   _buildStatsRow(taskProvider),
                   SizedBox(height: AppSpacing.lg),
