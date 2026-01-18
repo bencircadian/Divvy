@@ -54,8 +54,6 @@ class _MemberAvatarState extends State<MemberAvatar> {
   }
 
   Future<void> _resolveAvatarUrl() async {
-    debugPrint('MemberAvatar: avatarUrl=${widget.avatarUrl}');
-
     if (widget.avatarUrl == null) {
       setState(() => _resolvedUrl = null);
       return;
@@ -65,27 +63,14 @@ class _MemberAvatarState extends State<MemberAvatar> {
 
     // If it's already a URL (http/https), use it directly
     if (widget.avatarUrl!.startsWith('http')) {
-      debugPrint('MemberAvatar: Using direct URL');
       url = widget.avatarUrl;
     } else {
       // It's a storage path - get signed URL
-      debugPrint('MemberAvatar: Getting signed URL for storage path');
       url = await ProfileAvatarService.getSignedUrl(widget.avatarUrl!);
     }
 
-    if (url != null && mounted) {
-      // Precache the image to force it to load
-      try {
-        debugPrint('MemberAvatar: Precaching image: $url');
-        await precacheImage(NetworkImage(url), context);
-        debugPrint('MemberAvatar: Image precached successfully');
-      } catch (e) {
-        debugPrint('MemberAvatar: Precache error: $e');
-      }
-
-      if (mounted) {
-        setState(() => _resolvedUrl = url);
-      }
+    if (mounted) {
+      setState(() => _resolvedUrl = url);
     }
   }
 
@@ -186,43 +171,36 @@ class _MemberAvatarState extends State<MemberAvatar> {
 }
 
 /// Web-specific image widget that uses HtmlElementView to bypass CORS.
-class _WebImage extends StatefulWidget {
+class _WebImage extends StatelessWidget {
   final String url;
   final double size;
 
   const _WebImage({required this.url, required this.size});
 
-  @override
-  State<_WebImage> createState() => _WebImageState();
-}
+  static final Set<String> _registeredViews = {};
 
-class _WebImageState extends State<_WebImage> {
-  late String _viewType;
+  String get _viewType => 'avatar-${url.hashCode}';
 
-  @override
-  void initState() {
-    super.initState();
-    _viewType = 'avatar-img-${widget.url.hashCode}-${DateTime.now().millisecondsSinceEpoch}';
-    _registerView();
-  }
+  void _ensureRegistered() {
+    if (_registeredViews.contains(_viewType)) return;
 
-  void _registerView() {
     ui_web.platformViewRegistry.registerViewFactory(
       _viewType,
       (int viewId) {
         final img = web.HTMLImageElement()
-          ..src = widget.url
+          ..src = url
           ..style.width = '100%'
           ..style.height = '100%'
-          ..style.objectFit = 'cover'
-          ..style.borderRadius = '50%';
+          ..style.objectFit = 'cover';
         return img;
       },
     );
+    _registeredViews.add(_viewType);
   }
 
   @override
   Widget build(BuildContext context) {
+    _ensureRegistered();
     return HtmlElementView(viewType: _viewType);
   }
 }
