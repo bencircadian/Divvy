@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/household.dart';
 import '../models/household_member.dart';
+import '../services/error_service.dart';
 import '../services/supabase_service.dart';
 
 class HouseholdProvider extends ChangeNotifier {
@@ -74,6 +75,12 @@ class HouseholdProvider extends ChangeNotifier {
 
         _currentHousehold = Household.fromJson(householdResponse);
         await _loadMembers();
+
+        // Add household context to error tracking
+        ErrorService.setUser(
+          userId: userId,
+          householdId: _currentHousehold!.id,
+        );
       }
 
       _isLoading = false;

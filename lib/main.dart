@@ -30,11 +30,8 @@ import 'services/sync_manager.dart';
 import 'widgets/common/update_banner.dart';
 
 /// Sentry DSN for error monitoring.
-/// Set this to your Sentry project DSN, or leave empty to disable Sentry.
-const String _sentryDsn = String.fromEnvironment(
-  'SENTRY_DSN',
-  defaultValue: '',
-);
+const String _sentryDsn =
+    'https://b1db77cae4a212f2f95492fd2dad0f38@o4510643957727232.ingest.de.sentry.io/4510731814043728';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
