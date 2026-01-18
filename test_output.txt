@@ -1,0 +1,828 @@
+00:00 +0: loading C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart
+00:00 +0: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification fromJson parses all fields correctly
+00:00 +1: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification fromJson parses all notification types
+00:00 +2: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification fromJson defaults to taskAssigned for unknown type
+00:00 +3: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification fromJson defaults read to false
+00:00 +4: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification fromJson defaults data to empty map
+00:00 +5: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification typeToString converts taskAssigned correctly
+00:00 +6: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification typeToString converts taskCompleted correctly
+00:00 +7: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification typeToString converts mentioned correctly
+00:00 +8: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification typeToString converts dueReminder correctly
+00:00 +9: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification copyWith creates copy with updated read status
+00:00 +10: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: AppNotification copyWith preserves other fields when updating read
+00:00 +11: C:/Users/benci/Code/Divvy/test/models/app_notification_test.dart: NotificationType enum has correct values
+00:00 +12: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember fromJson parses all fields correctly
+00:00 +13: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember fromJson defaults role to member when null
+00:00 +14: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember fromJson handles missing profile data
+00:00 +15: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember toJson serializes all fields correctly
+00:00 +16: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember toJson does not include profile data in toJson
+00:00 +17: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember isAdmin returns true for admin role
+00:00 +18: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember isAdmin returns false for member role
+00:00 +19: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember isAdmin returns false for unknown role
+00:00 +20: C:/Users/benci/Code/Divvy/test/models/household_member_test.dart: HouseholdMember roundtrip serialization fromJson -> toJson produces equivalent core data
+00:00 +21: C:/Users/benci/Code/Divvy/test/models/household_test.dart: Household fromJson parses all fields correctly
+00:00 +22: C:/Users/benci/Code/Divvy/test/models/household_test.dart: Household toJson serializes all fields correctly
+00:00 +23: C:/Users/benci/Code/Divvy/test/models/household_test.dart: Household copyWith creates copy with updated name
+00:00 +24: C:/Users/benci/Code/Divvy/test/models/household_test.dart: Household copyWith creates copy with updated invite code
+00:00 +25: C:/Users/benci/Code/Divvy/test/models/household_test.dart: Household copyWith preserves all fields when not specified
+00:00 +26: C:/Users/benci/Code/Divvy/test/models/household_test.dart: Household roundtrip serialization fromJson -> toJson produces equivalent data
+00:01 +27: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences fromJson parses all fields correctly
+00:01 +28: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences fromJson uses default values when fields are null
+00:01 +29: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences toJson serializes all fields correctly
+00:01 +30: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences copyWith creates copy with updated pushEnabled
+00:01 +31: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences copyWith creates copy with updated taskAssignedEnabled
+00:01 +32: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences copyWith creates copy with updated taskCompletedEnabled
+00:01 +33: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences copyWith creates copy with updated mentionsEnabled
+00:01 +34: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences copyWith creates copy with updated dueRemindersEnabled
+00:01 +35: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences copyWith creates copy with updated reminderBeforeMinutes
+00:01 +36: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences copyWith preserves userId (cannot be changed)
+00:01 +37: C:/Users/benci/Code/Divvy/test/models/notification_preferences_test.dart: NotificationPreferences roundtrip serialization fromJson -> toJson produces equivalent data
+00:01 +38: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule fromJson parses daily frequency
+00:01 +39: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule fromJson parses weekly frequency with days
+00:01 +40: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule fromJson parses monthly frequency
+00:01 +41: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule fromJson parses end date
+00:01 +42: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule fromJson defaults interval to 1 when not provided
+00:01 +43: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule fromJson defaults to daily for unknown frequency
+00:01 +44: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule toJson serializes all fields
+00:01 +45: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule toJson omits null days and endDate
+00:01 +46: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule getNextOccurrence calculates next daily occurrence
+00:01 +47: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule getNextOccurrence calculates next daily occurrence with interval
+00:01 +48: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule getNextOccurrence calculates next weekly occurrence without days
+00:01 +49: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule getNextOccurrence calculates next monthly occurrence
+00:01 +50: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule getNextOccurrence handles monthly overflow for short months
+00:01 +51: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule hasEnded returns false when no end date
+00:01 +52: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule hasEnded returns false before end date
+00:01 +53: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule hasEnded returns true after end date
+00:01 +54: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule description returns "Daily" for daily interval 1
+00:01 +55: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule description returns "Every N days" for daily interval > 1
+00:01 +56: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule description returns "Weekly" for weekly interval 1 without days
+00:01 +57: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule description returns "Weekly on X, Y" with specific days
+00:01 +58: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule description returns "Monthly" for monthly interval 1
+00:01 +59: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule description returns "Every N months" for monthly interval > 1
+00:01 +60: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule copyWith creates copy with updated values
+00:01 +61: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule equality equal rules have same hashCode
+00:01 +62: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceRule equality different rules are not equal
+00:01 +63: C:/Users/benci/Code/Divvy/test/models/recurrence_rule_test.dart: RecurrenceFrequency enum has correct values
+00:01 +64: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory fromJson parses all fields correctly
+00:02 +65: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory fromJson parses all action types
+00:02 +66: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory fromJson defaults to created for unknown action
+00:02 +67: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory fromJson handles null details
+00:02 +68: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory actionText returns correct text for created
+00:02 +69: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory actionText returns correct text for completed
+00:02 +70: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory actionText returns correct text for uncompleted
+00:02 +71: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory actionText returns correct text for edited
+00:02 +72: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory actionText returns correct text for assigned with assignee name
+00:02 +73: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory actionText returns correct text for assigned without assignee name
+00:02 +74: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskHistory actionText returns correct text for noteAdded
+00:02 +75: C:/Users/benci/Code/Divvy/test/models/task_history_test.dart: TaskAction enum has correct values
+00:02 +76: C:/Users/benci/Code/Divvy/test/models/task_note_test.dart: TaskNote fromJson parses all fields correctly
+00:02 +77: C:/Users/benci/Code/Divvy/test/models/task_note_test.dart: TaskNote fromJson handles missing profile data
+00:02 +78: C:/Users/benci/Code/Divvy/test/models/task_note_test.dart: TaskNote toJson serializes all fields correctly
+00:02 +79: C:/Users/benci/Code/Divvy/test/models/task_note_test.dart: TaskNote toJson does not include userName in toJson
+00:02 +80: C:/Users/benci/Code/Divvy/test/models/task_note_test.dart: TaskNote roundtrip serialization fromJson -> toJson produces equivalent core data
+00:02 +81: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate fromJson parses all fields correctly
+00:02 +82: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate fromJson handles null optional fields
+00:02 +83: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate fromJson defaults isSystem to true when null
+00:02 +84: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for kitchen
+00:02 +85: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for bathroom
+00:02 +86: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for living
+00:02 +87: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for outdoor
+00:02 +88: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for pet
+00:02 +89: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for children
+00:02 +90: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for laundry
+00:02 +91: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for grocery
+00:02 +92: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for maintenance
+00:02 +93: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns correct display name for admin
+00:02 +94: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryDisplayName returns category as-is for unknown category
+00:02 +95: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryIconPath returns correct icon path for known categories
+00:02 +96: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate categoryIconPath returns default icon for unknown category
+00:02 +97: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsPetName returns true when title contains {pet_name}
+00:02 +98: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsPetName returns true when description contains {pet_name}
+00:02 +99: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsPetName returns false when neither contains {pet_name}
+00:02 +100: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsPetName returns false when description is null
+00:02 +101: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsChildName returns true when title contains {child_name}
+00:02 +102: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsChildName returns true when description contains {child_name}
+00:02 +103: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsChildName returns false when neither contains {child_name}
+00:02 +104: C:/Users/benci/Code/Divvy/test/models/task_template_test.dart: TaskTemplate needsChildName returns false when description is null
+00:02 +105: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task fromJson parses minimal valid JSON
+00:03 +106: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task fromJson parses all fields correctly
+00:03 +107: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task fromJson parses status correctly
+00:03 +108: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task fromJson parses priority correctly
+00:03 +109: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task fromJson parses due period correctly
+00:03 +110: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task fromJson handles null optional fields
+00:03 +111: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task fromJson parses nested profile data
+00:03 +112: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task toJson serializes all fields correctly
+00:03 +113: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task toJson handles null values
+00:03 +114: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task copyWith creates a copy with updated values
+00:03 +115: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task copyWith preserves all fields when not specified
+00:03 +116: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task computed properties isCompleted returns true for completed status
+00:03 +117: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task computed properties isPending returns true for pending status
+00:03 +118: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task computed properties isOverdue returns true for past due dates on pending tasks
+00:03 +119: C:/Users/benci/Code/Divvy/test/models/task_test.dart: Task computed properties isDueToday returns true for tasks due today
+00:03 +120: C:/Users/benci/Code/Divvy/test/models/task_test.dart: TaskStatus enum has correct values
+00:03 +121: C:/Users/benci/Code/Divvy/test/models/task_test.dart: TaskPriority enum has correct values
+00:03 +122: C:/Users/benci/Code/Divvy/test/models/task_test.dart: DuePeriod enum has correct values
+00:03 +123: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile fromJson parses all fields correctly
+00:03 +124: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile fromJson handles null optional fields
+00:03 +125: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile toJson serializes all fields correctly
+00:03 +126: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile toJson includes null values for optional fields
+00:03 +127: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile copyWith creates copy with updated displayName
+00:03 +128: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile copyWith creates copy with updated avatarUrl
+00:03 +129: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile copyWith preserves all fields when not specified
+00:03 +130: C:/Users/benci/Code/Divvy/test/models/user_profile_test.dart: UserProfile roundtrip serialization fromJson -> toJson produces equivalent data
+00:03 +131: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak fromJson parses all fields correctly
+00:03 +132: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak fromJson defaults streak values to 0
+00:03 +133: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak fromJson handles null lastCompletionDate
+00:03 +134: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak fromJson handles missing profile data
+00:03 +135: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak toJson serializes all fields correctly
+00:03 +136: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak toJson formats lastCompletionDate as date only
+00:03 +137: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak toJson does not include displayName in toJson
+00:03 +138: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak copyWith creates copy with updated currentStreak
+00:03 +139: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak copyWith creates copy with updated longestStreak
+00:03 +140: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak copyWith creates copy with updated lastCompletionDate
+00:03 +141: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak copyWith updates updatedAt on copy
+00:03 +142: C:/Users/benci/Code/Divvy/test/models/user_streak_test.dart: UserStreak copyWith preserves immutable fields
+00:04 +143: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +144: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +145: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +146: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +147: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +148: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +149: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +150: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +151: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +152: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +153: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +154: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +155: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +156: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +157: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +158: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +159: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +160: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +161: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +162: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +163: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects unauthenticated redirects to login
+00:05 +164: C:/Users/benci/Code/Divvy/test/performance/task_loading_test.dart: Task Loading Performance Tests Task Sorting Performance sorting 1000 tasks by due date is fast
+00:05 +165: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects trying to access dashboard redirects to login
+00:05 +166: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Unauthenticated Redirects trying to access dashboard redirects to login
+00:05 +167: C:/Users/benci/Code/Divvy/test/performance/task_loading_test.dart: Task Loading Performance Tests Task Sorting Performance complex filtering (due today) is efficient
+00:05 +168: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Authenticated Access authenticated user accesses dashboard
+00:05 +169: C:/Users/benci/Code/Divvy/test/navigation/router_test.dart: Router Tests Authenticated Access authenticated user accesses dashboard
+00:05 +170: C:/Users/benci/Code/Divvy/test/performance/task_loading_test.dart: Task Loading Performance Tests Memory Usage large task lists do not cause excessive memory allocation
+00:05 +171: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:05 +172: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:05 +173: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:05 +174: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:05 +175: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +176: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +177: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +178: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +179: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +180: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +181: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +182: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +183: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +184: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +185: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +186: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +187: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +188: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +189: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +190: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +191: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +192: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +193: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +194: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +195: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +196: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +197: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +198: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +199: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +200: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +201: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +202: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +203: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +204: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +205: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +206: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +207: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +208: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +209: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +210: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +211: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +212: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +213: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +214: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +215: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +216: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +217: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +218: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +219: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +220: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +221: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:06 +222: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list renders 50 items efficiently
+00:07 +223: C:/Users/benci/Code/Divvy/test/providers/bundle_provider_test.dart: BundleProvider Tests Bundle CRUD Operations bundles list starts empty
+00:07 +224: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +225: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +226: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +227: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +228: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +229: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +230: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +231: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +232: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +233: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +234: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +235: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +236: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +237: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +238: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +239: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +240: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +241: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +242: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +243: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +244: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +245: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +246: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +247: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +248: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +249: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +250: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +251: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +252: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +253: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +254: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +255: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +256: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:07 +257: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +258: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +259: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +260: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +261: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +262: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +263: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +264: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +265: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +266: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +267: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +268: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +269: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +270: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +271: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +272: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +273: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +274: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +275: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +276: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +277: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +278: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +279: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +280: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +281: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +282: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +283: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +284: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +285: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +286: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +287: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +288: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +289: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +290: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +291: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +292: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +293: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +294: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +295: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +296: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +297: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +298: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +299: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +300: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +301: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +302: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +303: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +304: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +305: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +306: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +307: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:08 +308: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests scrolling through list is smooth
+00:09 +309: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +310: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +311: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +312: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +313: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +314: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +315: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +316: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +317: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +318: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +319: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +320: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +321: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +322: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +323: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +324: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +325: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +326: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +327: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +328: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +329: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +330: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +331: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +332: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests checkbox toggle is responsive
+00:09 +333: C:/Users/benci/Code/Divvy/test/providers/task_provider_test.dart: TaskProvider Full Tests Task Sorting completed tasks sort after pending
+00:09 +334: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task card with image placeholder loads quickly
+00:09 +335: C:/Users/benci/Code/Divvy/test/security/auth_security_test.dart: Authentication Security Tests Nonce Generation for Apple Sign In generates nonce of correct length
+00:09 +336: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +337: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +338: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +339: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +340: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +341: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +342: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +343: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +344: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +345: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +346: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +347: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +348: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +349: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +350: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +351: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +352: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +353: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +354: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +355: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +356: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +357: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +358: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +359: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +360: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests task list with mixed content renders correctly
+00:09 +361: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests navigation is responsive
+00:09 +362: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +363: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +364: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +365: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +366: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +367: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +368: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +369: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +370: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +371: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +372: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +373: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +374: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +375: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +376: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +377: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +378: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +379: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +380: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +381: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +382: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +383: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +384: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +385: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +386: C:/Users/benci/Code/Divvy/test/performance/widget_performance_test.dart: Widget Performance Tests rebuild count stays low with optimized widgets
+00:10 +387: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Directory Traversal Prevention rejects directory traversal with ../
+00:10 +388: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Directory Traversal Prevention rejects directory traversal with ..\
+00:10 +389: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Directory Traversal Prevention rejects encoded directory traversal
+00:10 +390: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Directory Traversal Prevention rejects double-encoded directory traversal
+00:10 +391: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Directory Traversal Prevention all directory traversal payloads are rejected
+00:10 +392: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Null Byte Injection Prevention rejects null bytes in invite code
+00:10 +393: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Null Byte Injection Prevention rejects URL-encoded null bytes
+00:10 +394: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Code Length Validation rejects excessively long codes (>100 chars)
+00:10 +395: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Code Length Validation accepts valid length codes
+00:10 +396: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Code Length Validation rejects empty code
+00:10 +397: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Code Length Validation rejects too short code
+00:10 +398: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Character Validation rejects non-alphanumeric characters in invite codes
+00:10 +399: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Character Validation accepts alphanumeric codes
+00:10 +400: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Character Validation rejects unicode characters
+00:10 +401: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Malformed URI Handling all malformed URI payloads are rejected as invite codes
+00:10 +402: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests OAuth Callback Security validates OAuth state parameter format
+00:10 +403: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests OAuth Callback Security rejects script injection in callback parameters
+00:10 +404: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Deep Link Scheme Validation javascript: scheme URLs are unsafe
+00:10 +405: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Deep Link Scheme Validation data: scheme URLs are unsafe
+00:10 +406: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Deep Link Scheme Validation vbscript: scheme URLs are unsafe
+00:10 +407: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Deep Link Scheme Validation file: scheme URLs are unsafe
+00:10 +408: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Deep Link Scheme Validation http/https schemes are safe
+00:10 +409: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests Deep Link Scheme Validation custom app scheme is safe
+00:10 +410: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests URL Validation Edge Cases handles malformed URLs gracefully
+00:10 +411: C:/Users/benci/Code/Divvy/test/security/deep_link_security_test.dart: Deep Link Security Tests URL Validation Edge Cases handles URLs with special characters
+00:11 +412: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Email Validation (RFC 5322) accepts valid email formats
+00:11 +413: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Email Validation (RFC 5322) rejects invalid email formats
+00:11 +414: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Email Validation (RFC 5322) rejects email with XSS payloads
+00:11 +415: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Email Validation (RFC 5322) rejects email with SQL injection
+00:11 +416: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests XSS Prevention in Task Descriptions detects XSS script tags
+00:11 +417: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests XSS Prevention in Task Descriptions detects javascript: protocol
+00:11 +418: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests XSS Prevention in Task Descriptions detects event handlers
+00:11 +419: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests XSS Prevention in Task Descriptions all XSS payloads are detected
+00:11 +420: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests XSS Prevention in Task Descriptions allows safe text content
+00:11 +421: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests XSS Prevention in Task Descriptions allows safe special characters
+00:11 +422: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention detects SQL DROP statements
+00:11 +423: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention detects SQL OR injection
+00:11 +424: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention detects SQL UNION injection
+00:11 +425: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention detects SQL INSERT injection
+00:11 +426: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention detects SQL UPDATE injection
+00:11 +427: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention detects SQL DELETE injection
+00:11 +428: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention all SQL injection payloads are detected
+00:11 +429: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests SQL Injection Prevention allows safe text with SQL-like words
+00:11 +430: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Avatar URL Validation rejects javascript: URLs
+00:11 +431: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Avatar URL Validation rejects data: URLs with scripts
+00:11 +432: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Avatar URL Validation accepts valid image URLs
+00:11 +433: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Avatar URL Validation accepts relative URLs
+00:11 +434: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Invite Code Format Validation accepts valid alphanumeric codes
+00:11 +435: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Invite Code Format Validation rejects codes with special characters
+00:11 +436: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Invite Code Format Validation rejects codes outside length bounds
+00:11 +437: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Invite Code Format Validation rejects empty and whitespace-only codes
+00:11 +438: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Household Name Validation safe household names pass validation
+00:11 +439: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Household Name Validation household names with SQL injection are detected
+00:11 +440: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Household Name Validation household names with XSS are detected
+00:11 +441: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Task Title Validation safe task titles pass validation
+00:11 +442: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Task Title Validation task titles with injection attacks are detected
+00:11 +443: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Unicode and Special Character Handling handles RTL override character
+00:11 +444: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Unicode and Special Character Handling handles zero-width characters
+00:11 +445: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Unicode and Special Character Handling handles combining characters
+00:11 +446: C:/Users/benci/Code/Divvy/test/security/input_validation_test.dart: Input Validation Security Tests Unicode and Special Character Handling emojis in task descriptions are allowed
+00:11 +447: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Initialize with Encryption (Mobile) initializes successfully
+00:11 +448: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Initialize with Encryption (Mobile) encryption is enabled by default
+00:11 +449: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Initialize with Encryption (Mobile) double initialization is safe
+00:11 +450: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Initialize without Encryption (Web) can disable encryption for web
+00:11 +451: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Initialize without Encryption (Web) cache works without encryption
+00:11 +452: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Task Save and Retrieve caches tasks successfully
+00:11 +453: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Task Save and Retrieve retrieved tasks match original
+00:11 +454: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Task Save and Retrieve caching updates last sync time
+00:11 +455: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Task Save and Retrieve multiple caches overwrites previous
+00:11 +456: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Clear Cache Functionality clearCache removes all tasks
+00:11 +457: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Clear Cache Functionality clearCache removes last sync time
+00:11 +458: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Clear Cache Functionality cache works after clear
+00:11 +459: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Corruption Recovery handles corrupted data gracefully
+00:11 +460: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Corruption Recovery returns empty list when not initialized
+00:11 +461: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Online/Offline Status isOnline returns true by default
+00:11 +462: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Online/Offline Status setOnlineStatus changes status
+00:11 +463: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Online/Offline Status can toggle online status
+00:11 +464: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Secure Storage Failure Handling gracefully handles secure storage failure
+00:11 +465: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Secure Storage Failure Handling cache still works after storage failure
+00:11 +466: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Last Sync Time returns null before first cache
+00:11 +467: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Last Sync Time returns recent time after cache
+00:11 +468: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Edge Cases handles empty task list
+00:11 +469: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Edge Cases handles large task lists
+00:11 +470: C:/Users/benci/Code/Divvy/test/services/cache_service_test.dart: CacheService Tests Edge Cases tasks with null fields cache correctly
+00:11 +471: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Parse Join Household Links parses divvy://join/CODE format
+00:11 +472: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Parse Join Household Links parses join link with trailing slash
+00:11 +473: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Parse Join Household Links handles uppercase and lowercase codes
+00:11 +474: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Parse Join Household Links handles numeric codes
+00:11 +475: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Parse Join Household Links handles mixed alphanumeric codes
+00:11 +476: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Parse Task Deep Links parses task view link
+00:11 +477: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Parse Task Deep Links parses task link with UUID
+00:11 +478: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Handle Malformed URIs Gracefully handles empty path
+00:11 +479: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Handle Malformed URIs Gracefully handles just scheme
+00:11 +480: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Handle Malformed URIs Gracefully handles missing code in join
+00:11 +481: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Handle Malformed URIs Gracefully handles special characters in path
+00:11 +482: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Handle Malformed URIs Gracefully tryParse returns null for invalid URIs
+00:11 +483: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests OAuth Callback Routing parses login callback URL
+00:11 +484: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests OAuth Callback Routing parses callback with query parameters
+00:11 +485: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests OAuth Callback Routing handles callback with fragment
+00:11 +486: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests URL Security Validation validates safe URLs
+00:11 +487: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests URL Security Validation rejects javascript: URLs
+00:11 +488: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests URL Security Validation rejects data: URLs
+00:11 +489: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests URL Security Validation rejects file: URLs
+00:11 +490: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Invite Code Validation validates alphanumeric codes
+00:11 +491: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Invite Code Validation rejects codes with special characters
+00:11 +492: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Invite Code Validation rejects too short codes
+00:11 +493: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Invite Code Validation rejects too long codes
+00:11 +494: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Invite Code Validation rejects empty codes
+00:11 +495: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests URI Path Parsing correctly identifies join path
+00:11 +496: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests URI Path Parsing correctly identifies task path
+00:11 +497: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests URI Path Parsing handles unknown paths
+00:11 +498: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Query Parameter Handling extracts code from query parameter
+00:11 +499: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Query Parameter Handling handles multiple query parameters
+00:11 +500: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Query Parameter Handling handles URL-encoded query values
+00:11 +501: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Scheme Detection detects divvy scheme
+00:11 +502: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Scheme Detection detects supabase callback scheme
+00:11 +503: C:/Users/benci/Code/Divvy/test/services/deep_link_service_test.dart: DeepLinkService Tests Scheme Detection detects http/https schemes
+00:12 +504: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Connectivity State Transitions starts online by default
+00:12 +505: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Connectivity State Transitions transitions to offline
+00:12 +506: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Connectivity State Transitions transitions from offline to online
+00:12 +507: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Callbacks register callback adds to list
+00:12 +508: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Callbacks unregister callback removes from list
+00:12 +509: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Callbacks callbacks fire on reconnect
+00:12 +510: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Callbacks multiple callbacks all execute
+00:12 +511: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Minimum Sync Interval (5 min) respects minimum sync interval
+00:12 +512: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Minimum Sync Interval (5 min) syncs when interval exceeded
+00:12 +513: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Minimum Sync Interval (5 min) syncs immediately when no previous sync
+00:12 +514: C:/Users/benci/Code/Divvy/test/services/sync_manager_test.dart: SyncStatus has all expected values
+00:12 +515: C:/Users/benci/Code/Divvy/test/services/sync_manager_test.dart: SyncStatus has all expected values
+00:12 +516: C:/Users/benci/Code/Divvy/test/services/sync_manager_test.dart: SyncStatus has all expected values
+00:12 +517: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Status Stream emits syncing status during sync
+00:12 +518: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Status Stream emits syncing status during sync
+00:12 +519: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Status Stream emits syncing status during sync
+00:12 +520: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Status Stream emits syncing status during sync
+00:12 +521: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Status Stream emits syncing status during sync
+00:12 +522: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync Status Stream emits offline status when going offline
+00:12 +523: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync State isSyncing is true during sync
+00:12 +524: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync State isSyncing is false after sync completes
+00:12 +525: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Sync State lastSyncTime is updated after sync
+00:12 +526: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Concurrent Sync Prevention does not start new sync while syncing
+00:12 +527: C:/Users/benci/Code/Divvy/test/services/sync_manager_full_test.dart: SyncManager Full Tests Dispose dispose cleans up resources
+00:12 +528: C:/Users/benci/Code/Divvy/test/services/task_history_service_test.dart: TaskHistoryService Action Constants has correct action constant values
+00:12 +529: C:/Users/benci/Code/Divvy/test/services/task_history_service_test.dart: TaskHistoryService Action Constants all action constants are unique
+00:13 +530: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Daily Recurrence creates correct next date for daily
+00:13 +531: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Daily Recurrence daily with interval 2 skips a day
+00:13 +532: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Daily Recurrence daily crosses month boundary
+00:13 +533: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Daily Recurrence daily crosses year boundary
+00:13 +534: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Weekly Recurrence respects selected days
+00:13 +535: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Weekly Recurrence wraps to next week when needed
+00:13 +536: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Weekly Recurrence bi-weekly recurrence
+00:13 +537: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Monthly Recurrence handles 31st edge case
+00:13 +538: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Monthly Recurrence handles 30th in months with fewer days
+00:13 +539: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Monthly Recurrence monthly crosses year boundary
+00:13 +540: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Monthly Recurrence quarterly (interval 3) works
+00:13 +541: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Long-term Monthly Recurrence monthly with interval 12 simulates yearly
+00:13 +542: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Long-term Monthly Recurrence handles Feb 29 with 12-month interval
+00:13 +543: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Long-term Monthly Recurrence bi-annual (interval 24)
+00:13 +544: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Recurrence Stops After End Date shouldCreateNextOccurrence respects end date
+00:13 +545: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Recurrence Stops After End Date shouldCreateNextOccurrence allows before end date
+00:13 +546: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests No Duplicate Recurrence Creation shouldCreateNextOccurrence returns false for non-recurring
+00:13 +547: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests No Duplicate Recurrence Creation shouldCreateNextOccurrence returns false for incomplete
+00:13 +548: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests No Duplicate Recurrence Creation shouldCreateNextOccurrence returns true for completed recurring
+00:13 +549: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests No Duplicate Recurrence Creation shouldCreateNextOccurrence returns false after end date
+00:13 +550: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Edge Cases handles null recurrence rule
+00:13 +551: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Edge Cases handles empty days list for weekly
+00:13 +552: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Edge Cases handles very large interval
+00:13 +553: C:/Users/benci/Code/Divvy/test/services/task_recurrence_service_test.dart: TaskRecurrenceService Tests Edge Cases handles past from date
+00:13 +554: C:/Users/benci/Code/Divvy/test/widgets/common/colored_badge_test.dart: ColoredBadge displays label text
+00:14 +555: C:/Users/benci/Code/Divvy/test/widgets/common/empty_state_test.dart: EmptyState displays icon and title
+00:14 +556: C:/Users/benci/Code/Divvy/test/widgets/common/empty_state_test.dart: EmptyState displays icon and title
+00:14 +557: C:/Users/benci/Code/Divvy/test/widgets/common/empty_state_test.dart: EmptyState displays icon and title
+00:14 +558: C:/Users/benci/Code/Divvy/test/widgets/common/empty_state_test.dart: EmptyState displays icon and title
+00:14 +559: C:/Users/benci/Code/Divvy/test/widgets/common/empty_state_test.dart: EmptyState displays icon and title
+00:14 +560: C:/Users/benci/Code/Divvy/test/widgets/common/empty_state_test.dart: EmptyState displays icon and title
+00:14 +561: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:14 +562: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:14 +563: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +564: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +565: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +566: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +567: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +568: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +569: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +570: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +571: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +572: C:/Users/benci/Code/Divvy/test/widgets/error_view_test.dart: ErrorView displays error message
+00:15 +573: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +574: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +575: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +576: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +577: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +578: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +579: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +580: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +581: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:15 +582: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:16 +583: C:/Users/benci/Code/Divvy/test/widgets/loading_animation_test.dart: LoadingAnimation displays without errors
+00:16 +584: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +585: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +586: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +587: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +588: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +589: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +590: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +591: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +592: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +593: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +594: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +595: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:16 +596: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +597: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +598: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +599: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +600: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +601: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +602: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +603: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for empty title
+00:17 +604: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Model Tests Task fromJson parses minimal valid JSON
+00:17 +605: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Display Tests shows unassigned indicator when no assignee
+00:17 +606: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Display Tests shows unassigned indicator when no assignee
+00:17 +607: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Display Tests shows unassigned indicator when no assignee
+00:17 +608: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Display Tests shows unassigned indicator when no assignee
+00:17 +609: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Display Tests shows unassigned indicator when no assignee
+00:17 +610: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Display Tests shows unassigned indicator when no assignee
+00:17 +611: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Display Tests shows unassigned indicator when no assignee
+00:17 +612: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +613: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +614: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +615: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +616: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +617: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +618: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +619: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +620: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +621: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +622: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +623: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +624: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +625: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +626: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +627: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +628: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +629: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +630: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +631: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +632: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +633: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +634: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +635: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +636: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +637: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +638: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +639: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +640: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +641: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +642: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +643: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +644: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +645: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +646: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +647: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +648: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +649: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +650: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +651: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +652: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +653: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +654: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +655: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +656: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +657: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +658: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +659: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +660: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +661: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +662: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +663: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +664: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +665: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +666: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +667: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +668: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +669: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +670: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +671: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +672: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +673: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +674: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +675: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +676: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +677: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +678: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +679: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +680: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +681: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +682: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +683: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +684: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +685: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +686: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +687: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +688: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +689: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +690: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +691: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +692: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +693: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +694: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +695: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation accepts valid title
+00:17 +696: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +697: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +698: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +699: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +700: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +701: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +702: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +703: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +704: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +705: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +706: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Priority Badge shows blue badge for normal priority
+00:17 +707: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +708: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +709: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +710: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +711: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +712: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +713: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +714: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +715: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +716: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +717: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +718: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +719: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +720: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +721: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +722: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +723: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +724: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +725: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +726: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +727: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +728: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +729: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +730: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +731: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +732: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +733: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +734: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +735: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +736: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +737: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +738: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +739: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +740: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +741: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +742: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +743: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +744: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +745: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +746: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +747: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +748: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:17 +749: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +750: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +751: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +752: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +753: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +754: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +755: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +756: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +757: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +758: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +759: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +760: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +761: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +762: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +763: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +764: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +765: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +766: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +767: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +768: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +769: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +770: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +771: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +772: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +773: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Title Validation shows error for whitespace-only title
+00:18 +774: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Overdue Styling no overdue styling for completed tasks
+00:18 +775: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Overdue Styling no overdue styling for completed tasks
+00:18 +776: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Overdue Styling no overdue styling for completed tasks
+00:18 +777: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Overdue Styling no overdue styling for completed tasks
+00:18 +778: C:/Users/benci/Code/Divvy/test/widgets/task_list_tile_test.dart: Task List Tile Widget Tests Overdue Styling no overdue styling for completed tasks
+00:18 +779: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection shows recurrence dropdown
+00:18 +780: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection shows recurrence dropdown
+00:18 +781: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView displays error message
+00:18 +782: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView displays error message
+00:18 +783: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView displays error message
+00:18 +784: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView displays error message
+00:18 +785: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView displays error message
+00:18 +786: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView displays error message
+00:18 +787: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView displays error message
+00:18 +788: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection can select weekly recurrence
+00:18 +789: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection can select weekly recurrence
+00:18 +790: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection can select weekly recurrence
+00:18 +791: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView shows retry button when onRetry is provided
+00:18 +792: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection shows day selection for weekly recurrence
+00:18 +793: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection shows day selection for weekly recurrence
+00:19 +794: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Recurrence Selection shows day selection for weekly recurrence
+00:19 +795: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ErrorView is centered on screen
+00:19 +796: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker shows date picker button
+00:19 +797: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests LoadingView displays without message
+00:19 +798: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker opens date picker on tap
+00:19 +799: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker opens date picker on tap
+00:19 +800: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker opens date picker on tap
+00:19 +801: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker opens date picker on tap
+00:19 +802: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker opens date picker on tap
+00:19 +803: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests LoadingAnimation displays without errors
+00:19 +804: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker displays selected date
+00:19 +805: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker displays selected date
+00:19 +806: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker displays selected date
+00:19 +807: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker displays selected date
+00:19 +808: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker displays selected date
+00:19 +809: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker displays selected date
+00:19 +810: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Due Date Picker displays selected date
+00:19 +811: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests ButtonLoader disposes animation controller properly
+00:19 +812: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Priority Selection shows priority dropdown
+00:19 +813: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Priority Selection shows priority dropdown
+00:19 +814: C:/Users/benci/Code/Divvy/test/widget_test.dart: Divvy App Tests Widget Tests CompletionCelebration calls onComplete when animation finishes
+00:20 +815: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Priority Selection can select high priority
+00:20 +816: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Priority Selection can select high priority
+00:20 +817: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Priority Selection defaults to normal priority
+00:20 +818: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Assignee Selection shows assignee dropdown
+00:20 +819: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Assignee Selection unassigned is an option
+00:20 +820: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Form Submission submit button is present
+00:20 +821: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Form Submission valid form calls onSubmit
+00:20 +822: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Form Submission invalid form does not call onSubmit
+00:20 +823: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Description Field shows description text field
+00:20 +824: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Description Field description is optional
+00:20 +825: C:/Users/benci/Code/Divvy/test/widgets/task_form_test.dart: Task Form Widget Tests Description Field accepts description text
+00:20 +826: All tests passed!
