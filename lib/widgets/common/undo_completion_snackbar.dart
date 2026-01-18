@@ -27,21 +27,16 @@ class UndoCompletionSnackbar {
 
     ScaffoldMessenger.of(context).clearSnackBars();
 
-    final controller = ScaffoldMessenger.of(context).showSnackBar(
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    final controller = scaffoldMessenger.showSnackBar(
       SnackBar(
         content: _UndoSnackbarContent(
           taskTitle: task.title,
           duration: duration,
-        ),
-        duration: duration,
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        padding: EdgeInsets.zero,
-        action: SnackBarAction(
-          label: 'UNDO',
-          textColor: AppColors.primary,
-          onPressed: () async {
+          onUndo: () async {
+            // Hide the snackbar immediately
+            scaffoldMessenger.hideCurrentSnackBar();
             // Uncomplete the task
             await taskProvider.toggleTaskComplete(task);
             if (!completer.isCompleted) {
@@ -49,6 +44,12 @@ class UndoCompletionSnackbar {
             }
           },
         ),
+        duration: duration,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        padding: EdgeInsets.zero,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
 
@@ -66,10 +67,12 @@ class UndoCompletionSnackbar {
 class _UndoSnackbarContent extends StatefulWidget {
   final String taskTitle;
   final Duration duration;
+  final VoidCallback onUndo;
 
   const _UndoSnackbarContent({
     required this.taskTitle,
     required this.duration,
+    required this.onUndo,
   });
 
   @override
@@ -116,13 +119,13 @@ class _UndoSnackbarContentState extends State<_UndoSnackbarContent>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2D2D3A) : Colors.grey[850],
+        color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFF323232),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -130,19 +133,19 @@ class _UndoSnackbarContentState extends State<_UndoSnackbarContent>
         children: [
           // Circular countdown indicator
           SizedBox(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Background circle
+                // Progress circle
                 AnimatedBuilder(
                   animation: _controller,
                   builder: (context, child) {
                     return CircularProgressIndicator(
                       value: 1 - _controller.value,
                       strokeWidth: 3,
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.15),
                       valueColor: AlwaysStoppedAnimation<Color>(
                         AppColors.success,
                       ),
@@ -154,14 +157,14 @@ class _UndoSnackbarContentState extends State<_UndoSnackbarContent>
                   '$_secondsRemaining',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           // Task completed message
           Expanded(
             child: Column(
@@ -197,6 +200,28 @@ class _UndoSnackbarContentState extends State<_UndoSnackbarContent>
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Undo button - integrated into the design
+          TextButton(
+            onPressed: widget.onUndo,
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.white.withValues(alpha: 0.15),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Undo',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
             ),
           ),
         ],
