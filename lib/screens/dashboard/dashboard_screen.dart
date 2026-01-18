@@ -12,6 +12,7 @@ import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 import '../../widgets/bundles/bundle_card.dart';
 import '../../widgets/bundles/create_bundle_sheet.dart';
+import '../../widgets/common/animated_task_checkbox.dart';
 import '../../widgets/common/member_avatar.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
 import '../../widgets/dashboard/insights_card.dart';
@@ -464,29 +465,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
-            // Completion checkbox
-            GestureDetector(
-              onTap: () async {
-                HapticFeedback.mediumImpact();
-                await taskProvider.toggleTaskComplete(task);
-              },
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: task.isCompleted
-                        ? AppColors.success
-                        : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
-                    width: 2,
-                  ),
-                  color: task.isCompleted ? AppColors.success : Colors.transparent,
-                ),
-                child: task.isCompleted
-                    ? const Icon(Icons.check, size: 16, color: Colors.white)
-                    : null,
-              ),
+            // Animated completion checkbox
+            AnimatedTaskCheckbox(
+              task: task,
+              taskProvider: taskProvider,
+              categoryColor: categoryColor,
+              size: 28,
             ),
             const SizedBox(width: 12),
             // Category color indicator
@@ -675,29 +659,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
-            // Completion checkbox
-            GestureDetector(
-              onTap: () async {
-                HapticFeedback.mediumImpact();
-                await taskProvider.toggleTaskComplete(task);
-              },
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: task.isCompleted
-                        ? AppColors.success
-                        : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
-                    width: 2,
-                  ),
-                  color: task.isCompleted ? AppColors.success : Colors.transparent,
-                ),
-                child: task.isCompleted
-                    ? const Icon(Icons.check, size: 16, color: Colors.white)
-                    : null,
-              ),
+            // Animated completion checkbox
+            AnimatedTaskCheckbox(
+              task: task,
+              taskProvider: taskProvider,
+              categoryColor: categoryColor,
+              size: 28,
             ),
             const SizedBox(width: 12),
             // Category color indicator
