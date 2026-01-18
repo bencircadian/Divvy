@@ -23,6 +23,7 @@ import 'providers/theme_provider.dart';
 import 'services/cache_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/error_service.dart';
+import 'services/onboarding_progress_service.dart';
 import 'services/push_notification_service.dart';
 import 'services/supabase_service.dart';
 import 'services/sync_manager.dart';
@@ -65,6 +66,7 @@ Future<void> _initializeApp() async {
       ),
     SupabaseService.initialize(),
     CacheService.initialize(),
+    OnboardingProgressService.initialize(),
   ]);
 
   // Initialize push notifications (only on mobile, after Firebase)

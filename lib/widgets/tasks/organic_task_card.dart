@@ -18,6 +18,7 @@ class OrganicTaskCard extends StatelessWidget {
   final bool isSelectionMode;
   final VoidCallback? onLongPress;
   final VoidCallback? onSelectionTap;
+  final VoidCallback? onTaskCompleted;
 
   const OrganicTaskCard({
     super.key,
@@ -28,6 +29,7 @@ class OrganicTaskCard extends StatelessWidget {
     this.isSelectionMode = false,
     this.onLongPress,
     this.onSelectionTap,
+    this.onTaskCompleted,
   });
 
   @override
@@ -68,7 +70,12 @@ class OrganicTaskCard extends StatelessWidget {
         direction: DismissDirection.endToStart,
         confirmDismiss: (_) async {
           HapticFeedback.mediumImpact();
+          final wasCompleted = task.isCompleted;
           await taskProvider.toggleTaskComplete(task);
+          // Trigger callback if task was just completed (not uncompleted)
+          if (!wasCompleted) {
+            onTaskCompleted?.call();
+          }
           return false; // Don't dismiss, just toggle
         },
       background: Container(
@@ -131,9 +138,14 @@ class OrganicTaskCard extends StatelessWidget {
               children: [
                 // Checkbox
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     HapticFeedback.mediumImpact();
-                    taskProvider.toggleTaskComplete(task);
+                    final wasCompleted = task.isCompleted;
+                    await taskProvider.toggleTaskComplete(task);
+                    // Trigger callback if task was just completed (not uncompleted)
+                    if (!wasCompleted) {
+                      onTaskCompleted?.call();
+                    }
                   },
                   child: Container(
                     width: 24,

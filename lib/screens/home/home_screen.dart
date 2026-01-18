@@ -8,8 +8,11 @@ import 'package:provider/provider.dart';
 
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
+import '../../services/onboarding_progress_service.dart';
+import '../../widgets/common/confetti_animation.dart';
 import '../../widgets/common/empty_state.dart';
 import '../../widgets/common/skeleton_loader.dart';
+import '../../widgets/onboarding/onboarding_checklist.dart';
 import '../../widgets/tasks/organic_task_card.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_provider.dart';
@@ -35,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   _TaskSortOrder _sortOrder = _TaskSortOrder.dueDate;
   bool _showQuickAdd = false;
   final _quickAddController = TextEditingController();
+  bool _showConfetti = false;
 
   bool get _isSelectionMode => _selectedTaskIds.isNotEmpty;
 
@@ -248,6 +252,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 // Header
                 _buildHeader(context, authProvider, isDark),
 
+                // Onboarding checklist (shown for new users)
+                const OnboardingChecklist(),
+
                 // Progress blob with weekly stats
                 _buildProgressBlob(
                   context,
@@ -289,6 +296,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         isSelectionMode: _isSelectionMode,
                         onLongPress: () => _toggleSelection(entry.value.id),
                         onSelectionTap: () => _toggleSelection(entry.value.id),
+                        onTaskCompleted: !entry.value.isCompleted ? _onFirstTaskCompleted : null,
                       )),
 
                 // Space for bottom nav and FAB
@@ -296,9 +304,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
+
+          // Confetti animation (shown on first task completion)
+          ConfettiAnimation(
+            isPlaying: _showConfetti,
+            onComplete: () => setState(() => _showConfetti = false),
+          ),
         ],
       ),
     );
+  }
+
+  /// Trigger confetti and mark first task completion
+  Future<void> _onFirstTaskCompleted() async {
+    if (!OnboardingProgressService.hasCompletedFirstTask) {
+      await OnboardingProgressService.markFirstTaskCompleted();
+      setState(() => _showConfetti = true);
+    }
   }
 
   Widget _buildFloatingBlob({
