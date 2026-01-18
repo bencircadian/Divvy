@@ -89,12 +89,18 @@ class AuthProvider extends ChangeNotifier {
     if (_user == null) return;
 
     // Extract OAuth profile data (Google/Apple provide these)
+    // Google may use: picture, avatar_url, photo_url, photoURL
     final metadata = _user!.userMetadata;
-    final oauthAvatarUrl = metadata?['avatar_url'] as String? ??
-        metadata?['picture'] as String?; // Google uses 'picture'
-    final oauthDisplayName = metadata?['display_name'] as String? ??
-        metadata?['full_name'] as String? ??
-        metadata?['name'] as String?;
+    final oauthAvatarUrl = metadata?['picture'] as String? ??
+        metadata?['avatar_url'] as String? ??
+        metadata?['photo_url'] as String? ??
+        metadata?['photoURL'] as String?;
+    final oauthDisplayName = metadata?['full_name'] as String? ??
+        metadata?['name'] as String? ??
+        metadata?['display_name'] as String?;
+
+    debugPrint('OAuth metadata keys: ${metadata?.keys}');
+    debugPrint('OAuth avatar URL: $oauthAvatarUrl');
 
     try {
       final response = await SupabaseService.client
