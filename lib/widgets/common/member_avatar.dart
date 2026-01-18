@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
+import '../../services/profile_avatar_service.dart';
 
 /// A reusable member avatar widget showing initials or image.
 ///
 /// Used in task lists, household info, workload views, etc.
-class MemberAvatar extends StatelessWidget {
+/// Handles both external URLs (like Google profile pics) and
+/// internal storage paths (which require signed URLs).
+class MemberAvatar extends StatefulWidget {
   final String? displayName;
   final String? avatarUrl;
   final double radius;
@@ -24,38 +27,79 @@ class MemberAvatar extends StatelessWidget {
     this.isOnline = false,
   });
 
+  @override
+  State<MemberAvatar> createState() => _MemberAvatarState();
+}
+
+class _MemberAvatarState extends State<MemberAvatar> {
+  String? _resolvedUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolveAvatarUrl();
+  }
+
+  @override
+  void didUpdateWidget(MemberAvatar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.avatarUrl != widget.avatarUrl) {
+      _resolveAvatarUrl();
+    }
+  }
+
+  Future<void> _resolveAvatarUrl() async {
+    if (widget.avatarUrl == null) {
+      setState(() => _resolvedUrl = null);
+      return;
+    }
+
+    // If it's already a URL (http/https), use it directly
+    if (widget.avatarUrl!.startsWith('http')) {
+      setState(() => _resolvedUrl = widget.avatarUrl);
+      return;
+    }
+
+    // It's a storage path - get signed URL
+    final signedUrl = await ProfileAvatarService.getSignedUrl(widget.avatarUrl!);
+
+    if (mounted) {
+      setState(() => _resolvedUrl = signedUrl);
+    }
+  }
+
   String get _initials {
-    if (displayName == null || displayName!.isEmpty) return '?';
-    final parts = displayName!.trim().split(' ');
+    if (widget.displayName == null || widget.displayName!.isEmpty) return '?';
+    final parts = widget.displayName!.trim().split(' ');
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
-    return displayName![0].toUpperCase();
+    return widget.displayName![0].toUpperCase();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bgColor = backgroundColor ?? AppColors.primary.withValues(alpha: 0.15);
-    final fgColor = foregroundColor ?? AppColors.primary;
+    final bgColor = widget.backgroundColor ?? AppColors.primary.withValues(alpha: 0.15);
+    final fgColor = widget.foregroundColor ?? AppColors.primary;
 
     Widget avatar = CircleAvatar(
-      radius: radius,
+      radius: widget.radius,
       backgroundColor: bgColor,
-      backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-      child: avatarUrl == null
+      backgroundImage: _resolvedUrl != null ? NetworkImage(_resolvedUrl!) : null,
+      child: _resolvedUrl == null
           ? Text(
               _initials,
               style: TextStyle(
                 color: fgColor,
                 fontWeight: FontWeight.bold,
-                fontSize: radius * 0.8,
+                fontSize: widget.radius * 0.8,
               ),
             )
           : null,
     );
 
-    if (!showOnlineIndicator) return avatar;
+    if (!widget.showOnlineIndicator) return avatar;
 
     return Stack(
       children: [
@@ -64,10 +108,10 @@ class MemberAvatar extends StatelessWidget {
           bottom: 0,
           right: 0,
           child: Container(
-            width: radius * 0.5,
-            height: radius * 0.5,
+            width: widget.radius * 0.5,
+            height: widget.radius * 0.5,
             decoration: BoxDecoration(
-              color: isOnline ? AppColors.success : Colors.grey,
+              color: widget.isOnline ? AppColors.success : Colors.grey,
               shape: BoxShape.circle,
               border: Border.all(
                 color: theme.scaffoldBackgroundColor,

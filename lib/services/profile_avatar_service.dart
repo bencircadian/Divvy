@@ -3,12 +3,20 @@ import 'package:image_picker/image_picker.dart';
 import 'supabase_service.dart';
 
 /// Service for handling profile avatar image operations.
+///
+/// Avatars are stored privately and accessed via signed URLs
+/// so only authenticated household members can view them.
 class ProfileAvatarService {
-  static const String _bucketName = 'profile-avatars';
+  static const String bucketName = 'profile-avatars';
+
+  // Cache for signed URLs to avoid regenerating frequently
+  static final Map<String, _CachedUrl> _urlCache = {};
+  static const Duration _cacheExpiry = Duration(minutes: 30);
 
   /// Uploads an avatar image for a user profile.
   ///
-  /// Returns the public URL on success, null on failure.
+  /// Returns the storage file path on success, null on failure.
+  /// The path should be stored in the database, not a URL.
   static Future<String?> uploadAvatar(String userId, XFile imageFile) async {
     try {
       final bytes = await imageFile.readAsBytes();
@@ -31,26 +39,58 @@ class ProfileAvatarService {
 
       // Upload to Supabase Storage
       await SupabaseService.client.storage
-          .from(_bucketName)
+          .from(bucketName)
           .uploadBinary(filePath, bytes);
 
-      // Get public URL
-      final publicUrl = SupabaseService.client.storage
-          .from(_bucketName)
-          .getPublicUrl(filePath);
+      // Clear cache for this user
+      _urlCache.removeWhere((key, _) => key.contains(userId));
 
-      return publicUrl;
+      // Return the file path (not a URL) to store in the database
+      return filePath;
     } catch (e) {
       debugPrint('Error uploading avatar: $e');
       return null;
     }
   }
 
+  /// Gets a signed URL for an avatar file path.
+  ///
+  /// Returns a time-limited URL for secure access.
+  /// URLs are cached to reduce API calls.
+  static Future<String?> getSignedUrl(String filePath) async {
+    // Check cache first
+    final cached = _urlCache[filePath];
+    if (cached != null && !cached.isExpired) {
+      return cached.url;
+    }
+
+    try {
+      final url = await SupabaseService.client.storage
+          .from(bucketName)
+          .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+      // Cache the URL
+      _urlCache[filePath] = _CachedUrl(url, DateTime.now());
+
+      return url;
+    } catch (e) {
+      debugPrint('Error getting signed avatar URL: $e');
+      return null;
+    }
+  }
+
+  /// Checks if a URL is a storage path (not an external URL like Google).
+  static bool isStoragePath(String? url) {
+    if (url == null || url.isEmpty) return false;
+    // Storage paths don't start with http
+    return !url.startsWith('http');
+  }
+
   /// Removes old avatar files for a user.
   static Future<void> _removeOldAvatars(String userId) async {
     try {
       final files = await SupabaseService.client.storage
-          .from(_bucketName)
+          .from(bucketName)
           .list(path: 'avatars');
 
       final userFiles = files
@@ -60,7 +100,7 @@ class ProfileAvatarService {
 
       if (userFiles.isNotEmpty) {
         await SupabaseService.client.storage
-            .from(_bucketName)
+            .from(bucketName)
             .remove(userFiles);
       }
     } catch (e) {
@@ -71,7 +111,7 @@ class ProfileAvatarService {
   /// Removes the avatar for a user (revert to initials).
   static Future<bool> removeAvatar(String userId, String? currentUrl) async {
     try {
-      if (currentUrl != null && currentUrl.contains(_bucketName)) {
+      if (currentUrl != null && currentUrl.contains(bucketName)) {
         await _removeOldAvatars(userId);
       }
       return true;
@@ -124,4 +164,15 @@ class ProfileAvatarService {
 
     return false;
   }
+}
+
+/// Helper class for caching signed URLs.
+class _CachedUrl {
+  final String url;
+  final DateTime createdAt;
+
+  _CachedUrl(this.url, this.createdAt);
+
+  bool get isExpired =>
+      DateTime.now().difference(createdAt) > ProfileAvatarService._cacheExpiry;
 }
