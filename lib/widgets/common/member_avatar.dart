@@ -120,8 +120,10 @@ class _MemberAvatarState extends State<MemberAvatar> {
           width: widget.radius * 2,
           height: widget.radius * 2,
           child: _WebImage(
+            key: ValueKey(_resolvedUrl),
             url: _resolvedUrl!,
             size: widget.radius * 2,
+            fallback: _buildInitials(bgColor, fgColor),
           ),
         );
       } else {
@@ -170,37 +172,55 @@ class _MemberAvatarState extends State<MemberAvatar> {
 }
 
 /// Web-specific image widget that uses HtmlElementView to bypass CORS.
-class _WebImage extends StatelessWidget {
+class _WebImage extends StatefulWidget {
   final String url;
   final double size;
+  final Widget? fallback;
 
-  const _WebImage({required this.url, required this.size});
+  const _WebImage({super.key, required this.url, required this.size, this.fallback});
 
+  @override
+  State<_WebImage> createState() => _WebImageState();
+}
+
+class _WebImageState extends State<_WebImage> {
   static final Set<String> _registeredViews = {};
+  static int _viewIdCounter = 0;
+  late final String _viewType;
+  bool _registered = false;
 
-  String get _viewType => 'avatar-${url.hashCode}';
+  @override
+  void initState() {
+    super.initState();
+    _viewType = 'avatar-img-${_viewIdCounter++}';
+    _registerView();
+  }
 
-  void _ensureRegistered() {
+  void _registerView() {
     if (_registeredViews.contains(_viewType)) return;
 
     ui_web.platformViewRegistry.registerViewFactory(
       _viewType,
       (int viewId) {
         final img = web.HTMLImageElement()
-          ..src = url
+          ..src = widget.url
           ..style.width = '100%'
           ..style.height = '100%'
           ..style.objectFit = 'cover'
-          ..style.borderRadius = '50%';
+          ..style.borderRadius = '50%'
+          ..style.display = 'block';
         return img;
       },
     );
     _registeredViews.add(_viewType);
+    _registered = true;
   }
 
   @override
   Widget build(BuildContext context) {
-    _ensureRegistered();
+    if (!_registered) {
+      return widget.fallback ?? const SizedBox.shrink();
+    }
     return HtmlElementView(viewType: _viewType);
   }
 }
