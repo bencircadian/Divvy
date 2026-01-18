@@ -405,18 +405,28 @@ class AuthProvider extends ChangeNotifier {
     return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
   }
 
-  Future<bool> updateProfile({String? displayName, String? avatarUrl}) async {
+  Future<bool> updateProfile({
+    String? displayName,
+    String? avatarUrl,
+    bool clearAvatar = false,
+  }) async {
     if (_user == null) return false;
 
     try {
       final updates = <String, dynamic>{};
       if (displayName != null) updates['display_name'] = displayName;
-      if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
+      if (avatarUrl != null) {
+        updates['avatar_url'] = avatarUrl;
+      } else if (clearAvatar) {
+        updates['avatar_url'] = null;
+      }
 
-      await SupabaseService.client
-          .from('profiles')
-          .update(updates)
-          .eq('id', _user!.id);
+      if (updates.isNotEmpty) {
+        await SupabaseService.client
+            .from('profiles')
+            .update(updates)
+            .eq('id', _user!.id);
+      }
 
       await _loadProfile();
       return true;

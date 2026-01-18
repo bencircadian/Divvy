@@ -8,6 +8,7 @@ import '../../providers/household_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/member_avatar.dart';
+import '../../widgets/settings/edit_profile_sheet.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -34,6 +35,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             title: Text(authProvider.profile?.displayName ?? 'Unknown'),
             subtitle: Text(authProvider.user?.email ?? ''),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => EditProfileSheet.show(context),
           ),
           const Divider(),
 
