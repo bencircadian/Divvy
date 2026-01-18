@@ -462,10 +462,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     List members,
   ) {
     final progress = goal > 0 ? (completed / goal).clamp(0.0, 1.0) : 0.0;
+    final progressPercent = (progress * 100).round();
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-      child: Container(
+    return Semantics(
+      label: 'Weekly progress: $completed tasks completed, $progressPercent percent of goal',
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isDark
@@ -496,6 +499,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             if (dashboardProvider.taskCounts.isNotEmpty)
               _buildMemberBreakdownChips(dashboardProvider, members, isDark),
           ],
+        ),
         ),
       ),
     );

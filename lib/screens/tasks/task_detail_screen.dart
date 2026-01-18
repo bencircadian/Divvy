@@ -797,29 +797,36 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildStatusHeader(Task task, ThemeData theme) {
-    return Row(
-      children: [
-        Icon(
-          task.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: task.isCompleted ? Colors.green : Colors.grey,
-          size: 32,
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              task.isCompleted ? 'Completed' : 'Pending',
-              style: theme.textTheme.titleMedium,
+    return Semantics(
+      label: task.isCompleted
+          ? 'Task completed${task.completedAt != null ? ' on ${DateFormat('MMM d, yyyy').format(task.completedAt!)}' : ''}'
+          : 'Task pending',
+      child: Row(
+        children: [
+          ExcludeSemantics(
+            child: Icon(
+              task.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: task.isCompleted ? Colors.green : Colors.grey,
+              size: 32,
             ),
-            if (task.completedAt != null)
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                'Completed ${DateFormat('MMM d, yyyy').format(task.completedAt!)}',
-                style: theme.textTheme.bodySmall,
+                task.isCompleted ? 'Completed' : 'Pending',
+                style: theme.textTheme.titleMedium,
               ),
-          ],
-        ),
-      ],
+              if (task.completedAt != null)
+                Text(
+                  'Completed ${DateFormat('MMM d, yyyy').format(task.completedAt!)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1342,7 +1349,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final effectiveBgColor = backgroundColor ??
         (isDark ? AppColors.cardDark : Colors.grey[100]);
 
-    return Container(
+    return Semantics(
+      label: '$label: $value${isOverdue ? ', overdue' : ''}',
+      child: Container(
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
       decoration: BoxDecoration(
         color: effectiveBgColor,
@@ -1388,6 +1397,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ],
           ),
         ],
+      ),
       ),
     );
   }

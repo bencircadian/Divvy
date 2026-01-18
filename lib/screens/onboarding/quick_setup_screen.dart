@@ -443,31 +443,39 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
   }
 
   Widget _buildProgressIndicator(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-      child: Column(
-        children: [
-          // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: _progress,
-              backgroundColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.grey[200],
-              minHeight: 6,
+    final progressPercent = (_progress * 100).round();
+    return Semantics(
+      label: 'Setup progress: $progressPercent percent complete',
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+        child: Column(
+          children: [
+            // Progress bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: _progress,
+                backgroundColor: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.grey[200],
+                minHeight: 6,
+                semanticsLabel: 'Setup progress',
+                semanticsValue: '$progressPercent%',
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // Step indicator text
-          Text(
-            _getProgressText(),
-            style: TextStyle(
-              fontSize: 12,
-              color: isDark ? AppColors.textSecondary : Colors.grey[600],
+            const SizedBox(height: 8),
+            // Step indicator text
+            ExcludeSemantics(
+              child: Text(
+                _getProgressText(),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondary : Colors.grey[600],
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -792,50 +800,66 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
             const SizedBox(height: 32),
             ...options.map((opt) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: opt.onTap,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(opt.icon),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  opt.label,
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                if (opt.description != null)
-                                  Text(
-                                    opt.description!,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  child: Semantics(
+                    button: true,
+                    label: opt.description != null
+                        ? '${opt.label}. ${opt.description}'
+                        : opt.label,
+                    hint: 'Double tap to select',
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: opt.onTap,
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                        ),
+                        child: Row(
+                          children: [
+                            ExcludeSemantics(child: Icon(opt.icon)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ExcludeSemantics(
+                                    child: Text(
+                                      opt.label,
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                   ),
-                              ],
+                                  if (opt.description != null)
+                                    ExcludeSemantics(
+                                      child: Text(
+                                        opt.description!,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const Icon(Icons.chevron_right),
-                        ],
+                            const ExcludeSemantics(child: Icon(Icons.chevron_right)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 )),
             if (showSkip && onSkip != null) ...[
               const SizedBox(height: 16),
-              TextButton(
-                onPressed: onSkip,
-                child: Text(
-                  'Skip this question',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+              Semantics(
+                button: true,
+                label: 'Skip this question',
+                hint: 'Double tap to skip and continue',
+                child: TextButton(
+                  onPressed: onSkip,
+                  child: Text(
+                    'Skip this question',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -929,12 +953,17 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
             ),
             if (showSkip && onSkip != null) ...[
               const SizedBox(height: 16),
-              TextButton(
-                onPressed: onSkip,
-                child: Text(
-                  'Skip this step',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+              Semantics(
+                button: true,
+                label: 'Skip this step',
+                hint: 'Double tap to skip and continue',
+                child: TextButton(
+                  onPressed: onSkip,
+                  child: Text(
+                    'Skip this step',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),

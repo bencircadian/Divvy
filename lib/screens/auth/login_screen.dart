@@ -269,17 +269,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                 fillColor: isDark
                                     ? Colors.white.withValues(alpha: 0.05)
                                     : Colors.grey[50],
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
+                                suffixIcon: Semantics(
+                                  button: true,
+                                  label: _obscurePassword
+                                      ? 'Show password'
+                                      : 'Hide password',
+                                  child: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_outlined
+                                          : Icons.visibility_off_outlined,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscurePassword = !_obscurePassword;
+                                      });
+                                    },
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
                                 ),
                               ),
                               validator: (value) {
@@ -311,32 +317,38 @@ class _LoginScreenState extends State<LoginScreen> {
                             Consumer<AuthProvider>(
                               builder: (context, auth, _) {
                                 if (auth.errorMessage != null) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 12),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.error.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.error_outline,
-                                            color: AppColors.error,
-                                            size: 20,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              auth.errorMessage!,
-                                              style: TextStyle(
+                                  return Semantics(
+                                    liveRegion: true,
+                                    label: 'Error: ${auth.errorMessage}',
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.error.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            ExcludeSemantics(
+                                              child: Icon(
+                                                Icons.error_outline,
                                                 color: AppColors.error,
-                                                fontSize: 13,
+                                                size: 20,
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                auth.errorMessage!,
+                                                style: TextStyle(
+                                                  color: AppColors.error,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   );
@@ -359,12 +371,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                     child: auth.isLoading
-                                        ? const SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
+                                        ? Semantics(
+                                            label: 'Signing in, please wait',
+                                            child: const SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           )
                                         : const Text(
