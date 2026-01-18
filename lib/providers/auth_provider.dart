@@ -106,8 +106,14 @@ class AuthProvider extends ChangeNotifier {
       if (response != null) {
         _profile = UserProfile.fromJson(response);
 
-        // Update avatar from OAuth if profile doesn't have one
-        if (_profile!.avatarUrl == null && oauthAvatarUrl != null) {
+        // Update avatar from OAuth if:
+        // - Profile has no avatar, OR
+        // - Profile avatar is an OAuth URL (not a custom upload)
+        // Custom uploads are storage paths (don't start with http)
+        final currentAvatar = _profile!.avatarUrl;
+        final isCustomUpload = currentAvatar != null && !currentAvatar.startsWith('http');
+
+        if (!isCustomUpload && oauthAvatarUrl != null && currentAvatar != oauthAvatarUrl) {
           await SupabaseService.client.from('profiles').update({
             'avatar_url': oauthAvatarUrl,
           }).eq('id', _user!.id);
