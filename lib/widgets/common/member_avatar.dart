@@ -112,41 +112,24 @@ class _MemberAvatarState extends State<MemberAvatar> {
     Widget avatar;
 
     if (_resolvedUrl != null) {
-      // Use ClipOval with Image.network for reliable image loading
-      avatar = ClipOval(
-        child: Container(
-          width: widget.radius * 2,
-          height: widget.radius * 2,
+      // Use Container with DecorationImage for web compatibility
+      avatar = Container(
+        width: widget.radius * 2,
+        height: widget.radius * 2,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
           color: bgColor,
-          child: Image.network(
-            _resolvedUrl!,
-            width: widget.radius * 2,
-            height: widget.radius * 2,
+          image: DecorationImage(
+            image: NetworkImage(_resolvedUrl!),
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
+            onError: (error, stackTrace) {
               debugPrint('MemberAvatar: Image load error: $error');
-              return _buildInitials(bgColor, fgColor);
-            },
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return _buildInitials(bgColor, fgColor);
             },
           ),
         ),
       );
     } else {
-      avatar = CircleAvatar(
-        radius: widget.radius,
-        backgroundColor: bgColor,
-        child: Text(
-          _initials,
-          style: TextStyle(
-            color: fgColor,
-            fontWeight: FontWeight.bold,
-            fontSize: widget.radius * 0.8,
-          ),
-        ),
-      );
+      avatar = _buildInitials(bgColor, fgColor);
     }
 
     if (!widget.showOnlineIndicator) return avatar;
