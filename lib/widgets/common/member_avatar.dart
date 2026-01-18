@@ -82,34 +82,72 @@ class _MemberAvatarState extends State<MemberAvatar> {
     return widget.displayName![0].toUpperCase();
   }
 
+  Widget _buildInitials(Color bgColor, Color fgColor) {
+    return Container(
+      width: widget.radius * 2,
+      height: widget.radius * 2,
+      decoration: BoxDecoration(
+        color: bgColor,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          _initials,
+          style: TextStyle(
+            color: fgColor,
+            fontWeight: FontWeight.bold,
+            fontSize: widget.radius * 0.8,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bgColor = widget.backgroundColor ?? AppColors.primary.withValues(alpha: 0.15);
     final fgColor = widget.foregroundColor ?? AppColors.primary;
 
-    debugPrint('MemberAvatar build: _resolvedUrl=$_resolvedUrl');
+    Widget avatar;
 
-    Widget avatar = CircleAvatar(
-      radius: widget.radius,
-      backgroundColor: bgColor,
-      backgroundImage: _resolvedUrl != null ? NetworkImage(_resolvedUrl!) : null,
-      onBackgroundImageError: _resolvedUrl != null
-          ? (exception, stackTrace) {
-              debugPrint('MemberAvatar: Image load error: $exception');
-            }
-          : null,
-      child: _resolvedUrl == null
-          ? Text(
-              _initials,
-              style: TextStyle(
-                color: fgColor,
-                fontWeight: FontWeight.bold,
-                fontSize: widget.radius * 0.8,
-              ),
-            )
-          : null,
-    );
+    if (_resolvedUrl != null) {
+      // Use ClipOval with Image.network for reliable image loading
+      avatar = ClipOval(
+        child: Container(
+          width: widget.radius * 2,
+          height: widget.radius * 2,
+          color: bgColor,
+          child: Image.network(
+            _resolvedUrl!,
+            width: widget.radius * 2,
+            height: widget.radius * 2,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              debugPrint('MemberAvatar: Image load error: $error');
+              return _buildInitials(bgColor, fgColor);
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return _buildInitials(bgColor, fgColor);
+            },
+          ),
+        ),
+      );
+    } else {
+      avatar = CircleAvatar(
+        radius: widget.radius,
+        backgroundColor: bgColor,
+        child: Text(
+          _initials,
+          style: TextStyle(
+            color: fgColor,
+            fontWeight: FontWeight.bold,
+            fontSize: widget.radius * 0.8,
+          ),
+        ),
+      );
+    }
 
     if (!widget.showOnlineIndicator) return avatar;
 
