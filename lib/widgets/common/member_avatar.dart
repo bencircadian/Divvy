@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
 import '../../services/profile_avatar_service.dart';
@@ -49,6 +50,8 @@ class _MemberAvatarState extends State<MemberAvatar> {
   }
 
   Future<void> _resolveAvatarUrl() async {
+    debugPrint('MemberAvatar: avatarUrl=${widget.avatarUrl}');
+
     if (widget.avatarUrl == null) {
       setState(() => _resolvedUrl = null);
       return;
@@ -56,14 +59,17 @@ class _MemberAvatarState extends State<MemberAvatar> {
 
     // If it's already a URL (http/https), use it directly
     if (widget.avatarUrl!.startsWith('http')) {
+      debugPrint('MemberAvatar: Using direct URL');
       setState(() => _resolvedUrl = widget.avatarUrl);
       return;
     }
 
     // It's a storage path - get signed URL
+    debugPrint('MemberAvatar: Getting signed URL for storage path');
     final signedUrl = await ProfileAvatarService.getSignedUrl(widget.avatarUrl!);
 
     if (mounted) {
+      debugPrint('MemberAvatar: Resolved to $signedUrl');
       setState(() => _resolvedUrl = signedUrl);
     }
   }
@@ -83,10 +89,17 @@ class _MemberAvatarState extends State<MemberAvatar> {
     final bgColor = widget.backgroundColor ?? AppColors.primary.withValues(alpha: 0.15);
     final fgColor = widget.foregroundColor ?? AppColors.primary;
 
+    debugPrint('MemberAvatar build: _resolvedUrl=$_resolvedUrl');
+
     Widget avatar = CircleAvatar(
       radius: widget.radius,
       backgroundColor: bgColor,
       backgroundImage: _resolvedUrl != null ? NetworkImage(_resolvedUrl!) : null,
+      onBackgroundImageError: _resolvedUrl != null
+          ? (exception, stackTrace) {
+              debugPrint('MemberAvatar: Image load error: $exception');
+            }
+          : null,
       child: _resolvedUrl == null
           ? Text(
               _initials,
