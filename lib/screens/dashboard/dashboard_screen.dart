@@ -8,12 +8,11 @@ import '../../config/app_theme.dart';
 import '../../models/productivity_insights.dart';
 import '../../models/task.dart';
 import '../../services/onboarding_progress_service.dart';
-import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 import '../../widgets/bundles/bundle_card.dart';
 import '../../widgets/bundles/create_bundle_sheet.dart';
-import '../../widgets/common/animated_task_checkbox.dart';
 import '../../widgets/common/member_avatar.dart';
+import '../../widgets/tasks/organic_task_card.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
 import '../../widgets/dashboard/insights_card.dart';
 import '../../widgets/onboarding/onboarding_checklist.dart';
@@ -388,6 +387,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildTodaysTasks(List<Task> tasks) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final taskProvider = context.read<TaskProvider>();
 
     if (tasks.isEmpty) {
       return Card(
@@ -418,127 +418,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
 
-    return Card(
-      child: Column(
-        children: tasks.asMap().entries.map((entry) {
-          final index = entry.key;
-          final task = entry.value;
-          final isLast = index == tasks.length - 1;
+    return Column(
+      children: tasks.asMap().entries.map((entry) {
+        final index = entry.key;
+        final task = entry.value;
 
-          return Column(
-            children: [
-              _buildTaskListItem(task),
-              if (!isLast)
-                Divider(
-                  height: 1,
-                  indent: 56,
-                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200],
-                ),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildTaskListItem(Task task) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final categoryColor = CategoryUtils.getCategoryColor(task);
-    final categoryName = CategoryUtils.getCategoryName(task);
-    final taskProvider = context.read<TaskProvider>();
-
-    String subtitle = '';
-    Color subtitleColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
-
-    if (task.isOverdue) {
-      subtitle = 'Overdue';
-      subtitleColor = AppColors.error;
-    } else if (task.duePeriod != null) {
-      subtitle = task.duePeriod!.name[0].toUpperCase() + task.duePeriod!.name.substring(1);
-    } else {
-      subtitle = 'Due Today';
-    }
-
-    return InkWell(
-      onTap: () => context.push('/task/${task.id}'),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          children: [
-            // Animated completion checkbox
-            AnimatedTaskCheckbox(
-              task: task,
-              taskProvider: taskProvider,
-              categoryColor: categoryColor,
-              size: 28,
-            ),
-            const SizedBox(width: 12),
-            // Category color indicator
-            Container(
-              width: 4,
-              height: 40,
-              decoration: BoxDecoration(
-                color: categoryColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Task content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    task.title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: isDark ? Colors.white : Colors.grey[900],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      // Category badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: categoryColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          categoryName,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: categoryColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: subtitleColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            // Priority indicator for high priority
-            if (task.priority == TaskPriority.high)
-              Icon(Icons.priority_high, size: 18, color: AppColors.error),
-          ],
-        ),
-      ),
+        return OrganicTaskCard(
+          key: ValueKey(task.id),
+          task: task,
+          index: index,
+          taskProvider: taskProvider,
+        );
+      }).toList(),
     );
   }
 
   Widget _buildUpcomingTasks(List<Task> tasks) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final taskProvider = context.read<TaskProvider>();
 
     if (tasks.isEmpty) {
       return Card(
@@ -571,35 +468,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final previewTasks = tasks.take(3).toList();
     final hasMore = tasks.length > 3;
+    final displayTasks = _upcomingExpanded ? tasks : previewTasks;
 
-    return Card(
-      child: Column(
-        children: [
-          // Always show first 3 tasks
-          ...previewTasks.asMap().entries.map((entry) {
-            final index = entry.key;
-            final task = entry.value;
-            final isLast = index == previewTasks.length - 1 && !hasMore && !_upcomingExpanded;
+    return Column(
+      children: [
+        // Show tasks using OrganicTaskCard
+        ...displayTasks.asMap().entries.map((entry) {
+          final index = entry.key;
+          final task = entry.value;
 
-            return Column(
-              children: [
-                _buildUpcomingTaskItem(task),
-                if (!isLast)
-                  Divider(
-                    height: 1,
-                    indent: 40,
-                    color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200],
-                  ),
-              ],
-            );
-          }),
+          return OrganicTaskCard(
+            key: ValueKey(task.id),
+            task: task,
+            index: index,
+            taskProvider: taskProvider,
+          );
+        }),
 
-          // Expandable section for remaining tasks
-          if (hasMore) ...[
-            InkWell(
+        // Expandable section toggle
+        if (hasMore)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: InkWell(
               onTap: () => setState(() => _upcomingExpanded = !_upcomingExpanded),
+              borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -623,115 +517,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-            if (_upcomingExpanded)
-              ...tasks.skip(3).toList().asMap().entries.map((entry) {
-                final index = entry.key;
-                final task = entry.value;
-                final isLast = index == tasks.length - 4;
-
-                return Column(
-                  children: [
-                    _buildUpcomingTaskItem(task),
-                    if (!isLast)
-                      Divider(
-                        height: 1,
-                        indent: 40,
-                        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200],
-                      ),
-                  ],
-                );
-              }),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUpcomingTaskItem(Task task) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final categoryColor = CategoryUtils.getCategoryColor(task);
-    final categoryName = CategoryUtils.getCategoryName(task);
-    final taskProvider = context.read<TaskProvider>();
-
-    return InkWell(
-      onTap: () => context.push('/task/${task.id}'),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          children: [
-            // Animated completion checkbox
-            AnimatedTaskCheckbox(
-              task: task,
-              taskProvider: taskProvider,
-              categoryColor: categoryColor,
-              size: 28,
-            ),
-            const SizedBox(width: 12),
-            // Category color indicator
-            Container(
-              width: 4,
-              height: 40,
-              decoration: BoxDecoration(
-                color: categoryColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Task content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    task.title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: isDark ? Colors.white : Colors.grey[900],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      // Category badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: categoryColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          categoryName,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: categoryColor,
-                          ),
-                        ),
-                      ),
-                      if (task.dueDate != null) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          TaskDateUtils.formatDueDateShort(task.dueDate!),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            // Recurring indicator or chevron
-            if (task.isRecurring)
-              Icon(Icons.repeat, size: 16, color: isDark ? Colors.grey[400] : Colors.grey[500])
-            else
-              Icon(Icons.chevron_right, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[400]),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 
