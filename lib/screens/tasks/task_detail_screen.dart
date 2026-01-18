@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -494,7 +495,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final task = _getTask();
     if (task == null || !_formKey.currentState!.validate()) return;
 
-    debugPrint('Saving task with category: $_category');
+    if (kDebugMode) {
+      debugPrint('Saving task with category: $_category');
+    }
 
     final success = await context.read<TaskProvider>().updateTask(
           taskId: task.id,
@@ -511,7 +514,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           category: _category,
         );
 
-    debugPrint('Update result: $success');
+    if (kDebugMode) {
+      debugPrint('Update result: $success');
+    }
 
     if (mounted) {
       if (success) {
@@ -649,7 +654,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final task = taskProvider.tasks.where((t) => t.id == widget.taskId).firstOrNull;
 
     if (task == null) {
-      debugPrint('Task not found. TaskId: ${widget.taskId}, Tasks count: ${taskProvider.tasks.length}');
+      if (kDebugMode) {
+        debugPrint('Task not found. TaskId: ${widget.taskId}, Tasks count: ${taskProvider.tasks.length}');
+      }
       return Scaffold(
         appBar: AppBar(
           leading: IconButton(

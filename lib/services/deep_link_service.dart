@@ -37,7 +37,9 @@ class DeepLinkService {
   }
 
   void _handleDeepLink(Uri uri) {
-    debugPrint('Received deep link: $uri');
+    if (kDebugMode) {
+      debugPrint('Received deep link: $uri');
+    }
 
     // Handle different deep link schemes and paths
     // divvy://join/ABC123 -> Navigate to join household with code

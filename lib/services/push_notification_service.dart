@@ -15,7 +15,9 @@ import '../config/supabase_config.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Initialize Firebase if needed (for background isolate)
   await Firebase.initializeApp();
-  debugPrint('Background message received: ${message.messageId}');
+  if (kDebugMode) {
+    debugPrint('Background message received: ${message.messageId}');
+  }
 }
 
 /// Service for handling push notifications via Firebase Cloud Messaging
@@ -39,7 +41,9 @@ class PushNotificationService {
 
     // Skip on web for now (can be enabled later with web push)
     if (kIsWeb) {
-      debugPrint('Push notifications not supported on web yet');
+      if (kDebugMode) {
+        debugPrint('Push notifications not supported on web yet');
+      }
       return;
     }
 
@@ -50,7 +54,9 @@ class PushNotificationService {
       // Request permission
       final settings = await _requestPermission();
       if (settings.authorizationStatus != AuthorizationStatus.authorized) {
-        debugPrint('Push notification permission denied');
+        if (kDebugMode) {
+          debugPrint('Push notification permission denied');
+        }
         return;
       }
 
@@ -73,7 +79,9 @@ class PushNotificationService {
       }
 
       _isInitialized = true;
-      debugPrint('Push notifications initialized successfully');
+      if (kDebugMode) {
+        debugPrint('Push notifications initialized successfully');
+      }
     } catch (e) {
       debugPrint('Error initializing push notifications: $e');
     }
@@ -99,7 +107,9 @@ class PushNotificationService {
       if (Platform.isIOS) {
         final apnsToken = await _messaging.getAPNSToken();
         if (apnsToken == null) {
-          debugPrint('APNs token not available yet');
+          if (kDebugMode) {
+            debugPrint('APNs token not available yet');
+          }
           // Wait a bit and retry
           await Future.delayed(const Duration(seconds: 2));
         }
@@ -107,7 +117,9 @@ class PushNotificationService {
 
       _deviceToken = await _messaging.getToken();
       if (_deviceToken != null) {
-        debugPrint('Device token obtained: ${_deviceToken!.substring(0, 20)}...');
+        if (kDebugMode) {
+          debugPrint('Device token obtained: ${_deviceToken!.substring(0, 20)}...');
+        }
         await _storeTokenInSupabase(_deviceToken!);
       }
     } catch (e) {
@@ -117,7 +129,9 @@ class PushNotificationService {
 
   /// Handle token refresh
   static Future<void> _onTokenRefresh(String newToken) async {
-    debugPrint('Device token refreshed');
+    if (kDebugMode) {
+      debugPrint('Device token refreshed');
+    }
     _deviceToken = newToken;
     await _storeTokenInSupabase(newToken);
   }
@@ -126,7 +140,9 @@ class PushNotificationService {
   static Future<void> _storeTokenInSupabase(String token) async {
     final userId = SupabaseService.currentUser?.id;
     if (userId == null) {
-      debugPrint('Cannot store token: user not logged in');
+      if (kDebugMode) {
+        debugPrint('Cannot store token: user not logged in');
+      }
       return;
     }
 
@@ -139,7 +155,9 @@ class PushNotificationService {
         'updated_at': DateTime.now().toIso8601String(),
       }, onConflict: 'user_id, token');
 
-      debugPrint('Device token stored in Supabase');
+      if (kDebugMode) {
+        debugPrint('Device token stored in Supabase');
+      }
     } catch (e) {
       debugPrint('Error storing device token: $e');
     }
@@ -147,7 +165,9 @@ class PushNotificationService {
 
   /// Handle foreground messages
   static void _handleForegroundMessage(RemoteMessage message) {
-    debugPrint('Foreground message received: ${message.notification?.title}');
+    if (kDebugMode) {
+      debugPrint('Foreground message received: ${message.notification?.title}');
+    }
 
     // The notification will automatically show on Android
     // For iOS, we might want to show a local notification or in-app alert
@@ -156,13 +176,17 @@ class PushNotificationService {
 
   /// Handle notification tap
   static void _handleNotificationTap(RemoteMessage message) {
-    debugPrint('Notification tapped: ${message.data}');
+    if (kDebugMode) {
+      debugPrint('Notification tapped: ${message.data}');
+    }
 
     // Navigate to relevant screen based on notification data
     final taskId = message.data['task_id'] as String?;
     if (taskId != null && _router != null) {
       _router!.go('/task/$taskId');
-      debugPrint('Navigating to task: $taskId');
+      if (kDebugMode) {
+        debugPrint('Navigating to task: $taskId');
+      }
     }
   }
 
@@ -178,7 +202,9 @@ class PushNotificationService {
           .eq('user_id', userId)
           .eq('token', _deviceToken!);
 
-      debugPrint('Device token removed from Supabase');
+      if (kDebugMode) {
+        debugPrint('Device token removed from Supabase');
+      }
     } catch (e) {
       debugPrint('Error removing device token: $e');
     }
@@ -223,10 +249,14 @@ class PushNotificationService {
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        debugPrint('Push notification sent: ${result['message']}');
+        if (kDebugMode) {
+          debugPrint('Push notification sent: ${result['message']}');
+        }
         return true;
       } else {
-        debugPrint('Failed to send push notification: ${response.body}');
+        if (kDebugMode) {
+          debugPrint('Failed to send push notification: ${response.body}');
+        }
         return false;
       }
     } catch (e) {

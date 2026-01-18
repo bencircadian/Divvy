@@ -39,7 +39,9 @@ class SyncManager {
         .onConnectivityChanged
         .listen(_handleConnectivityChange);
 
-    debugPrint('SyncManager initialized. Online: $_isOnline');
+    if (kDebugMode) {
+      debugPrint('SyncManager initialized. Online: $_isOnline');
+    }
   }
 
   /// Register a sync callback to be called when connectivity is restored.
@@ -84,7 +86,9 @@ class SyncManager {
     final wasOffline = !_isOnline;
     _isOnline = results.any((r) => r != ConnectivityResult.none);
 
-    debugPrint('Connectivity changed. Online: $_isOnline, Was offline: $wasOffline');
+    if (kDebugMode) {
+      debugPrint('Connectivity changed. Online: $_isOnline, Was offline: $wasOffline');
+    }
 
     // Coming back online after being offline
     if (_isOnline && wasOffline) {
@@ -97,7 +101,9 @@ class SyncManager {
   }
 
   void _onReconnected() {
-    debugPrint('Reconnected! Triggering sync...');
+    if (kDebugMode) {
+      debugPrint('Reconnected! Triggering sync...');
+    }
 
     // Check if we need to sync based on last sync time
     final shouldSync = _lastSyncTime == null ||

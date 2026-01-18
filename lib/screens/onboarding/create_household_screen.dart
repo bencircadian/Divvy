@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -43,12 +44,16 @@ class _CreateHouseholdScreenState extends State<CreateHouseholdScreen> {
   }
 
   void _joinHousehold() {
-    debugPrint('Join household tapped');
+    if (kDebugMode) {
+      debugPrint('Join household tapped');
+    }
     context.go('/join-household');
   }
 
   void _signOut() {
-    debugPrint('Sign out tapped');
+    if (kDebugMode) {
+      debugPrint('Sign out tapped');
+    }
     context.read<AuthProvider>().signOut();
   }
 

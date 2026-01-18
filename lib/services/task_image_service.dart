@@ -17,7 +17,9 @@ class TaskImageService {
 
       // Validate image bytes
       if (!_isValidImageBytes(bytes)) {
-        debugPrint('Invalid image file');
+        if (kDebugMode) {
+          debugPrint('Invalid image file');
+        }
         return null;
       }
 

@@ -205,7 +205,9 @@ class TaskProvider extends ChangeNotifier {
         }
       }
       _tasks = parsedTasks;
-      debugPrint('Loaded ${_tasks.length} tasks from ${(response as List).length} records');
+      if (kDebugMode) {
+        debugPrint('Loaded ${_tasks.length} tasks from ${(response as List).length} records');
+      }
 
       // Cache tasks for offline use
       await CacheService.cacheTasks(_tasks);
@@ -390,7 +392,9 @@ class TaskProvider extends ChangeNotifier {
         updates['recurrence_rule'] = recurrenceRule.toJson();
       }
 
-      debugPrint('Updating task $taskId with: $updates');
+      if (kDebugMode) {
+        debugPrint('Updating task $taskId with: $updates');
+      }
 
       await SupabaseService.client
           .from('tasks')
@@ -403,7 +407,9 @@ class TaskProvider extends ChangeNotifier {
         changes: updates,
       );
 
-      debugPrint('Task updated successfully');
+      if (kDebugMode) {
+        debugPrint('Task updated successfully');
+      }
       return true;
     } catch (e) {
       debugPrint('Error updating task: $e');
