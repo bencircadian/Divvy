@@ -41,6 +41,8 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
+      /* Ensure consistent background during load */
+      background: #F5F5F5;
       /* Prevent pull-to-refresh and overscroll bounce */
       overscroll-behavior: none;
       overscroll-behavior-y: none;
@@ -71,7 +73,7 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Loading screen styles */
+    /* Loading screen styles - ensure it's always on top */
     .loading-container {
       position: fixed;
       top: 0;
@@ -83,9 +85,13 @@
       justify-content: center;
       align-items: center;
       background: #F5F5F5;
+      z-index: 9999;
     }
 
     @media (prefers-color-scheme: dark) {
+      html, body {
+        background: #1E1E2E;
+      }
       .loading-container {
         background: #1E1E2E;
       }
@@ -316,9 +322,11 @@
     }
   </script>
   <script>
-    // Handle service worker updates - auto-reload when new version available
+    // Handle service worker updates - skip waiting and claim immediately
     if ('serviceWorker' in navigator) {
       let refreshing = false;
+
+      // When a new service worker takes over, reload to get fresh content
       navigator.serviceWorker.addEventListener('controllerchange', function() {
         if (!refreshing) {
           refreshing = true;
@@ -326,13 +334,58 @@
         }
       });
 
-      // Check for updates periodically
+      // On page load, check if there's a waiting service worker and activate it
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.waiting) {
+          // New version waiting - tell it to skip waiting and activate
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+      });
+
+      // Listen for new service workers installing
+      navigator.serviceWorker.ready.then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New version installed, skip waiting immediately
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          }
+        });
+      });
+
+      // Check for updates on page load and periodically
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) reg.update();
+      });
       setInterval(() => {
         navigator.serviceWorker.getRegistration().then(reg => {
           if (reg) reg.update();
         });
       }, 60000);
     }
+
+    // Fallback: Remove loading screen after timeout if Flutter doesn't load
+    setTimeout(function() {
+      const loader = document.getElementById('loading');
+      const splash = document.getElementById('splash');
+      if (loader && loader.style.opacity !== '0') {
+        console.warn('Flutter took too long to load, removing loading screen');
+        loader.style.transition = 'opacity 0.3s ease-out';
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 300);
+      }
+      if (splash) {
+        splash.remove();
+      }
+      // Also call the splash removal function
+      if (typeof removeSplashFromWeb === 'function') {
+        removeSplashFromWeb();
+      }
+    }, 10000);
   </script>
   <script src="flutter_bootstrap.js" async=""></script>
 

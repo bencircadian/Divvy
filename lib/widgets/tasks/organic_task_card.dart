@@ -10,7 +10,7 @@ import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 
 /// An organic-styled task card with alternating border radius.
-class OrganicTaskCard extends StatelessWidget {
+class OrganicTaskCard extends StatefulWidget {
   final Task task;
   final int index;
   final TaskProvider taskProvider;
@@ -33,12 +33,95 @@ class OrganicTaskCard extends StatelessWidget {
   });
 
   @override
+  State<OrganicTaskCard> createState() => _OrganicTaskCardState();
+}
+
+class _OrganicTaskCardState extends State<OrganicTaskCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _checkAnimation;
+  bool _isAnimatingCompletion = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.15)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 40,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.15, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 60,
+      ),
+    ]).animate(_animationController);
+
+    _checkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleCompletion() async {
+    if (_isAnimatingCompletion) return;
+
+    final wasCompleted = widget.task.isCompleted;
+
+    // Only animate if completing (not uncompleting)
+    if (!wasCompleted) {
+      setState(() => _isAnimatingCompletion = true);
+
+      // Haptic feedback at start
+      HapticFeedback.mediumImpact();
+
+      // Play animation
+      await _animationController.forward();
+
+      // Second haptic at completion
+      HapticFeedback.lightImpact();
+
+      // Small delay to let user see the completed state
+      await Future.delayed(const Duration(milliseconds: 150));
+
+      // Now actually complete the task
+      await widget.taskProvider.toggleTaskComplete(widget.task);
+      widget.onTaskCompleted?.call();
+
+      // Reset animation state
+      if (mounted) {
+        _animationController.reset();
+        setState(() => _isAnimatingCompletion = false);
+      }
+    } else {
+      // Uncompleting - just do it with haptic
+      HapticFeedback.mediumImpact();
+      await widget.taskProvider.toggleTaskComplete(widget.task);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final categoryColor = CategoryUtils.getCategoryColor(task);
+    final categoryColor = CategoryUtils.getCategoryColor(widget.task);
 
     // Alternate border radius for organic feel
-    final isEven = index % 2 == 0;
+    final isEven = widget.index % 2 == 0;
     final borderRadius = isEven
         ? const BorderRadius.only(
             topLeft: Radius.circular(20),
@@ -54,200 +137,231 @@ class OrganicTaskCard extends StatelessWidget {
           );
 
     // Check if task is overdue
-    final isOverdue = task.isOverdue && !task.isCompleted;
+    final isOverdue = widget.task.isOverdue && !widget.task.isCompleted;
 
     // Swipe background color based on completion state
-    final swipeColor = task.isCompleted ? Colors.orange : AppColors.success;
-    final swipeIcon = task.isCompleted ? Icons.replay : Icons.check;
-    final swipeText = task.isCompleted ? 'Undo' : 'Done';
+    final swipeColor =
+        widget.task.isCompleted ? Colors.orange : AppColors.success;
+    final swipeIcon = widget.task.isCompleted ? Icons.replay : Icons.check;
+    final swipeText = widget.task.isCompleted ? 'Undo' : 'Done';
+
+    // Show as completed during animation
+    final showAsCompleted = widget.task.isCompleted || _isAnimatingCompletion;
 
     return Semantics(
-      label: AccessibilityHelpers.getTaskSemanticLabel(task),
-      hint: AccessibilityHelpers.getTaskHint(task),
+      label: AccessibilityHelpers.getTaskSemanticLabel(widget.task),
+      hint: AccessibilityHelpers.getTaskHint(widget.task),
       button: true,
       child: Dismissible(
-        key: Key(task.id),
+        key: Key(widget.task.id),
         direction: DismissDirection.endToStart,
         confirmDismiss: (_) async {
-          HapticFeedback.mediumImpact();
-          final wasCompleted = task.isCompleted;
-          await taskProvider.toggleTaskComplete(task);
-          // Trigger callback if task was just completed (not uncompleted)
-          if (!wasCompleted) {
-            onTaskCompleted?.call();
-          }
+          await _handleCompletion();
           return false; // Don't dismiss, just toggle
         },
-      background: Container(
-        margin: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-        decoration: BoxDecoration(
-          color: swipeColor,
-          borderRadius: borderRadius,
-        ),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              swipeText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(swipeIcon, color: Colors.white),
-          ],
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-        child: GestureDetector(
-          onTap: isSelectionMode
-              ? onSelectionTap
-              : () => context.push('/task/${task.id}'),
-          onLongPress: onLongPress,
-          child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.all(AppSpacing.md),
+        background: Container(
+          margin: const EdgeInsets.fromLTRB(24, 0, 24, 12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.15)
-                : isOverdue
-                    ? AppColors.error.withValues(alpha: isDark ? 0.08 : 0.05)
-                    : task.isCompleted
-                        ? (isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey[100])
-                        : (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white),
+            color: swipeColor,
             borderRadius: borderRadius,
-            border: Border.all(
-              color: isSelected
-                  ? AppColors.primary
-                  : isOverdue
-                      ? AppColors.error.withValues(alpha: 0.3)
-                      : task.isCompleted
-                          ? (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]!)
-                          : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!),
-              width: isSelected ? 2 : 1,
-            ),
           ),
-          child: Opacity(
-            opacity: task.isCompleted ? 0.6 : 1.0,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Checkbox
-                GestureDetector(
-                  onTap: () async {
-                    HapticFeedback.mediumImpact();
-                    final wasCompleted = task.isCompleted;
-                    await taskProvider.toggleTaskComplete(task);
-                    // Trigger callback if task was just completed (not uncompleted)
-                    if (!wasCompleted) {
-                      onTaskCompleted?.call();
-                    }
-                  },
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    margin: const EdgeInsets.only(top: 2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: task.isCompleted ? AppColors.primary : Colors.transparent,
-                      border: task.isCompleted
-                          ? null
-                          : Border.all(color: categoryColor, width: 2),
-                    ),
-                    child: task.isCompleted
-                        ? Icon(
-                            Icons.check,
-                            size: 14,
-                            color: isDark ? const Color(0xFF102219) : Colors.white,
-                          )
-                        : null,
-                  ),
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 24),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                swipeText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(width: 14),
-
-                // Task content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        task.title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-                          color: task.isCompleted
-                              ? (isDark ? AppColors.textSecondary : Colors.grey[500])
-                              : (isDark ? AppColors.textPrimary : Colors.grey[900]),
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.sm),
-                      Row(
-                        children: [
-                          // Category tag
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: categoryColor.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              CategoryUtils.getCategoryName(task),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: categoryColor,
+              ),
+              const SizedBox(width: 8),
+              Icon(swipeIcon, color: Colors.white),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+          child: GestureDetector(
+            onTap: widget.isSelectionMode
+                ? widget.onSelectionTap
+                : () => context.push('/task/${widget.task.id}'),
+            onLongPress: widget.onLongPress,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: widget.isSelected
+                    ? AppColors.primary.withValues(alpha: 0.15)
+                    : isOverdue
+                        ? AppColors.error.withValues(alpha: isDark ? 0.08 : 0.05)
+                        : showAsCompleted
+                            ? (isDark
+                                ? Colors.white.withValues(alpha: 0.03)
+                                : Colors.grey[100])
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.06)
+                                : Colors.white),
+                borderRadius: borderRadius,
+                border: Border.all(
+                  color: widget.isSelected
+                      ? AppColors.primary
+                      : isOverdue
+                          ? AppColors.error.withValues(alpha: 0.3)
+                          : showAsCompleted
+                              ? (isDark
+                                  ? Colors.white.withValues(alpha: 0.05)
+                                  : Colors.grey[200]!)
+                              : (isDark
+                                  ? Colors.white.withValues(alpha: 0.08)
+                                  : Colors.grey[200]!),
+                  width: widget.isSelected ? 2 : 1,
+                ),
+              ),
+              child: Opacity(
+                opacity: showAsCompleted ? 0.6 : 1.0,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Animated Checkbox
+                    GestureDetector(
+                      onTap: _handleCompletion,
+                      child: AnimatedBuilder(
+                        animation: _animationController,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _scaleAnimation.value,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              margin: const EdgeInsets.only(top: 2),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: showAsCompleted
+                                    ? AppColors.primary
+                                    : Colors.transparent,
+                                border: showAsCompleted
+                                    ? null
+                                    : Border.all(color: categoryColor, width: 2),
                               ),
+                              child: showAsCompleted
+                                  ? AnimatedBuilder(
+                                      animation: _checkAnimation,
+                                      builder: (context, child) {
+                                        return Transform.scale(
+                                          scale: _isAnimatingCompletion
+                                              ? _checkAnimation.value
+                                              : 1.0,
+                                          child: Icon(
+                                            Icons.check,
+                                            size: 14,
+                                            color: isDark
+                                                ? const Color(0xFF102219)
+                                                : Colors.white,
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+
+                    // Task content
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.task.title,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              decoration: showAsCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: showAsCompleted
+                                  ? (isDark
+                                      ? AppColors.textSecondary
+                                      : Colors.grey[500])
+                                  : (isDark
+                                      ? AppColors.textPrimary
+                                      : Colors.grey[900]),
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          // Due date
-                          if (task.dueDate != null)
-                            Text(
-                              TaskDateUtils.formatDueDateShort(task.dueDate!),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isDark ? AppColors.textSecondary : Colors.grey[500],
+                          SizedBox(height: AppSpacing.sm),
+                          Row(
+                            children: [
+                              // Category tag
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: categoryColor.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  CategoryUtils.getCategoryName(widget.task),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: categoryColor,
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 12),
+                              // Due date
+                              if (widget.task.dueDate != null)
+                                Text(
+                                  TaskDateUtils.formatDueDateShort(
+                                      widget.task.dueDate!),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark
+                                        ? AppColors.textSecondary
+                                        : Colors.grey[500],
+                                  ),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-
-                // Assignee avatar
-                if (task.assignedToName != null)
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.grey[200],
                     ),
-                    child: Center(
-                      child: Text(
-                        task.assignedToName![0].toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.textPrimary : Colors.grey[700],
+
+                    // Assignee avatar
+                    if (widget.task.assignedToName != null)
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.grey[200],
+                        ),
+                        child: Center(
+                          child: Text(
+                            widget.task.assignedToName![0].toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  isDark ? AppColors.textPrimary : Colors.grey[700],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
-          ),
         ),
-        ), // Dismissible
-      ), // Semantics
-    );
+      ), // Dismissible
+    ); // Semantics
   }
 }
