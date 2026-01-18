@@ -111,6 +111,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (response != null) {
         _profile = UserProfile.fromJson(response);
+        debugPrint('Profile loaded - avatarUrl: ${_profile!.avatarUrl}');
 
         // Update avatar from OAuth if:
         // - Profile has no avatar, OR
@@ -119,11 +120,15 @@ class AuthProvider extends ChangeNotifier {
         final currentAvatar = _profile!.avatarUrl;
         final isCustomUpload = currentAvatar != null && !currentAvatar.startsWith('http');
 
+        debugPrint('Current avatar: $currentAvatar, isCustomUpload: $isCustomUpload');
+
         if (!isCustomUpload && oauthAvatarUrl != null && currentAvatar != oauthAvatarUrl) {
+          debugPrint('Updating avatar from OAuth...');
           await SupabaseService.client.from('profiles').update({
             'avatar_url': oauthAvatarUrl,
           }).eq('id', _user!.id);
           _profile = _profile!.copyWith(avatarUrl: oauthAvatarUrl);
+          debugPrint('Avatar updated to: ${_profile!.avatarUrl}');
         }
       } else {
         // Profile doesn't exist (e.g., email verification flow) - create it
