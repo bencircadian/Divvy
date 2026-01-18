@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/household_provider.dart';
+import '../../providers/task_provider.dart';
 import '../../services/onboarding_progress_service.dart';
 
 /// A collapsible onboarding checklist widget (like Loom's onboarding).
@@ -75,8 +76,18 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
     // Watch providers for dynamic updates
     final householdProvider = context.watch<HouseholdProvider>();
     final authProvider = context.watch<AuthProvider>();
+    final taskProvider = context.watch<TaskProvider>();
     final memberCount = householdProvider.members.length;
     final profile = authProvider.profile;
+
+    // Auto-mark first task as complete if any tasks have been completed
+    final hasCompletedTasks = taskProvider.tasks.any((t) => t.isCompleted);
+    if (hasCompletedTasks && !OnboardingProgressService.hasCompletedFirstTask) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        OnboardingProgressService.markFirstTaskCompleted();
+        if (mounted) setState(() {});
+      });
+    }
 
     // Auto-mark invite as complete if household has 2+ members
     final hasMultipleMembers = memberCount >= 2;
@@ -109,9 +120,10 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Calculate progress including auto-completed items
+    final hasFirstTask = OnboardingProgressService.hasCompletedFirstTask || hasCompletedTasks;
     final hasInvited = OnboardingProgressService.hasInvitedFirstMember || hasMultipleMembers;
     final hasProfile = OnboardingProgressService.hasCompletedProfile || hasProfileFromOAuth;
-    final completedCount = _getCompletedCount(hasInvited, hasProfile);
+    final completedCount = _getCompletedCount(hasFirstTask, hasInvited, hasProfile);
     final progress = completedCount / 3;
 
     return Container(
@@ -234,8 +246,8 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
                 _buildChecklistItem(
                   icon: Icons.check_circle_outline,
                   title: 'Complete your first task',
-                  subtitle: 'Mark a task as done',
-                  isCompleted: OnboardingProgressService.hasCompletedFirstTask,
+                  subtitle: hasFirstTask ? 'Task completed!' : 'Mark a task as done',
+                  isCompleted: hasFirstTask,
                   onTap: () {
                     // Just stay on home - user can complete a task here
                   },
@@ -281,9 +293,9 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
     );
   }
 
-  int _getCompletedCount(bool hasInvited, bool hasProfile) {
+  int _getCompletedCount(bool hasFirstTask, bool hasInvited, bool hasProfile) {
     int count = 0;
-    if (OnboardingProgressService.hasCompletedFirstTask) count++;
+    if (hasFirstTask) count++;
     if (hasInvited) count++;
     if (hasProfile) count++;
     return count;
