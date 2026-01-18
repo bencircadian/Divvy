@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../providers/task_provider.dart';
+import 'undo_completion_snackbar.dart';
 
 /// A reusable animated checkbox for completing tasks.
 ///
@@ -115,6 +116,13 @@ class _AnimatedTaskCheckboxState extends State<AnimatedTaskCheckbox>
       if (mounted) {
         _animationController.reset();
         setState(() => _isAnimatingCompletion = false);
+
+        // Show undo snackbar
+        UndoCompletionSnackbar.show(
+          context: context,
+          task: widget.task,
+          taskProvider: widget.taskProvider,
+        );
       }
     } else {
       // Uncompleting - just do it with haptic

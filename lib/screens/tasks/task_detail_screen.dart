@@ -28,6 +28,7 @@ import '../../widgets/tasks/history_timeline.dart';
 import '../../widgets/tasks/note_input.dart';
 import '../../widgets/tasks/note_tile.dart';
 import '../../widgets/tasks/recurrence_picker.dart';
+import '../../widgets/common/undo_completion_snackbar.dart';
 import '../../widgets/tasks/schedule_suggestion_dialog.dart';
 import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
@@ -567,10 +568,21 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-  void _toggleComplete() {
+  void _toggleComplete() async {
     final task = _getTask();
     if (task != null) {
-      context.read<TaskProvider>().toggleTaskComplete(task);
+      final wasCompleted = task.isCompleted;
+      final taskProvider = context.read<TaskProvider>();
+      await taskProvider.toggleTaskComplete(task);
+
+      // Show undo snackbar only when completing (not uncompleting)
+      if (!wasCompleted && mounted) {
+        UndoCompletionSnackbar.show(
+          context: context,
+          task: task,
+          taskProvider: taskProvider,
+        );
+      }
     }
   }
 

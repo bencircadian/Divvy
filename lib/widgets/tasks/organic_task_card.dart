@@ -8,6 +8,7 @@ import '../../providers/task_provider.dart';
 import '../../utils/accessibility_helpers.dart';
 import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
+import '../common/undo_completion_snackbar.dart';
 
 /// An organic-styled task card with alternating border radius.
 class OrganicTaskCard extends StatefulWidget {
@@ -123,6 +124,13 @@ class _OrganicTaskCardState extends State<OrganicTaskCard>
       if (mounted) {
         _animationController.reset();
         setState(() => _isAnimatingCompletion = false);
+
+        // Show undo snackbar
+        UndoCompletionSnackbar.show(
+          context: context,
+          task: widget.task,
+          taskProvider: widget.taskProvider,
+        );
       }
     } else {
       // Uncompleting - just do it with haptic
