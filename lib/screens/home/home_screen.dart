@@ -143,28 +143,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
 
     // Apply sorting
-    tasks.sort((a, b) {
-      switch (_sortOrder) {
-        case _TaskSortOrder.dueDate:
-          // For completed tasks, sort by completion date (most recent first)
-          if (_activeTab == 'done') {
-            final aCompleted = a.completedAt ?? a.createdAt;
-            final bCompleted = b.completedAt ?? b.createdAt;
-            return bCompleted.compareTo(aCompleted); // Descending (most recent first)
-          }
-          // For pending tasks, sort by due date (soonest first)
-          if (a.dueDate == null && b.dueDate == null) return 0;
-          if (a.dueDate == null) return 1;
-          if (b.dueDate == null) return -1;
-          return a.dueDate!.compareTo(b.dueDate!);
-        case _TaskSortOrder.priority:
-          return b.priority.index.compareTo(a.priority.index);
-        case _TaskSortOrder.createdAt:
-          return b.createdAt.compareTo(a.createdAt);
-        case _TaskSortOrder.alphabetical:
-          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-      }
-    });
+    // For "done" tab, always sort by completion date (most recent first)
+    if (_activeTab == 'done') {
+      tasks.sort((a, b) {
+        final aCompleted = a.completedAt ?? a.createdAt;
+        final bCompleted = b.completedAt ?? b.createdAt;
+        return bCompleted.compareTo(aCompleted);
+      });
+    } else {
+      tasks.sort((a, b) {
+        switch (_sortOrder) {
+          case _TaskSortOrder.dueDate:
+            if (a.dueDate == null && b.dueDate == null) return 0;
+            if (a.dueDate == null) return 1;
+            if (b.dueDate == null) return -1;
+            return a.dueDate!.compareTo(b.dueDate!);
+          case _TaskSortOrder.priority:
+            return b.priority.index.compareTo(a.priority.index);
+          case _TaskSortOrder.createdAt:
+            return b.createdAt.compareTo(a.createdAt);
+          case _TaskSortOrder.alphabetical:
+            return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        }
+      });
+    }
 
     return tasks;
   }
@@ -631,45 +633,47 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           const SizedBox(width: 8),
-          // Sort dropdown button
-          PopupMenuButton<_TaskSortOrder>(
-            initialValue: _sortOrder,
-            onSelected: (order) => setState(() => _sortOrder = order),
-            tooltip: 'Sort by',
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.sort,
-                    size: 20,
-                    color: isDark ? AppColors.textSecondary : Colors.grey[600],
-                  ),
-                ],
-              ),
-            ),
-            itemBuilder: (context) => _TaskSortOrder.values.map((order) {
-              return PopupMenuItem(
-                value: order,
+          // Sort dropdown button (hidden on "done" tab - always sorted by recent)
+          if (_activeTab != 'done')
+            PopupMenuButton<_TaskSortOrder>(
+              initialValue: _sortOrder,
+              onSelected: (order) => setState(() => _sortOrder = order),
+              tooltip: 'Sort by',
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_sortOrder == order)
-                      Icon(Icons.check, size: 18, color: AppColors.primary)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(order.label),
+                    Icon(
+                      Icons.sort,
+                      size: 20,
+                      color: isDark ? AppColors.textSecondary : Colors.grey[600],
+                    ),
                   ],
                 ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(width: 8),
+              ),
+              itemBuilder: (context) => _TaskSortOrder.values.map((order) {
+                return PopupMenuItem(
+                  value: order,
+                  child: Row(
+                    children: [
+                      if (_sortOrder == order)
+                        Icon(Icons.check, size: 18, color: AppColors.primary)
+                      else
+                        const SizedBox(width: 18),
+                      const SizedBox(width: 8),
+                      Text(order.label),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          if (_activeTab != 'done')
+            const SizedBox(width: 8),
           // Search toggle button
           GestureDetector(
             onTap: () {
