@@ -1,4 +1,9 @@
+import 'dart:ui_web' as ui_web;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:web/web.dart' as web;
+
 import '../../config/app_theme.dart';
 import '../../services/profile_avatar_service.dart';
 
@@ -123,22 +128,33 @@ class _MemberAvatarState extends State<MemberAvatar> {
     Widget avatar;
 
     if (_resolvedUrl != null) {
-      // Use Container with DecorationImage for web compatibility
-      avatar = Container(
-        width: widget.radius * 2,
-        height: widget.radius * 2,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: bgColor,
-          image: DecorationImage(
-            image: NetworkImage(_resolvedUrl!),
-            fit: BoxFit.cover,
-            onError: (error, stackTrace) {
-              debugPrint('MemberAvatar: Image load error: $error');
-            },
+      if (kIsWeb) {
+        // On web, use HtmlElementView to bypass CORS restrictions
+        avatar = ClipOval(
+          child: SizedBox(
+            width: widget.radius * 2,
+            height: widget.radius * 2,
+            child: _WebImage(
+              url: _resolvedUrl!,
+              size: widget.radius * 2,
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        // On mobile, use standard NetworkImage
+        avatar = Container(
+          width: widget.radius * 2,
+          height: widget.radius * 2,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: bgColor,
+            image: DecorationImage(
+              image: NetworkImage(_resolvedUrl!),
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
+      }
     } else {
       avatar = _buildInitials(bgColor, fgColor);
     }
@@ -166,6 +182,48 @@ class _MemberAvatarState extends State<MemberAvatar> {
         ),
       ],
     );
+  }
+}
+
+/// Web-specific image widget that uses HtmlElementView to bypass CORS.
+class _WebImage extends StatefulWidget {
+  final String url;
+  final double size;
+
+  const _WebImage({required this.url, required this.size});
+
+  @override
+  State<_WebImage> createState() => _WebImageState();
+}
+
+class _WebImageState extends State<_WebImage> {
+  late String _viewType;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewType = 'avatar-img-${widget.url.hashCode}-${DateTime.now().millisecondsSinceEpoch}';
+    _registerView();
+  }
+
+  void _registerView() {
+    ui_web.platformViewRegistry.registerViewFactory(
+      _viewType,
+      (int viewId) {
+        final img = web.HTMLImageElement()
+          ..src = widget.url
+          ..style.width = '100%'
+          ..style.height = '100%'
+          ..style.objectFit = 'cover'
+          ..style.borderRadius = '50%';
+        return img;
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return HtmlElementView(viewType: _viewType);
   }
 }
 
