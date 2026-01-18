@@ -878,10 +878,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildWorkloadCard(TaskProvider provider, List members) {
     final pendingTasks = provider.pendingTasks;
-    final workload = <String, int>{};
-    int unassigned = 0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    if (pendingTasks.isEmpty) {
+      return _buildEmptyWorkloadCard(isDark);
+    }
+
+    // Calculate workload distribution
+    final workload = <String, int>{};
+    int unassigned = 0;
     for (final task in pendingTasks) {
       if (task.assignedTo != null) {
         workload[task.assignedTo!] = (workload[task.assignedTo!] ?? 0) + 1;
@@ -890,36 +895,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     }
 
-    if (pendingTasks.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.celebration, color: AppColors.success, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'All caught up! No pending tasks.',
-                  style: TextStyle(
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    // Build segments for the bar chart
+    final segments = _buildWorkloadSegments(members, workload, unassigned);
+    final totalTasks = pendingTasks.length;
 
-    // Build segments for each member
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$totalTasks pending task${totalTasks != 1 ? 's' : ''}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.grey[900],
+              ),
+            ),
+            SizedBox(height: AppSpacing.md),
+            StackedBarChart(
+              segments: segments,
+              height: 32,
+              showLegend: true,
+              showValues: true,
+            ),
+            if (unassigned > 0)
+              _buildUnassignedTasksBanner(unassigned, provider, members),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyWorkloadCard(bool isDark) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.celebration, color: AppColors.success, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                'All caught up! No pending tasks.',
+                style: TextStyle(
+                  color: isDark ? Colors.grey[300] : Colors.grey[700],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<BarSegment> _buildWorkloadSegments(
+    List members,
+    Map<String, int> workload,
+    int unassigned,
+  ) {
     final memberIds = members.map((m) => m.userId as String).toList();
     final segments = <BarSegment>[];
 
@@ -935,7 +977,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     }
 
-    // Add unassigned segment if there are any
     if (unassigned > 0) {
       segments.add(BarSegment(
         id: 'unassigned',
@@ -945,65 +986,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ));
     }
 
-    final totalTasks = pendingTasks.length;
+    return segments;
+  }
 
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  '$totalTasks pending task${totalTasks != 1 ? 's' : ''}',
+  Widget _buildUnassignedTasksBanner(
+    int unassigned,
+    TaskProvider provider,
+    List members,
+  ) {
+    return Padding(
+      padding: EdgeInsets.only(top: AppSpacing.md),
+      child: InkWell(
+        onTap: () => _showUnassignedTasksSheet(provider, members),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            color: AppColors.warning.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.warning_amber, size: 16, color: Colors.orange[700]),
+              SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  'Tap to assign $unassigned task${unassigned > 1 ? 's' : ''}',
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.grey[900],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: AppSpacing.md),
-            StackedBarChart(
-              segments: segments,
-              height: 32,
-              showLegend: true,
-              showValues: true,
-            ),
-            if (unassigned > 0) ...[
-              SizedBox(height: AppSpacing.md),
-              InkWell(
-                onTap: () => _showUnassignedTasksSheet(provider, members),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.warning_amber, size: 16, color: Colors.orange[700]),
-                      SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          'Tap to assign $unassigned task${unassigned > 1 ? 's' : ''}',
-                          style: TextStyle(
-                            color: Colors.orange[700],
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Icon(Icons.chevron_right, size: 18, color: Colors.orange[700]),
-                    ],
+                    color: Colors.orange[700],
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
+              Icon(Icons.chevron_right, size: 18, color: Colors.orange[700]),
             ],
-          ],
+          ),
         ),
       ),
     );

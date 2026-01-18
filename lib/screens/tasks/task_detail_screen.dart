@@ -729,234 +729,246 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cover image section
           _buildCoverImageSection(task),
-
-          // Schedule suggestion banner (for recurring tasks)
-          if (_scheduleSuggestion != null)
-            Padding(
-              padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
-              child: ScheduleSuggestionBanner(
-                suggestion: _scheduleSuggestion!,
-                onTap: _showSuggestionDialog,
-                onDismiss: () async {
-                  await _recurrenceService.dismissSuggestion(_scheduleSuggestion!.taskId);
-                  if (mounted) {
-                    setState(() => _scheduleSuggestion = null);
-                  }
-                },
-              ),
-            ),
-
+          if (_scheduleSuggestion != null) _buildScheduleSuggestionBanner(),
           Padding(
             padding: EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-          // Status and complete button
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        task.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-                        color: task.isCompleted ? Colors.green : Colors.grey,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            task.isCompleted ? 'Completed' : 'Pending',
-                            style: theme.textTheme.titleMedium,
-                          ),
-                          if (task.completedAt != null)
-                            Text(
-                              'Completed ${DateFormat('MMM d, yyyy').format(task.completedAt!)}',
-                              style: theme.textTheme.bodySmall,
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.tonal(
-                      onPressed: _toggleComplete,
-                      child: Text(task.isCompleted ? 'Mark Pending' : 'Mark Complete'),
-                    ),
-                  ),
-                  // Add to Bundle button (only shown if bundles enabled)
-                  if (context.watch<AuthProvider>().bundlesEnabled ?? true) ...[
-                    SizedBox(height: AppSpacing.sm),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showAddToBundleSheet(task),
-                        icon: const Icon(Icons.folder_outlined),
-                        label: Text(task.bundleId != null ? 'In Bundle' : 'Add to Bundle'),
-                      ),
-                    ),
-                  ],
-                  if (!task.isCompleted) ...[
-                    SizedBox(height: AppSpacing.sm),
-                    SizedBox(
-                      width: double.infinity,
-                      child: _buildTakeOwnershipButton(task),
-                    ),
-                  ] else ...[
-                    // Appreciation and claim credit for completed tasks
-                    SizedBox(height: AppSpacing.sm),
-                    Row(
-                      children: [
-                        // Appreciation button (only show if not your own task)
-                        if (task.completedBy != null &&
-                            task.completedBy != SupabaseService.currentUser?.id)
-                          AppreciationButton(
-                            hasAppreciated: _myAppreciation != null,
-                            reactionType: _myAppreciation?.reactionType,
-                            appreciationCount: _appreciationCount,
-                            isLoading: _isAppreciationLoading,
-                            onTap: () => _sendAppreciation(
-                              _myAppreciation?.reactionType ?? 'thanks',
-                            ),
-                            onLongPress: _sendAppreciation,
-                          ),
-                        if (task.completedBy != null &&
-                            task.completedBy != SupabaseService.currentUser?.id)
-                          SizedBox(width: AppSpacing.sm),
-                        // Claim credit button
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => _showClaimCreditSheet(task),
-                            icon: const Icon(Icons.people_outline),
-                            label: Text(_contributors.isEmpty
-                                ? 'Claim Credit'
-                                : 'Contributors (${_contributors.length})'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (_contributors.isNotEmpty) ...[
-                      SizedBox(height: AppSpacing.sm),
-                      ContributorChips(contributors: _contributors),
-                    ],
-                  ],
+                _buildStatusCard(task, theme),
+                SizedBox(height: AppSpacing.md),
+                _buildTitleSection(task, theme),
+                _buildCategoryBadge(task),
+                SizedBox(height: AppSpacing.md),
+                if (task.description != null && task.description!.isNotEmpty)
+                  _buildDescriptionSection(task, theme),
+                SizedBox(height: AppSpacing.md),
+                _buildMetadataChips(task),
+                SizedBox(height: AppSpacing.lg),
+                const Divider(),
+                _buildNotesSection(),
+                SizedBox(height: AppSpacing.lg),
+                const Divider(),
+                _buildHistorySection(),
+                if (_getTask()?.isRecurring == true) ...[
+                  SizedBox(height: AppSpacing.lg),
+                  const Divider(),
+                  _buildRecurringHistorySection(),
                 ],
-              ),
-            ),
-          ),
-          SizedBox(height: AppSpacing.md),
-
-          // Title
-          Text(
-            task.title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-            ),
-          ),
-          SizedBox(height: AppSpacing.sm),
-
-          // Category badge
-          _buildCategoryBadge(task),
-          SizedBox(height: AppSpacing.md),
-
-          // Description
-          if (task.description != null && task.description!.isNotEmpty) ...[
-            Text(
-              task.description!,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[700],
-              ),
-            ),
-            SizedBox(height: AppSpacing.md),
-          ],
-
-          SizedBox(height: AppSpacing.md),
-
-          // Task metadata chips in a wrap layout
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              // Due date
-              _buildDetailChip(
-                icon: Icons.schedule,
-                label: 'Due',
-                value: task.dueDate != null
-                    ? TaskDateUtils.formatDueDate(task.dueDate!, period: task.duePeriod)
-                    : 'No due date',
-                iconColor: task.isOverdue ? Colors.red : Colors.blue,
-                isOverdue: task.isOverdue,
-              ),
-
-              // Priority
-              _buildDetailChip(
-                icon: Icons.flag_rounded,
-                label: 'Priority',
-                value: task.priority.name[0].toUpperCase() + task.priority.name.substring(1),
-                iconColor: task.priority == TaskPriority.high
-                    ? Colors.red
-                    : task.priority == TaskPriority.low
-                        ? Colors.grey
-                        : Colors.orange,
-              ),
-
-              // Assigned to
-              _buildDetailChip(
-                icon: Icons.person_rounded,
-                label: 'Assigned to',
-                value: task.assignedToName ?? 'Unassigned',
-                iconColor: task.assignedTo != null ? AppColors.success : Colors.grey,
-              ),
-
-              // Created by
-              _buildDetailChip(
-                icon: Icons.edit_rounded,
-                label: 'Created by',
-                value: task.createdByName ?? 'Unknown',
-                iconColor: Colors.purple,
-              ),
-
-              // Created at
-              _buildDetailChip(
-                icon: Icons.calendar_today_rounded,
-                label: 'Created',
-                value: DateFormat('MMM d, yyyy').format(task.createdAt),
-                iconColor: Colors.teal,
-              ),
-            ],
-          ),
-
-          SizedBox(height: AppSpacing.lg),
-          const Divider(),
-
-          // Notes section
-          _buildNotesSection(),
-
-          SizedBox(height: AppSpacing.lg),
-          const Divider(),
-
-          // History section
-          _buildHistorySection(),
-
-          // Recurring completion history (only for recurring tasks)
-          if (_getTask()?.isRecurring == true) ...[
-            SizedBox(height: AppSpacing.lg),
-            const Divider(),
-            _buildRecurringHistorySection(),
-          ],
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildScheduleSuggestionBanner() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+      child: ScheduleSuggestionBanner(
+        suggestion: _scheduleSuggestion!,
+        onTap: _showSuggestionDialog,
+        onDismiss: () async {
+          await _recurrenceService.dismissSuggestion(_scheduleSuggestion!.taskId);
+          if (mounted) {
+            setState(() => _scheduleSuggestion = null);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusCard(Task task, ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStatusHeader(task, theme),
+            const SizedBox(height: 12),
+            _buildStatusButtons(task),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusHeader(Task task, ThemeData theme) {
+    return Row(
+      children: [
+        Icon(
+          task.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: task.isCompleted ? Colors.green : Colors.grey,
+          size: 32,
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              task.isCompleted ? 'Completed' : 'Pending',
+              style: theme.textTheme.titleMedium,
+            ),
+            if (task.completedAt != null)
+              Text(
+                'Completed ${DateFormat('MMM d, yyyy').format(task.completedAt!)}',
+                style: theme.textTheme.bodySmall,
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusButtons(Task task) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.tonal(
+            onPressed: _toggleComplete,
+            child: Text(task.isCompleted ? 'Mark Pending' : 'Mark Complete'),
+          ),
+        ),
+        if (context.watch<AuthProvider>().bundlesEnabled ?? true) ...[
+          SizedBox(height: AppSpacing.sm),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _showAddToBundleSheet(task),
+              icon: const Icon(Icons.folder_outlined),
+              label: Text(task.bundleId != null ? 'In Bundle' : 'Add to Bundle'),
+            ),
+          ),
+        ],
+        if (!task.isCompleted) ...[
+          SizedBox(height: AppSpacing.sm),
+          SizedBox(
+            width: double.infinity,
+            child: _buildTakeOwnershipButton(task),
+          ),
+        ] else ...[
+          SizedBox(height: AppSpacing.sm),
+          _buildCompletedTaskActions(task),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildCompletedTaskActions(Task task) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            if (task.completedBy != null &&
+                task.completedBy != SupabaseService.currentUser?.id) ...[
+              AppreciationButton(
+                hasAppreciated: _myAppreciation != null,
+                reactionType: _myAppreciation?.reactionType,
+                appreciationCount: _appreciationCount,
+                isLoading: _isAppreciationLoading,
+                onTap: () => _sendAppreciation(
+                  _myAppreciation?.reactionType ?? 'thanks',
+                ),
+                onLongPress: _sendAppreciation,
+              ),
+              SizedBox(width: AppSpacing.sm),
+            ],
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _showClaimCreditSheet(task),
+                icon: const Icon(Icons.people_outline),
+                label: Text(_contributors.isEmpty
+                    ? 'Claim Credit'
+                    : 'Contributors (${_contributors.length})'),
+              ),
+            ),
+          ],
+        ),
+        if (_contributors.isNotEmpty) ...[
+          SizedBox(height: AppSpacing.sm),
+          ContributorChips(contributors: _contributors),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildTitleSection(Task task, ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          task.title,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        SizedBox(height: AppSpacing.sm),
+      ],
+    );
+  }
+
+  Widget _buildDescriptionSection(Task task, ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          task.description!,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: Colors.grey[700],
+          ),
+        ),
+        SizedBox(height: AppSpacing.md),
+      ],
+    );
+  }
+
+  Widget _buildMetadataChips(Task task) {
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      children: [
+        _buildDetailChip(
+          icon: Icons.schedule,
+          label: 'Due',
+          value: task.dueDate != null
+              ? TaskDateUtils.formatDueDate(task.dueDate!, period: task.duePeriod)
+              : 'No due date',
+          iconColor: task.isOverdue ? Colors.red : Colors.blue,
+          isOverdue: task.isOverdue,
+        ),
+        _buildDetailChip(
+          icon: Icons.flag_rounded,
+          label: 'Priority',
+          value: task.priority.name[0].toUpperCase() + task.priority.name.substring(1),
+          iconColor: task.priority == TaskPriority.high
+              ? Colors.red
+              : task.priority == TaskPriority.low
+                  ? Colors.grey
+                  : Colors.orange,
+        ),
+        _buildDetailChip(
+          icon: Icons.person_rounded,
+          label: 'Assigned to',
+          value: task.assignedToName ?? 'Unassigned',
+          iconColor: task.assignedTo != null ? AppColors.success : Colors.grey,
+        ),
+        _buildDetailChip(
+          icon: Icons.edit_rounded,
+          label: 'Created by',
+          value: task.createdByName ?? 'Unknown',
+          iconColor: Colors.purple,
+        ),
+        _buildDetailChip(
+          icon: Icons.calendar_today_rounded,
+          label: 'Created',
+          value: DateFormat('MMM d, yyyy').format(task.createdAt),
+          iconColor: Colors.teal,
+        ),
+      ],
     );
   }
 

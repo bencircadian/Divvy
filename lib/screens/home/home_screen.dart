@@ -466,117 +466,132 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             Row(
               children: [
-                // Circular progress
-                SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: CustomPaint(
-                    painter: _CircularProgressPainter(
-                      progress: progress,
-                      progressColor: AppColors.primary,
-                      backgroundColor: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.grey.withValues(alpha: 0.2),
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isDark ? const Color(0xFF162E22) : Colors.white,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$completed',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? AppColors.textPrimary : Colors.grey[800],
-                            ),
-                          ),
-                        ),
-                      ),
+                _buildCircularProgress(progress, completed, isDark),
+                const SizedBox(width: 16),
+                _buildProgressText(context, completed, isDark),
+              ],
+            ),
+            if (dashboardProvider.taskCounts.isNotEmpty)
+              _buildMemberBreakdownChips(dashboardProvider, members, isDark),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircularProgress(double progress, int completed, bool isDark) {
+    return SizedBox(
+      width: 56,
+      height: 56,
+      child: CustomPaint(
+        painter: _CircularProgressPainter(
+          progress: progress,
+          progressColor: AppColors.primary,
+          backgroundColor: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.grey.withValues(alpha: 0.2),
+        ),
+        child: Center(
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isDark ? const Color(0xFF162E22) : Colors.white,
+            ),
+            child: Center(
+              child: Text(
+                '$completed',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? AppColors.textPrimary : Colors.grey[800],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressText(BuildContext context, int completed, bool isDark) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "This week's progress",
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark
+                  ? AppColors.textSecondary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '$completed tasks completed',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.textPrimary : Colors.grey[900],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMemberBreakdownChips(
+    DashboardProvider dashboardProvider,
+    List members,
+    bool isDark,
+  ) {
+    return Padding(
+      padding: EdgeInsets.only(top: AppSpacing.md),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 8,
+        children: members.map((member) {
+          final count = dashboardProvider.taskCounts[member.userId] ?? 0;
+          final name = member.displayName ?? 'Unknown';
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.white.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 10,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                  child: Text(
+                    name[0].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "This week's progress",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDark
-                              ? AppColors.textSecondary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '$completed tasks completed',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.textPrimary : Colors.grey[900],
-                        ),
-                      ),
-                    ],
+                const SizedBox(width: 6),
+                Text(
+                  '$name: $count',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? AppColors.textPrimary : Colors.grey[800],
                   ),
                 ),
               ],
             ),
-            // Per-person breakdown
-            if (dashboardProvider.taskCounts.isNotEmpty) ...[
-              SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                children: members.map((member) {
-                  final count = dashboardProvider.taskCounts[member.userId] ?? 0;
-                  final name = member.displayName ?? 'Unknown';
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : Colors.white.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircleAvatar(
-                          radius: 10,
-                          backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                          child: Text(
-                            name[0].toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '$name: $count',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? AppColors.textPrimary : Colors.grey[800],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ],
-        ),
+          );
+        }).toList(),
       ),
     );
   }
