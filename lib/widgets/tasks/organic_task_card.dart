@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/app_theme.dart';
 import '../../models/task.dart';
 import '../../providers/task_provider.dart';
+import '../../utils/accessibility_helpers.dart';
 import '../../utils/category_utils.dart';
 import '../../utils/date_utils.dart';
 
@@ -58,14 +59,18 @@ class OrganicTaskCard extends StatelessWidget {
     final swipeIcon = task.isCompleted ? Icons.replay : Icons.check;
     final swipeText = task.isCompleted ? 'Undo' : 'Done';
 
-    return Dismissible(
-      key: Key(task.id),
-      direction: DismissDirection.endToStart,
-      confirmDismiss: (_) async {
-        HapticFeedback.mediumImpact();
-        await taskProvider.toggleTaskComplete(task);
-        return false; // Don't dismiss, just toggle
-      },
+    return Semantics(
+      label: AccessibilityHelpers.getTaskSemanticLabel(task),
+      hint: AccessibilityHelpers.getTaskHint(task),
+      button: true,
+      child: Dismissible(
+        key: Key(task.id),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: (_) async {
+          HapticFeedback.mediumImpact();
+          await taskProvider.toggleTaskComplete(task);
+          return false; // Don't dismiss, just toggle
+        },
       background: Container(
         margin: const EdgeInsets.fromLTRB(24, 0, 24, 12),
         decoration: BoxDecoration(
@@ -227,9 +232,10 @@ class OrganicTaskCard extends StatelessWidget {
               ],
             ),
           ),
+          ),
         ),
-      ),
-      ), // Dismissible
+        ), // Dismissible
+      ), // Semantics
     );
   }
 }

@@ -10,6 +10,8 @@ class EmptyState extends StatelessWidget {
   final String? subtitle;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final String? secondaryActionLabel;
+  final VoidCallback? onSecondaryAction;
   final Color? iconColor;
   final double iconSize;
 
@@ -20,9 +22,28 @@ class EmptyState extends StatelessWidget {
     this.subtitle,
     this.actionLabel,
     this.onAction,
+    this.secondaryActionLabel,
+    this.onSecondaryAction,
     this.iconColor,
     this.iconSize = 64,
   });
+
+  /// Factory constructor for new user welcome state
+  factory EmptyState.forNewUser({
+    required VoidCallback onCreateTask,
+    VoidCallback? onExplore,
+  }) {
+    return EmptyState(
+      icon: Icons.task_alt,
+      title: 'Welcome to Divvy!',
+      subtitle: 'Get started by creating your first task or exploring templates.',
+      actionLabel: 'Create Task',
+      onAction: onCreateTask,
+      secondaryActionLabel: onExplore != null ? 'Explore Templates' : null,
+      onSecondaryAction: onExplore,
+      iconColor: AppColors.primary,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +85,13 @@ class EmptyState extends StatelessWidget {
                 onPressed: onAction,
                 icon: const Icon(Icons.add),
                 label: Text(actionLabel!),
+              ),
+            ],
+            if (secondaryActionLabel != null && onSecondaryAction != null) ...[
+              SizedBox(height: AppSpacing.sm),
+              TextButton(
+                onPressed: onSecondaryAction,
+                child: Text(secondaryActionLabel!),
               ),
             ],
           ],

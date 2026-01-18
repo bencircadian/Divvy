@@ -10,6 +10,9 @@ import '../../providers/household_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../services/supabase_service.dart';
 
+/// Household type options for multi-path onboarding
+enum HouseholdType { family, couple, solo }
+
 class QuickSetupScreen extends StatefulWidget {
   const QuickSetupScreen({super.key});
 
@@ -18,8 +21,12 @@ class QuickSetupScreen extends StatefulWidget {
 }
 
 class _QuickSetupScreenState extends State<QuickSetupScreen> {
+  // Page controller for smooth transitions
+  final PageController _pageController = PageController();
+
   // Quiz state
   int _currentStep = 0;
+  HouseholdType? _householdType;
   bool? _hasPets;
   bool? _hasChildren;
   final List<String> _petNames = [];
@@ -33,17 +40,88 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
   bool _isCreating = false;
   String? _error;
 
+  // Total steps varies based on path:
+  // With pets + children: 0(household) -> 1(pets?) -> 2(pet names) -> 3(children?) -> 4(child names) -> 5(templates) -> 6(review)
+  // Maximum steps: 7
+  int get _totalSteps {
+    int steps = 3; // household type + templates + review
+    if (_hasPets == true) steps++; // pet names
+    if (_hasChildren == true || (_householdType == HouseholdType.family && _hasChildren != false)) steps++; // child names
+    // Add pet question step if family or couple
+    if (_householdType != null) steps++;
+    // Add children question step if family
+    if (_householdType == HouseholdType.family) steps++;
+    return steps;
+  }
+
+  // Calculate current progress (0-1)
+  double get _progress {
+    if (_currentStep == 0) return 0.1;
+    // Map current step to progress
+    switch (_currentStep) {
+      case 1: return 0.2;
+      case 2: return _hasPets == true ? 0.35 : 0.4;
+      case 3: return _hasPets == true ? 0.5 : 0.6;
+      case 4: return 0.7;
+      case 5: return 0.85;
+      case 6: return 0.95;
+      default: return 1.0;
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   void _nextStep() {
     setState(() => _currentStep++);
-    if (_currentStep == 4) {
+    _pageController.animateToPage(
+      _currentStep,
+      duration: AppAnimations.pageTransition,
+      curve: AppAnimations.defaultCurve,
+    );
+    if (_shouldLoadTemplates()) {
       _loadTemplates();
     }
+  }
+
+  bool _shouldLoadTemplates() {
+    // Load templates when we reach the template selection step
+    if (_householdType == HouseholdType.solo && _currentStep == 2) return true;
+    if (_householdType == HouseholdType.couple && (_currentStep == 3 || (_hasPets == true && _currentStep == 4))) return true;
+    if (_householdType == HouseholdType.family) {
+      // Family has more steps
+      if (_hasPets != true && _hasChildren != true && _currentStep == 3) return true;
+      if (_hasPets == true && _hasChildren != true && _currentStep == 4) return true;
+      if (_hasPets != true && _hasChildren == true && _currentStep == 4) return true;
+      if (_hasPets == true && _hasChildren == true && _currentStep == 5) return true;
+    }
+    return false;
+  }
+
+  void _goToStep(int step) {
+    setState(() => _currentStep = step);
+    _pageController.animateToPage(
+      step,
+      duration: AppAnimations.pageTransition,
+      curve: AppAnimations.defaultCurve,
+    );
+  }
+
+  void _skipToTemplates() {
+    // Skip all context questions and go directly to templates
+    setState(() {
+      _hasPets = false;
+      _hasChildren = false;
+    });
+    _loadTemplates();
+    // Go to templates step
+    int templatesStep = _householdType == HouseholdType.solo ? 2 :
+                        _householdType == HouseholdType.couple ? 3 : 3;
+    _goToStep(templatesStep);
   }
 
   void _addName(List<String> list) {
@@ -76,12 +154,46 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
             .map((json) => TaskTemplate.fromJson(json))
             .toList();
         _isLoading = false;
+        _preselectTemplates();
       });
     } catch (e) {
       setState(() {
         _error = 'Failed to load templates';
         _isLoading = false;
       });
+    }
+  }
+
+  /// Pre-select templates based on household type
+  void _preselectTemplates() {
+    // Select common templates based on household type
+    final categoriesToSelect = <String>{};
+
+    switch (_householdType) {
+      case HouseholdType.family:
+        categoriesToSelect.addAll(['kitchen', 'bathroom', 'living', 'laundry']);
+        if (_hasChildren == true) categoriesToSelect.add('children');
+        if (_hasPets == true) categoriesToSelect.add('pet');
+        break;
+      case HouseholdType.couple:
+        categoriesToSelect.addAll(['kitchen', 'bathroom', 'laundry']);
+        if (_hasPets == true) categoriesToSelect.add('pet');
+        break;
+      case HouseholdType.solo:
+        categoriesToSelect.addAll(['kitchen', 'bathroom']);
+        break;
+      default:
+        break;
+    }
+
+    // Select daily/weekly tasks from these categories
+    for (final template in _filteredTemplates) {
+      if (categoriesToSelect.contains(template.category)) {
+        final frequency = template.suggestedRecurrence?['frequency'] as String?;
+        if (frequency == 'daily' || frequency == 'weekly') {
+          _toggleTemplate(template, preselect: true);
+        }
+      }
     }
   }
 
@@ -132,12 +244,12 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
     }
   }
 
-  void _toggleTemplate(TaskTemplate template) {
+  void _toggleTemplate(TaskTemplate template, {bool preselect = false}) {
     setState(() {
       final key = _getTaskKey(template);
-      if (_selectedTasks.containsKey(key)) {
+      if (!preselect && _selectedTasks.containsKey(key)) {
         _selectedTasks.remove(key);
-      } else {
+      } else if (!_selectedTasks.containsKey(key)) {
         // Create editable task with name substitution
         String title = template.title;
         String description = template.description ?? '';
@@ -216,7 +328,9 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
       } else {
         // Select all in category
         for (final t in categoryTemplates) {
-          _toggleTemplate(t);
+          if (!_isTemplateSelected(t)) {
+            _toggleTemplate(t);
+          }
         }
       }
     });
@@ -280,119 +394,226 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentStep < 4 ? 'Quick Setup' : 'Choose Tasks'),
+        title: Text(_getStepTitle()),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           TextButton(
             onPressed: _skip,
-            child: const Text('Skip'),
+            child: const Text('Skip all'),
           ),
         ],
       ),
-      body: _buildBody(),
+      body: Column(
+        children: [
+          // Progress indicator
+          _buildProgressIndicator(isDark),
+
+          // Page content
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) => setState(() => _currentStep = index),
+              children: _buildPages(),
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: _buildBottomBar(),
     );
   }
 
-  Widget _buildBody() {
+  String _getStepTitle() {
     switch (_currentStep) {
       case 0:
-        return _buildPetsQuestion();
-      case 1:
-        return _buildPetNamesEntry();
-      case 2:
-        return _buildChildrenQuestion();
-      case 3:
-        return _buildChildrenNamesEntry();
-      case 4:
-        return _buildTemplateSelection();
-      case 5:
-        return _buildReviewTasks();
+        return 'Quick Setup';
       default:
-        return const SizedBox.shrink();
+        return _isTemplateStep() ? 'Choose Tasks' : 'Quick Setup';
     }
   }
 
-  Widget? _buildBottomBar() {
-    if (_currentStep < 4) return null;
-    if (_isLoading || _error != null) return null;
+  bool _isTemplateStep() {
+    if (_householdType == null) return false;
+    // Check if current step is the template selection step
+    return _templates.isNotEmpty && !_isLoading;
+  }
 
-    if (_currentStep == 4) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: FilledButton(
-            onPressed: _selectedTasks.isEmpty
-                ? _skip
-                : () => setState(() => _currentStep = 5),
-            child: Text(
-              _selectedTasks.isEmpty
-                  ? 'Continue without tasks'
-                  : 'Review ${_selectedTasks.length} task${_selectedTasks.length == 1 ? '' : 's'}',
+  Widget _buildProgressIndicator(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+      child: Column(
+        children: [
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: _progress,
+              backgroundColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.grey[200],
+              minHeight: 6,
             ),
           ),
-        ),
-      );
-    }
-
-    if (_currentStep == 5) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
+          const SizedBox(height: 8),
+          // Step indicator text
+          Text(
+            _getProgressText(),
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? AppColors.textSecondary : Colors.grey[600],
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => setState(() => _currentStep = 4),
-                  child: const Text('Back'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 2,
-                child: FilledButton(
-                  onPressed: _isCreating ? null : _createTasks,
-                  child: _isCreating
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text('Create ${_selectedTasks.length} tasks'),
-                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getProgressText() {
+    if (_currentStep == 0) return 'Tell us about your household';
+    if (_isLoading) return 'Loading templates...';
+    if (_templates.isNotEmpty && _currentStep >= _totalSteps - 2) {
+      return _currentStep == _totalSteps - 1
+          ? 'Review your tasks'
+          : 'Select tasks to add';
+    }
+    return 'Personalizing your experience...';
+  }
+
+  List<Widget> _buildPages() {
+    return [
+      _buildHouseholdTypeQuestion(),
+      _buildPetsQuestion(),
+      _buildPetNamesEntry(),
+      _buildChildrenQuestion(),
+      _buildChildrenNamesEntry(),
+      _buildTemplateSelection(),
+      _buildReviewTasks(),
+    ];
+  }
+
+  Widget? _buildBottomBar() {
+    // Template selection step
+    if (_templates.isNotEmpty && !_isLoading && _currentStep >= _totalSteps - 2) {
+      if (_currentStep == _totalSteps - 2) {
+        // Template selection
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
               ),
             ],
           ),
-        ),
-      );
+          child: SafeArea(
+            child: FilledButton(
+              onPressed: _selectedTasks.isEmpty
+                  ? _skip
+                  : () => _goToStep(_totalSteps - 1),
+              child: Text(
+                _selectedTasks.isEmpty
+                    ? 'Continue without tasks'
+                    : 'Review ${_selectedTasks.length} task${_selectedTasks.length == 1 ? '' : 's'}',
+              ),
+            ),
+          ),
+        );
+      } else if (_currentStep == _totalSteps - 1) {
+        // Review step
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _goToStep(_totalSteps - 2),
+                    child: const Text('Back'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: FilledButton(
+                    onPressed: _isCreating ? null : _createTasks,
+                    child: _isCreating
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text('Create ${_selectedTasks.length} tasks'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
     }
 
     return null;
+  }
+
+  Widget _buildHouseholdTypeQuestion() {
+    return _buildQuestionCard(
+      icon: Icons.home_outlined,
+      iconColor: AppColors.primary,
+      question: 'What describes your household?',
+      subtitle: 'We\'ll personalize your task suggestions',
+      options: [
+        _QuizOption(
+          label: 'Family with kids',
+          icon: Icons.family_restroom,
+          description: 'Multiple generations, children\'s activities',
+          onTap: () {
+            setState(() => _householdType = HouseholdType.family);
+            _nextStep();
+          },
+        ),
+        _QuizOption(
+          label: 'Couple / Roommates',
+          icon: Icons.people_outline,
+          description: 'Two or more adults sharing space',
+          onTap: () {
+            setState(() => _householdType = HouseholdType.couple);
+            _nextStep();
+          },
+        ),
+        _QuizOption(
+          label: 'Living alone',
+          icon: Icons.person_outline,
+          description: 'Just you, keeping things organized',
+          onTap: () {
+            setState(() => _householdType = HouseholdType.solo);
+            _loadTemplates();
+            _goToStep(5); // Skip to templates
+          },
+        ),
+      ],
+      showSkip: true,
+      onSkip: _skipToTemplates,
+    );
   }
 
   Widget _buildPetsQuestion() {
@@ -414,13 +635,27 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
           label: 'No pets',
           icon: Icons.cancel,
           onTap: () {
-            setState(() {
-              _hasPets = false;
-              _currentStep = 2; // Skip pet names
-            });
+            setState(() => _hasPets = false);
+            // Skip pet names, go to children question or templates
+            if (_householdType == HouseholdType.family) {
+              _goToStep(3); // Children question
+            } else {
+              _loadTemplates();
+              _goToStep(5); // Templates
+            }
           },
         ),
       ],
+      showSkip: true,
+      onSkip: () {
+        setState(() => _hasPets = false);
+        if (_householdType == HouseholdType.family) {
+          _goToStep(3);
+        } else {
+          _loadTemplates();
+          _goToStep(5);
+        }
+      },
     );
   }
 
@@ -435,10 +670,24 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
       onRemove: (name) => _removeName(_petNames, name),
       onContinue: () {
         if (_petNames.isNotEmpty) {
-          _nextStep();
+          if (_householdType == HouseholdType.family) {
+            _nextStep(); // Go to children question
+          } else {
+            _loadTemplates();
+            _goToStep(5); // Go to templates
+          }
         }
       },
       canContinue: _petNames.isNotEmpty,
+      showSkip: true,
+      onSkip: () {
+        if (_householdType == HouseholdType.family) {
+          _goToStep(3);
+        } else {
+          _loadTemplates();
+          _goToStep(5);
+        }
+      },
     );
   }
 
@@ -461,14 +710,18 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
           label: 'No children',
           icon: Icons.cancel,
           onTap: () {
-            setState(() {
-              _hasChildren = false;
-              _currentStep = 4; // Skip to templates
-            });
+            setState(() => _hasChildren = false);
             _loadTemplates();
+            _goToStep(5); // Go to templates
           },
         ),
       ],
+      showSkip: true,
+      onSkip: () {
+        setState(() => _hasChildren = false);
+        _loadTemplates();
+        _goToStep(5);
+      },
     );
   }
 
@@ -483,10 +736,16 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
       onRemove: (name) => _removeName(_childrenNames, name),
       onContinue: () {
         if (_childrenNames.isNotEmpty) {
-          _nextStep();
+          _loadTemplates();
+          _goToStep(5);
         }
       },
       canContinue: _childrenNames.isNotEmpty,
+      showSkip: true,
+      onSkip: () {
+        _loadTemplates();
+        _goToStep(5);
+      },
     );
   }
 
@@ -496,6 +755,8 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
     required String question,
     required String subtitle,
     required List<_QuizOption> options,
+    bool showSkip = false,
+    VoidCallback? onSkip,
   }) {
     return Center(
       child: SingleChildScrollView(
@@ -533,16 +794,52 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton.icon(
+                    child: OutlinedButton(
                       onPressed: opt.onTap,
-                      icon: Icon(opt.icon),
-                      label: Text(opt.label),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(opt.icon),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  opt.label,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                if (opt.description != null)
+                                  Text(
+                                    opt.description!,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right),
+                        ],
                       ),
                     ),
                   ),
                 )),
+            if (showSkip && onSkip != null) ...[
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: onSkip,
+                child: Text(
+                  'Skip this question',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -559,6 +856,8 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
     required void Function(String) onRemove,
     required VoidCallback onContinue,
     required bool canContinue,
+    bool showSkip = false,
+    VoidCallback? onSkip,
   }) {
     return Center(
       child: SingleChildScrollView(
@@ -628,6 +927,18 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
                 child: const Text('Continue'),
               ),
             ),
+            if (showSkip && onSkip != null) ...[
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: onSkip,
+                child: Text(
+                  'Skip this step',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -671,7 +982,7 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Select tasks to add to your household',
+                      'We\'ve pre-selected some tasks for you based on your household.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
@@ -688,7 +999,7 @@ class _QuickSetupScreenState extends State<QuickSetupScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'You can change the frequency of tasks on the next page',
+                      'Tap to select/deselect. You can edit tasks on the next page.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -897,11 +1208,13 @@ class _QuizOption {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
+  final String? description;
 
   _QuizOption({
     required this.label,
     required this.icon,
     required this.onTap,
+    this.description,
   });
 }
 

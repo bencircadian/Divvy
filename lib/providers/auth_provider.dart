@@ -9,6 +9,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/user_profile.dart';
+import '../services/error_service.dart';
 import '../services/supabase_service.dart';
 
 enum AuthStatus { initial, authenticated, unauthenticated }
@@ -130,9 +131,18 @@ class AuthProvider extends ChangeNotifier {
           _profile = UserProfile.fromJson(newProfile);
         }
       }
+
+      // Set user context for error tracking
+      ErrorService.setUser(
+        userId: _user!.id,
+        email: _user!.email,
+        displayName: _profile?.displayName,
+      );
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading/creating profile: $e');
+      ErrorService.logError(e, message: 'Failed to load user profile');
     }
   }
 
@@ -216,6 +226,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    ErrorService.clearUser();
     await SupabaseService.client.auth.signOut();
   }
 

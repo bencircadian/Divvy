@@ -15,39 +15,65 @@ import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/bundle_provider.dart';
 import 'providers/dashboard_provider.dart';
+import 'providers/demo_provider.dart';
 import 'providers/household_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
 import 'services/cache_service.dart';
 import 'services/deep_link_service.dart';
+import 'services/error_service.dart';
 import 'services/push_notification_service.dart';
 import 'services/supabase_service.dart';
 import 'services/sync_manager.dart';
 import 'widgets/common/update_banner.dart';
 
+/// Sentry DSN for error monitoring.
+/// Set this to your Sentry project DSN, or leave empty to disable Sentry.
+const String _sentryDsn = String.fromEnvironment(
+  'SENTRY_DSN',
+  defaultValue: '',
+);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
 
-  // Initialize Firebase (only on mobile platforms)
-  if (!kIsWeb) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+  // Initialize with Sentry error monitoring if DSN is configured
+  if (_sentryDsn.isNotEmpty) {
+    await ErrorService.initialize(
+      dsn: _sentryDsn,
+      appRunner: () async {
+        await _initializeApp();
+        runApp(const DivvyApp());
+      },
     );
+  } else {
+    await _initializeApp();
+    runApp(const DivvyApp());
   }
+}
 
-  await SupabaseService.initialize();
-  await CacheService.initialize();
+/// Initialize core app services.
+Future<void> _initializeApp() async {
+  // Parallelize independent initializations for faster startup
+  await Future.wait([
+    // Initialize Firebase (only on mobile platforms)
+    if (!kIsWeb)
+      Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ),
+    SupabaseService.initialize(),
+    CacheService.initialize(),
+  ]);
 
-  // Initialize push notifications (only on mobile)
+  // Initialize push notifications (only on mobile, after Firebase)
   if (!kIsWeb) {
     await PushNotificationService.initialize();
   }
 
   // Initialize SyncManager to handle connectivity and sync coordination
   SyncManager.instance;
-  runApp(const DivvyApp());
 }
 
 class DivvyApp extends StatefulWidget {
@@ -106,6 +132,7 @@ class _DivvyAppState extends State<DivvyApp> {
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => BundleProvider()),
+        ChangeNotifierProvider(create: (_) => DemoProvider()),
       ],
       child: Builder(
         builder: (context) {

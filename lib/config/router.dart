@@ -12,6 +12,7 @@ import '../screens/notifications/notification_settings_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/settings/link_account_screen.dart';
 import '../screens/onboarding/create_household_screen.dart';
+import '../screens/onboarding/demo_board_screen.dart';
 import '../screens/onboarding/join_household_screen.dart';
 import '../screens/onboarding/quick_setup_screen.dart';
 import '../screens/tasks/create_task_screen.dart';
@@ -81,9 +82,10 @@ class AppRouter {
             state.matchedLocation == '/join-household';
         final isQuickSetup = state.matchedLocation == '/quick-setup';
         final isResetPassword = state.matchedLocation == '/reset-password';
+        final isDemo = state.matchedLocation == '/demo';
 
-        // Not authenticated -> go to login (allow reset-password for recovery flow)
-        if (!isAuthenticated && !isAuthRoute && !isResetPassword) {
+        // Not authenticated -> go to login (allow reset-password, demo for pre-auth access)
+        if (!isAuthenticated && !isAuthRoute && !isResetPassword && !isDemo) {
           return '/login';
         }
 
@@ -158,6 +160,15 @@ class AppRouter {
             context: context,
             state: state,
             child: const SignupScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/demo',
+          name: 'demo',
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const DemoBoardScreen(),
           ),
         ),
         GoRoute(

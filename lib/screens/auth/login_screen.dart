@@ -492,6 +492,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
+
+                      // Try demo link
+                      TextButton.icon(
+                        onPressed: () => context.go('/demo'),
+                        icon: Icon(
+                          Icons.play_circle_outline,
+                          size: 18,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                        label: Text(
+                          'Try the demo first',
+                          style: TextStyle(
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 20),
                     ],
                   ),
