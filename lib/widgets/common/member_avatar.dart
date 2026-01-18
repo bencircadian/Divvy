@@ -115,14 +115,13 @@ class _MemberAvatarState extends State<MemberAvatar> {
     if (_resolvedUrl != null) {
       if (kIsWeb) {
         // On web, use HtmlElementView to bypass CORS restrictions
-        avatar = ClipOval(
-          child: SizedBox(
-            width: widget.radius * 2,
-            height: widget.radius * 2,
-            child: _WebImage(
-              url: _resolvedUrl!,
-              size: widget.radius * 2,
-            ),
+        // Note: ClipOval doesn't work on HtmlElementView, so we apply CSS border-radius
+        avatar = SizedBox(
+          width: widget.radius * 2,
+          height: widget.radius * 2,
+          child: _WebImage(
+            url: _resolvedUrl!,
+            size: widget.radius * 2,
           ),
         );
       } else {
@@ -191,7 +190,8 @@ class _WebImage extends StatelessWidget {
           ..src = url
           ..style.width = '100%'
           ..style.height = '100%'
-          ..style.objectFit = 'cover';
+          ..style.objectFit = 'cover'
+          ..style.borderRadius = '50%';
         return img;
       },
     );
