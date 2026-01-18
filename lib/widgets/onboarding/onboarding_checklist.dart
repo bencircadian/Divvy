@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/app_theme.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../services/onboarding_progress_service.dart';
 
@@ -71,9 +72,11 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
 
   @override
   Widget build(BuildContext context) {
-    // Watch household provider for member count changes
+    // Watch providers for dynamic updates
     final householdProvider = context.watch<HouseholdProvider>();
+    final authProvider = context.watch<AuthProvider>();
     final memberCount = householdProvider.members.length;
+    final profile = authProvider.profile;
 
     // Auto-mark invite as complete if household has 2+ members
     final hasMultipleMembers = memberCount >= 2;
@@ -81,6 +84,19 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
       // Schedule this for after the build
       WidgetsBinding.instance.addPostFrameCallback((_) {
         OnboardingProgressService.markFirstMemberInvited();
+        if (mounted) setState(() {});
+      });
+    }
+
+    // Auto-mark profile as complete if user has both display name AND avatar
+    // (e.g., from Google sign-in which provides both)
+    final hasProfileFromOAuth = profile?.displayName != null &&
+        profile!.displayName!.isNotEmpty &&
+        profile.avatarUrl != null &&
+        profile.avatarUrl!.isNotEmpty;
+    if (hasProfileFromOAuth && !OnboardingProgressService.hasCompletedProfile) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        OnboardingProgressService.markProfileCompleted();
         if (mounted) setState(() {});
       });
     }
@@ -94,7 +110,8 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
 
     // Calculate progress including auto-completed items
     final hasInvited = OnboardingProgressService.hasInvitedFirstMember || hasMultipleMembers;
-    final completedCount = _getCompletedCount(hasInvited);
+    final hasProfile = OnboardingProgressService.hasCompletedProfile || hasProfileFromOAuth;
+    final completedCount = _getCompletedCount(hasInvited, hasProfile);
     final progress = completedCount / 3;
 
     return Container(
@@ -242,8 +259,10 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
                 _buildChecklistItem(
                   icon: Icons.person_outline,
                   title: 'Complete your profile',
-                  subtitle: 'Add your name and photo',
-                  isCompleted: OnboardingProgressService.hasCompletedProfile,
+                  subtitle: hasProfile
+                      ? 'Profile looks great!'
+                      : 'Add your name and photo',
+                  isCompleted: hasProfile,
                   onTap: widget.onProfileTap ?? () {
                     // Default: show a snackbar with instructions
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -262,11 +281,11 @@ class _OnboardingChecklistState extends State<OnboardingChecklist>
     );
   }
 
-  int _getCompletedCount(bool hasInvited) {
+  int _getCompletedCount(bool hasInvited, bool hasProfile) {
     int count = 0;
     if (OnboardingProgressService.hasCompletedFirstTask) count++;
     if (hasInvited) count++;
-    if (OnboardingProgressService.hasCompletedProfile) count++;
+    if (hasProfile) count++;
     return count;
   }
 
