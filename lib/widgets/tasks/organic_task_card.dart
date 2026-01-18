@@ -41,33 +41,49 @@ class _OrganicTaskCardState extends State<OrganicTaskCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _checkAnimation;
+  late Animation<double> _colorAnimation;
   bool _isAnimatingCompletion = false;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
+    // More pronounced bounce animation
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.15)
+        tween: Tween<double>(begin: 1.0, end: 1.4)
             .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 40,
+        weight: 30,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.15, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 60,
+        tween: Tween<double>(begin: 1.4, end: 0.9)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.9, end: 1.0)
+            .chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 40,
       ),
     ]).animate(_animationController);
 
+    // Checkmark pops in
     _checkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+        curve: const Interval(0.2, 0.6, curve: Curves.elasticOut),
+      ),
+    );
+
+    // Color fill animation
+    _colorAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
       ),
     );
   }
@@ -231,38 +247,50 @@ class _OrganicTaskCardState extends State<OrganicTaskCard>
                       child: AnimatedBuilder(
                         animation: _animationController,
                         builder: (context, child) {
+                          final isAnimating = _isAnimatingCompletion;
+                          final colorProgress = isAnimating ? _colorAnimation.value : (showAsCompleted ? 1.0 : 0.0);
+
                           return Transform.scale(
-                            scale: _scaleAnimation.value,
+                            scale: isAnimating ? _scaleAnimation.value : 1.0,
                             child: Container(
                               width: 24,
                               height: 24,
                               margin: const EdgeInsets.only(top: 2),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: showAsCompleted
-                                    ? AppColors.primary
-                                    : Colors.transparent,
-                                border: showAsCompleted
-                                    ? null
-                                    : Border.all(color: categoryColor, width: 2),
+                                color: Color.lerp(
+                                  Colors.transparent,
+                                  AppColors.success,
+                                  colorProgress,
+                                ),
+                                border: colorProgress < 1.0
+                                    ? Border.all(
+                                        color: Color.lerp(
+                                          categoryColor,
+                                          AppColors.success,
+                                          colorProgress,
+                                        )!,
+                                        width: 2,
+                                      )
+                                    : null,
+                                boxShadow: isAnimating && colorProgress > 0.5
+                                    ? [
+                                        BoxShadow(
+                                          color: AppColors.success.withValues(alpha: 0.4),
+                                          blurRadius: 8,
+                                          spreadRadius: 2,
+                                        ),
+                                      ]
+                                    : null,
                               ),
-                              child: showAsCompleted
-                                  ? AnimatedBuilder(
-                                      animation: _checkAnimation,
-                                      builder: (context, child) {
-                                        return Transform.scale(
-                                          scale: _isAnimatingCompletion
-                                              ? _checkAnimation.value
-                                              : 1.0,
-                                          child: Icon(
-                                            Icons.check,
-                                            size: 14,
-                                            color: isDark
-                                                ? const Color(0xFF102219)
-                                                : Colors.white,
-                                          ),
-                                        );
-                                      },
+                              child: colorProgress > 0.3
+                                  ? Transform.scale(
+                                      scale: isAnimating ? _checkAnimation.value : 1.0,
+                                      child: Icon(
+                                        Icons.check,
+                                        size: 14,
+                                        color: Colors.white,
+                                      ),
                                     )
                                   : null,
                             ),
