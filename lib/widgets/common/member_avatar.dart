@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:web/web.dart' as web;
 
 import '../../config/app_theme.dart';
 import '../../services/profile_avatar_service.dart';
+import 'member_avatar_web_stub.dart'
+    if (dart.library.html) 'member_avatar_web.dart' as web_image;
 
 /// A reusable member avatar widget showing initials or image.
 ///
@@ -105,19 +106,19 @@ class _MemberAvatarState extends State<MemberAvatar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bgColor = widget.backgroundColor ?? AppColors.primary.withValues(alpha: 0.15);
+    final bgColor =
+        widget.backgroundColor ?? AppColors.primary.withValues(alpha: 0.15);
     final fgColor = widget.foregroundColor ?? AppColors.primary;
 
     Widget avatar;
 
     if (_resolvedUrl != null) {
       if (kIsWeb) {
-        // On web, use HtmlElementView to bypass CORS restrictions
-        // Note: ClipOval doesn't work on HtmlElementView, so we apply CSS border-radius
+        // On web, use DOM manipulation to bypass CORS restrictions
         avatar = SizedBox(
           width: widget.radius * 2,
           height: widget.radius * 2,
-          child: _WebImage(
+          child: web_image.buildWebImage(
             key: ValueKey(_resolvedUrl),
             url: _resolvedUrl!,
             size: widget.radius * 2,
@@ -165,129 +166,6 @@ class _MemberAvatarState extends State<MemberAvatar> {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Web-specific image widget that overlays an HTML img element.
-/// Creates an absolutely positioned img element in the DOM and
-/// positions it over this widget using post-frame callbacks.
-class _WebImage extends StatefulWidget {
-  final String url;
-  final double size;
-  final Widget fallback;
-
-  const _WebImage({
-    super.key,
-    required this.url,
-    required this.size,
-    required this.fallback,
-  });
-
-  @override
-  State<_WebImage> createState() => _WebImageState();
-}
-
-class _WebImageState extends State<_WebImage> with WidgetsBindingObserver {
-  final GlobalKey _containerKey = GlobalKey();
-  web.HTMLImageElement? _imgElement;
-  bool _imageLoaded = false;
-  bool _imageError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _createAndPositionImage();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _removeImage();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_WebImage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.url != widget.url || oldWidget.size != widget.size) {
-      _removeImage();
-      setState(() {
-        _imageLoaded = false;
-        _imageError = false;
-      });
-      _createAndPositionImage();
-    }
-  }
-
-  @override
-  void didChangeMetrics() {
-    _updatePosition();
-  }
-
-  void _createAndPositionImage() {
-    _imgElement = web.HTMLImageElement()
-      ..src = widget.url
-      ..style.position = 'fixed'
-      ..style.width = '${widget.size}px'
-      ..style.height = '${widget.size}px'
-      ..style.objectFit = 'cover'
-      ..style.borderRadius = '50%'
-      ..style.pointerEvents = 'none'
-      ..style.zIndex = '1000'
-      ..style.opacity = '0'; // Start hidden
-
-    _imgElement!.onLoad.listen((_) {
-      if (mounted) {
-        setState(() => _imageLoaded = true);
-        _updatePosition();
-        _imgElement?.style.opacity = '1';
-      }
-    });
-
-    _imgElement!.onError.listen((_) {
-      if (mounted) {
-        setState(() => _imageError = true);
-        _removeImage();
-      }
-    });
-
-    web.document.body?.append(_imgElement!);
-
-    // Position after the frame is rendered
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updatePosition();
-    });
-  }
-
-  void _updatePosition() {
-    if (_imgElement == null || !mounted) return;
-
-    final renderBox = _containerKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null || !renderBox.attached) return;
-
-    final position = renderBox.localToGlobal(Offset.zero);
-    _imgElement!.style.left = '${position.dx}px';
-    _imgElement!.style.top = '${position.dy}px';
-  }
-
-  void _removeImage() {
-    _imgElement?.remove();
-    _imgElement = null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Always render the fallback as a placeholder for sizing
-    // The HTML img is positioned absolutely on top when loaded
-    return SizedBox(
-      key: _containerKey,
-      width: widget.size,
-      height: widget.size,
-      child: _imageLoaded && !_imageError
-          ? const SizedBox.shrink() // Empty when image is showing
-          : widget.fallback,
     );
   }
 }
