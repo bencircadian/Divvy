@@ -10,10 +10,32 @@ class TaskRecurrenceService {
   /// Creates the next occurrence of a recurring task.
   ///
   /// Called when a recurring task is completed.
+  /// Returns null if next occurrence already exists or creation fails.
   static Future<Task?> createNextOccurrence(Task completedTask) async {
     if (completedTask.recurrenceRule == null) return null;
 
     try {
+      // Determine the recurring chain root ID
+      final chainRootId = completedTask.parentTaskId ?? completedTask.id;
+
+      // Check if a pending task already exists in this recurrence chain
+      // This prevents duplicate tasks when toggling complete/incomplete
+      // Use limit(1) instead of maybeSingle() because multiple pending tasks
+      // might exist (e.g., both parent and child are pending after un-completing)
+      final existingPending = await SupabaseService.client
+          .from('tasks')
+          .select('id')
+          .eq('household_id', completedTask.householdId)
+          .eq('title', completedTask.title)
+          .eq('status', 'pending')
+          .or('parent_task_id.eq.$chainRootId,id.eq.$chainRootId')
+          .limit(1);
+
+      if ((existingPending as List).isNotEmpty) {
+        debugPrint('Next recurrence already exists, skipping creation');
+        return null;
+      }
+
       final nextDueDate = completedTask.recurrenceRule!.getNextOccurrence(
         completedTask.dueDate ?? DateTime.now(),
       );
@@ -31,7 +53,7 @@ class TaskRecurrenceService {
         'assigned_to': completedTask.assignedTo,
         'is_recurring': true,
         'recurrence_rule': completedTask.recurrenceRule!.toJson(),
-        'parent_task_id': completedTask.parentTaskId ?? completedTask.id,
+        'parent_task_id': chainRootId,
         'status': 'pending',
         'category': completedTask.category,
       }).select().single();
